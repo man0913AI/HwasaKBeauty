@@ -40,8 +40,8 @@
 
         body {
             font-family: var(--font-body);
-            background: var(--color-bg);
-            color: var(--color-text);
+            background: transparent;
+            color: var(--color-text-light);
             line-height: 1.6;
             overflow-x: hidden;
         }
@@ -66,13 +66,13 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(250, 250, 248, 0.82);
+            background: rgba(0, 0, 0, 0.15);
             pointer-events: none;
         }
 
         /* ========== SCROLLBAR ========== */
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: var(--color-bg); }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 2px; }
 
         /* ========== LOADING SCREEN ========== */
@@ -128,9 +128,10 @@
             background: transparent;
         }
         .header.scrolled {
-            background: rgba(250,250,248,0.85);
+            background: rgba(10,10,10,0.45);
             backdrop-filter: blur(20px);
-            border-color: var(--color-border);
+            -webkit-backdrop-filter: blur(20px);
+            border-color: var(--color-border-light);
         }
         .logo {
             display: flex;
@@ -141,7 +142,7 @@
             font-family: var(--font-display);
             font-size: 28px;
             font-weight: 300;
-            color: var(--color-text);
+            color: #fff;
             letter-spacing: 3px;
         }
         .logo-sub {
@@ -158,11 +159,11 @@
             font-size: 12px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: var(--color-muted);
+            color: rgba(255,255,255,0.6);
             transition: color 0.3s;
             font-weight: 500;
         }
-        .nav a:hover, .nav a.active { color: var(--color-text); }
+        .nav a:hover, .nav a.active { color: #fff; }
         .nav-cta {
             padding: 10px 24px;
             border: 1px solid var(--color-accent);
@@ -207,7 +208,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(10,10,10,0.45);
+            background: rgba(10,10,10,0.30);
             z-index: 0;
         }
         .hero-content {
@@ -358,9 +359,9 @@
         .reveal-right.visible { opacity: 1; transform: translateX(0); }
 
         /* ========== SECTION COMMON ========== */
-        .section { padding: 140px 48px; position: relative; }
-        .section-dark { background: rgba(10,10,10,0.88); color: var(--color-text-light); backdrop-filter: blur(8px); }
-        .section-cream { background: rgba(245,240,235,0.88); backdrop-filter: blur(8px); }
+        .section { padding: 140px 48px; position: relative; background: rgba(10,10,10,0.40); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .section-dark { background: rgba(10,10,10,0.55); color: var(--color-text-light); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .section-cream { background: rgba(20,20,18,0.50); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: var(--color-text-light); }
         .section-label {
             font-family: var(--font-nav);
             font-size: 11px;
@@ -375,13 +376,14 @@
             font-weight: 300;
             line-height: 1.2;
             margin-bottom: 24px;
+            color: #fff;
         }
         .section-title em { font-style: italic; }
         .section-desc {
             font-size: 15px;
             line-height: 1.9;
             font-weight: 300;
-            color: var(--color-muted);
+            color: rgba(255,255,255,0.6);
             max-width: 520px;
         }
         .section-dark .section-desc { color: rgba(255,255,255,0.5); }
@@ -417,7 +419,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            border: 1px solid var(--color-border);
+            border: 1px solid rgba(255,255,255,0.15);
             pointer-events: none;
         }
 
@@ -544,8 +546,8 @@
             padding: 80px;
         }
         .featured-text .btn-outline {
-            border-color: var(--color-text);
-            color: var(--color-text);
+            border-color: rgba(255,255,255,0.4);
+            color: #fff;
             align-self: flex-start;
             margin-top: 32px;
         }
@@ -609,10 +611,11 @@
 
         /* ========== FOOTER ========== */
         .footer {
-            background: rgba(10,10,10,0.92);
+            background: rgba(10,10,10,0.75);
             color: rgba(255,255,255,0.4);
             border-top: 1px solid rgba(255,255,255,0.08);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
         .footer-top {
             display: grid;
@@ -765,7 +768,7 @@
                     고객 한 분 한 분의 피부 상태를 정밀하게 분석하고,
                     맞춤형 솔루션을 제안합니다.
                 </p>
-                <a href="about.html" class="btn-outline" style="border-color: var(--color-text); color: var(--color-text); margin-top: 32px;">
+                <a href="about.html" class="btn-outline" style="border-color: rgba(255,255,255,0.4); color: #fff; margin-top: 32px;">
                     자세히보기 →
                 </a>
             </div>

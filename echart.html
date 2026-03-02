@@ -45,7 +45,7 @@
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             padding: 0 48px 0 20px; height: 80px;
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(10,10,10,0.35); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            background: transparent;
             border-bottom: none; transition: none;
         }
         .logo-mark {
@@ -106,7 +106,7 @@
 
         /* ========== PROGRESS BAR — 투명 ========== */
         .progress-section {
-            background: rgba(0,0,0,0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: transparent;
             padding: 20px 24px; position: sticky; top: 80px; z-index: 100;
             border-bottom: none;
         }
@@ -117,7 +117,7 @@
             border: 2px solid rgba(255,255,255,0.25);
             display: flex; align-items: center; justify-content: center;
             font-family: var(--font-nav); font-size: 12px; font-weight: 600;
-            color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.3);
+            color: rgba(255,255,255,0.5); background: transparent;
             transition: all 0.4s var(--ease-smooth); position: relative; z-index: 2;
         }
         .progress-step.active .dot {
@@ -176,7 +176,7 @@
         .form-input, .form-select, .form-textarea {
             width: 100%; padding: 14px 16px;
             border: 1px solid rgba(255,255,255,0.15); border-radius: 0;
-            background: rgba(0,0,0,0.2);
+            background: transparent;
             font-family: var(--font-body); font-size: 14px;
             color: #fff; transition: border-color 0.3s, box-shadow 0.3s;
             outline: none; -webkit-appearance: none;
@@ -201,9 +201,9 @@
             padding: 12px 16px;
             border: 1px solid rgba(255,255,255,0.1);
             cursor: pointer; transition: all 0.3s;
-            background: rgba(0,0,0,0.15);
+            background: transparent;
         }
-        .check-item:hover { border-color: rgba(255,255,255,0.25); background: rgba(0,0,0,0.25); }
+        .check-item:hover { border-color: rgba(255,255,255,0.25); background: transparent; }
         .check-item.selected {
             border-color: var(--color-accent);
             background: rgba(184,149,106,0.2);
@@ -232,7 +232,7 @@
         /* ========== VISIT CARD — 반투명 ========== */
         .visit-card {
             border: 1px solid rgba(255,255,255,0.1); padding: 24px; margin-bottom: 16px;
-            background: rgba(0,0,0,0.15);
+            background: transparent;
         }
         .visit-card-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -248,7 +248,7 @@
         /* ========== BOTTOM NAV — 반투명 ========== */
         .bottom-nav-full {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.15); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            background: transparent;
             border-top: 1px solid rgba(255,255,255,0.08); z-index: 200;
         }
         .bottom-nav-inner {

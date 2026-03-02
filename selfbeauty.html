@@ -50,7 +50,7 @@
 
         /* TV GRID */
         .tv-section { padding: 20px 48px 80px; }
-        .tv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; max-width: 1200px; margin: 0 auto; }
+        .tv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 56px; max-width: 840px; margin: 0 auto; }
 
         .tv-wrap {
             display: flex; flex-direction: column; align-items: center;
@@ -130,9 +130,38 @@
             .footer-top { grid-template-columns: 1fr; gap: 32px; padding: 60px 24px 40px; }
             .footer-bottom { flex-direction: column; gap: 16px; text-align: center; padding: 20px 24px; }
         }
+        .bg-video-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .bg-video-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        html, body { overflow: hidden; height: 100%; margin: 0; }
+        .scroll-container {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { scrollbar-width: none; }
     </style>
 </head>
 <body>
+    <div class="bg-video-wrap">
+        <video autoplay muted loop playsinline>
+            <source src="bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
     <header class="header">
         <a href="index.html" class="logo">
             <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">

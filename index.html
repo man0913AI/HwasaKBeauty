@@ -151,15 +151,21 @@
             color: var(--color-accent);
             margin-top: 2px;
         }
+        .logo-img {
+            height: 52px;
+            width: auto;
+            filter: invert(1) brightness(2);
+            transition: opacity 0.3s;
+        }
         .nav { display: flex; align-items: center; gap: 36px; }
         .nav a {
             font-family: var(--font-nav);
             font-size: 12px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.6);
+            color: #fff;
             transition: color 0.3s;
-            font-weight: 500;
+            font-weight: 700;
         }
         .nav a:hover, .nav a.active { color: #fff; }
         .nav-cta {
@@ -707,13 +713,11 @@
     <!-- HEADER -->
     <header class="header" id="header">
         <a href="index.html" class="logo">
-            <div>
-                <div class="logo-mark">Hwasa</div>
-                <div class="logo-sub">Korean Skin Care</div>
-            </div>
+            <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
         </a>
         <nav class="nav" id="nav">
             <a href="index.html" class="active">Home</a>
+            <a href="diploma.html">Diploma</a>
             <a href="program.html">Program</a>
             <a href="echart.html">E-Chart</a>
             <a href="about.html">About</a>
@@ -868,6 +872,7 @@
                 <h4>Menu</h4>
                 <ul>
                     <li><a href="index.html">Home</a></li>
+                    <li><a href="diploma.html">Diploma</a></li>
                     <li><a href="program.html">Program</a></li>
                     <li><a href="echart.html">E-Chart</a></li>
                     <li><a href="about.html">About</a></li>

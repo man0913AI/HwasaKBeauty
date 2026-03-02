@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Uploader - HwasaKBeauty</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, sans-serif; background:#0d1117; color:#c9d1d9; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+.container { max-width:600px; width:90%; padding:40px; background:#161b22; border:1px solid #30363d; border-radius:12px; }
+h1 { font-size:20px; color:#58a6ff; margin-bottom:8px; }
+p.sub { font-size:13px; color:#8b949e; margin-bottom:24px; }
+.drop-zone { border:2px dashed #30363d; border-radius:8px; padding:40px; text-align:center; cursor:pointer; transition:all 0.3s; margin-bottom:16px; }
+.drop-zone:hover, .drop-zone.active { border-color:#58a6ff; background:rgba(88,166,255,0.05); }
+.drop-zone p { font-size:14px; color:#8b949e; }
+.file-list { margin-bottom:24px; }
+.file-item { display:flex; justify-content:space-between; padding:8px 12px; background:#0d1117; border-radius:6px; margin-bottom:6px; font-size:13px; }
+.file-item .name { color:#c9d1d9; }
+.file-item .size { color:#8b949e; }
+.btn { width:100%; padding:12px; background:#238636; color:#fff; border:none; border-radius:6px; font-size:15px; font-weight:600; cursor:pointer; transition:background 0.3s; }
+.btn:hover { background:#2ea043; }
+.btn:disabled { background:#21262d; color:#484f58; cursor:not-allowed; }
+.log { margin-top:16px; background:#0d1117; border-radius:6px; padding:12px; font-size:12px; font-family:monospace; max-height:200px; overflow-y:auto; display:none; }
+.log .ok { color:#3fb950; }
+.log .err { color:#f85149; }
+.log .info { color:#58a6ff; }
+.progress { margin-top:12px; display:none; }
+.progress-bar { height:4px; background:#21262d; border-radius:2px; overflow:hidden; }
+.progress-fill { height:100%; background:#238636; width:0%; transition:width 0.3s; }
+.warn { background:#1c1208; border:1px solid #5a3e08; border-radius:6px; padding:10px 12px; font-size:12px; color:#d29922; margin-top:16px; display:none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🚀 GitHub File Uploader</h1>
+  <p class="sub">man0913AI/HwasaKBeauty 레포에 파일 업로드</p>
+  
+  <div class="drop-zone" id="dropZone" onclick="fileInput.click()">
+    <p>📁 파일을 드래그하거나 클릭하여 선택<br><small>index.html, echart.html, bg-video.mp4</small></p>
+    <input type="file" id="fileInput" multiple style="display:none">
+  </div>
+  
+  <div class="file-list" id="fileList"></div>
+  
+  <button class="btn" id="uploadBtn" disabled onclick="uploadAll()">Upload to GitHub</button>
+  
+  <div class="progress" id="progress">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  
+  <div class="log" id="log"></div>
+  
+  <div class="warn" id="warn">
+    ⚠️ 업로드 완료 후 보안을 위해 PAT 토큰을 삭제하세요:<br>
+    <a href="https://github.com/settings/tokens" target="_blank" style="color:#58a6ff;">GitHub Settings → Tokens</a>
+  </div>
+</div>
+
+<script>
+const TOKEN = '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';
+const REPO = 'man0913AI/HwasaKBeauty';
+const API = 'https://api.github.com/repos/' + REPO + '/contents/';
+
+let selectedFiles = [];
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+const uploadBtn = document.getElementById('uploadBtn');
+const logEl = document.getElementById('log');
+const progressEl = document.getElementById('progress');
+const progressFill = document.getElementById('progressFill');
+
+// Drag & drop
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('active');
+  handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(files) {
+  selectedFiles = [...files];
+  fileList.innerHTML = '';
+  selectedFiles.forEach(f => {
+    const size = f.size > 1024*1024 ? (f.size/1024/1024).toFixed(1)+'MB' : (f.size/1024).toFixed(1)+'KB';
+    fileList.innerHTML += '<div class="file-item"><span class="name">'+f.name+'</span><span class="size">'+size+'</span></div>';
+  });
+  uploadBtn.disabled = selectedFiles.length === 0;
+}
+
+function log(msg, cls) {
+  logEl.style.display = 'block';
+  logEl.innerHTML += '<div class="'+cls+'">'+msg+'</div>';
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadFile(file, index, total) {
+  log('⏳ Uploading ' + file.name + '...', 'info');
+  
+  const b64 = await fileToBase64(file);
+  
+  // Check if file already exists
+  let sha = null;
+  try {
+    const check = await fetch(API + file.name, {
+      headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (check.ok) {
+      const existing = await check.json();
+      sha = existing.sha;
+      log('  ↻ File exists, updating...', 'info');
+    }
+  } catch(e) {}
+  
+  const body = { message: 'Add ' + file.name, content: b64 };
+  if (sha) body.sha = sha;
+  
+  const resp = await fetch(API + file.name, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'token ' + TOKEN,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  
+  if (resp.ok) {
+    log('✅ ' + file.name + ' uploaded!', 'ok');
+  } else {
+    const err = await resp.json();
+    log('❌ ' + file.name + ': ' + err.message, 'err');
+    throw new Error(err.message);
+  }
+  
+  progressFill.style.width = ((index+1)/total*100) + '%';
+}
+
+async function uploadAll() {
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'Uploading...';
+  progressEl.style.display = 'block';
+  logEl.innerHTML = '';
+  logEl.style.display = 'block';
+  
+  log('🔑 Authenticating...', 'info');
+  
+  try {
+    const authResp = await fetch('https://api.github.com/user', {
+      headers: { 'Authorization': 'token ' + TOKEN }
+    });
+    if (!authResp.ok) throw new Error('Authentication failed');
+    const user = await authResp.json();
+    log('✅ Authenticated as ' + user.login, 'ok');
+    
+    for (let i = 0; i < selectedFiles.length; i++) {
+      await uploadFile(selectedFiles[i], i, selectedFiles.length);
+    }
+    
+    log('🎉 All files uploaded! GitHub Pages: https://man0913ai.github.io/HwasaKBeauty/', 'ok');
+    uploadBtn.textContent = '✅ Complete!';
+    document.getElementById('warn').style.display = 'block';
+    
+  } catch(e) {
+    log('❌ Error: ' + e.message, 'err');
+    uploadBtn.textContent = 'Retry Upload';
+    uploadBtn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

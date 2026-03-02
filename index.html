@@ -66,7 +66,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.15);
+            background: rgba(0, 0, 0, 0.08);
             pointer-events: none;
         }
 
@@ -123,14 +123,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
+            transition: background 0.4s, border-color 0.4s;
             border-bottom: 1px solid transparent;
             background: transparent;
         }
         .header.scrolled {
-            background: rgba(10,10,10,0.45);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(10,10,10,0.35);
             border-color: var(--color-border-light);
         }
         .logo {
@@ -208,7 +206,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(10,10,10,0.30);
+            background: rgba(10,10,10,0.20);
             z-index: 0;
         }
         .hero-content {
@@ -359,9 +357,9 @@
         .reveal-right.visible { opacity: 1; transform: translateX(0); }
 
         /* ========== SECTION COMMON ========== */
-        .section { padding: 140px 48px; position: relative; background: rgba(10,10,10,0.40); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-        .section-dark { background: rgba(10,10,10,0.55); color: var(--color-text-light); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .section-cream { background: rgba(20,20,18,0.50); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: var(--color-text-light); }
+        .section { padding: 140px 48px; position: relative; background: rgba(10,10,10,0.25); }
+        .section-dark { background: rgba(10,10,10,0.35); color: var(--color-text-light); }
+        .section-cream { background: rgba(20,20,18,0.30); color: var(--color-text-light); }
         .section-label {
             font-family: var(--font-nav);
             font-size: 11px;
@@ -611,11 +609,9 @@
 
         /* ========== FOOTER ========== */
         .footer {
-            background: rgba(10,10,10,0.75);
+            background: rgba(10,10,10,0.55);
             color: rgba(255,255,255,0.4);
             border-top: 1px solid rgba(255,255,255,0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
         }
         .footer-top {
             display: grid;

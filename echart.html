@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Chart | Hwasa K-Beauty 전자차트</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-accent: #B8956A;
+            --color-accent-light: #D4B896;
+            --color-success: #4CAF50;
+            --color-danger: #E57373;
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Noto Sans KR', sans-serif;
+            --font-nav: 'Instrument Sans', sans-serif;
+            --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+        body { font-family: var(--font-body); background: #000; color: #fff; line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+        button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+        /* ========== BACKGROUND VIDEO — 풀스크린, 오버레이 없음 ========== */
+        .bg-video-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-video-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        /* 오버레이/블러 없음 — 영상 그대로 표시 */
+
+        /* ========== HEADER — 완전 투명 ========== */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 0 48px; height: 80px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: transparent;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .logo-mark {
+            font-family: var(--font-display); font-size: 28px; font-weight: 300;
+            color: #fff; letter-spacing: 3px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+        .logo-sub {
+            font-family: var(--font-nav); font-size: 9px; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--color-accent-light); margin-top: 2px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+        }
+        .nav { display: flex; align-items: center; gap: 36px; }
+        .nav a {
+            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
+            text-transform: uppercase; color: rgba(255,255,255,0.75);
+            transition: color 0.3s; font-weight: 500;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+        }
+        .nav a:hover, .nav a.active { color: #fff; }
+        .nav-cta {
+            padding: 10px 24px; border: 1px solid var(--color-accent);
+            color: var(--color-accent) !important; font-size: 11px !important;
+            letter-spacing: 2px; transition: all 0.3s !important;
+            text-shadow: none !important;
+        }
+        .nav-cta:hover { background: var(--color-accent); color: #fff !important; }
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 1px; background: #fff; }
+
+        /* ========== WRAPPER ========== */
+        .echart-wrapper {
+            position: relative; z-index: 1;
+            margin-top: 80px; min-height: calc(100vh - 80px);
+            display: flex; flex-direction: column;
+        }
+
+        /* ========== ECHART HEADER — 투명 ========== */
+        .echart-header {
+            background: transparent;
+            padding: 48px 24px 32px; text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .echart-header .label {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
+            text-transform: uppercase; color: var(--color-accent-light); margin-bottom: 12px;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+        }
+        .echart-header h1 {
+            font-family: var(--font-display); font-size: clamp(28px, 4vw, 42px);
+            font-weight: 300; color: #fff; margin-bottom: 8px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+        }
+        .echart-header h1 em { font-style: italic; color: var(--color-accent-light); }
+        .echart-header p {
+            font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 300;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+        }
+
+        /* ========== PROGRESS BAR — 투명 ========== */
+        .progress-section {
+            background: rgba(0,0,0,0.25);
+            padding: 20px 24px; position: sticky; top: 80px; z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .progress-bar-wrapper { max-width: 700px; margin: 0 auto; display: flex; align-items: center; }
+        .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .progress-step .dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.25);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-nav); font-size: 12px; font-weight: 600;
+            color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.3);
+            transition: all 0.4s var(--ease-smooth); position: relative; z-index: 2;
+        }
+        .progress-step.active .dot {
+            border-color: var(--color-accent); color: #fff;
+            background: var(--color-accent); box-shadow: 0 0 24px rgba(184,149,106,0.5);
+        }
+        .progress-step.done .dot { border-color: var(--color-success); color: #fff; background: var(--color-success); }
+        .progress-step .step-label {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 1px;
+            text-transform: uppercase; color: rgba(255,255,255,0.4);
+            margin-top: 8px; white-space: nowrap;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+        }
+        .progress-step.active .step-label { color: var(--color-accent-light); }
+        .progress-step.done .step-label { color: var(--color-success); }
+        .progress-line {
+            flex: 1; height: 2px; background: rgba(255,255,255,0.1);
+            position: relative; margin: 0 -8px; align-self: flex-start; margin-top: 15px;
+        }
+        .progress-line .fill {
+            position: absolute; top: 0; left: 0; height: 100%; width: 0;
+            background: var(--color-accent); transition: width 0.5s var(--ease-smooth);
+        }
+        .progress-line.done .fill { width: 100%; background: var(--color-success); }
+
+        /* ========== FORM AREA ========== */
+        .form-area { flex: 1; padding: 40px 24px 120px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .form-page {
+            display: none; opacity: 0; transform: translateX(30px);
+            transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+        }
+        .form-page.active { display: block; opacity: 1; transform: translateX(0); }
+        .page-title {
+            font-family: var(--font-display); font-size: 28px; font-weight: 400;
+            margin-bottom: 8px; color: #fff;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+        }
+        .page-title em { font-style: italic; color: var(--color-accent-light); }
+        .page-subtitle {
+            font-size: 13px; color: rgba(255,255,255,0.55);
+            margin-bottom: 36px; font-weight: 300;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+        }
+
+        /* ========== FORM ELEMENTS — 반투명 ========== */
+        .form-group { margin-bottom: 24px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-label {
+            display: block; font-family: var(--font-nav); font-size: 11px;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: rgba(255,255,255,0.6); margin-bottom: 8px; font-weight: 600;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+        .form-label .required { color: var(--color-danger); margin-left: 2px; }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 0;
+            background: rgba(0,0,0,0.35);
+            font-family: var(--font-body); font-size: 14px;
+            color: #fff; transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none; -webkit-appearance: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(184,149,106,0.2);
+        }
+        .form-input::placeholder { color: rgba(255,255,255,0.3); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;
+        }
+        .form-select option { background: #1a1a1a; color: #fff; }
+
+        /* ========== CHECK ITEMS — 반투명 ========== */
+        .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        .check-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer; transition: all 0.3s;
+            background: rgba(0,0,0,0.25);
+        }
+        .check-item:hover { border-color: rgba(255,255,255,0.25); background: rgba(0,0,0,0.35); }
+        .check-item.selected {
+            border-color: var(--color-accent);
+            background: rgba(184,149,106,0.2);
+        }
+        .check-item input { display: none; }
+        .check-dot {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.25);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; flex-shrink: 0;
+        }
+        .check-item.selected .check-dot { border-color: var(--color-accent); background: var(--color-accent); }
+        .check-dot::after { content: '✓'; font-size: 10px; color: #fff; opacity: 0; transition: opacity 0.2s; }
+        .check-item.selected .check-dot::after { opacity: 1; }
+        .check-square .check-dot { border-radius: 4px; }
+        .check-label { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.8); }
+
+        .form-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 32px 0; }
+        .form-section-title {
+            font-family: var(--font-nav); font-size: 12px; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--color-accent-light);
+            margin-bottom: 20px; font-weight: 600;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+        }
+
+        /* ========== VISIT CARD — 반투명 ========== */
+        .visit-card {
+            border: 1px solid rgba(255,255,255,0.1); padding: 24px; margin-bottom: 16px;
+            background: rgba(0,0,0,0.2);
+        }
+        .visit-card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .visit-card-date { font-family: var(--font-nav); font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #fff; }
+        .visit-card-badge {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 1px;
+            text-transform: uppercase; padding: 4px 12px;
+            background: rgba(184,149,106,0.25); color: var(--color-accent-light);
+        }
+
+        /* ========== BOTTOM NAV — 반투명 ========== */
+        .bottom-nav-full {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.3);
+            border-top: 1px solid rgba(255,255,255,0.08); z-index: 200;
+        }
+        .bottom-nav-inner {
+            max-width: 800px; margin: 0 auto; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .page-indicator { font-family: var(--font-nav); font-size: 12px; letter-spacing: 1px; color: rgba(255,255,255,0.5); }
+        .page-indicator strong { color: var(--color-accent-light); }
+        .btn-nav {
+            padding: 12px 32px; font-family: var(--font-nav); font-size: 12px;
+            letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+            transition: all 0.3s var(--ease-smooth);
+        }
+        .btn-prev { color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); background: transparent; }
+        .btn-prev:hover { border-color: #fff; color: #fff; }
+        .btn-next { background: var(--color-accent); color: #fff; }
+        .btn-next:hover { background: #A07D56; }
+        .btn-submit { background: var(--color-success); color: #fff; padding: 12px 40px; }
+        .btn-submit:hover { background: #43A047; }
+
+        /* ========== SUCCESS ========== */
+        .success-screen { display: none; text-align: center; padding: 80px 24px; }
+        .success-screen.active { display: block; }
+        .success-icon {
+            width: 80px; height: 80px; border-radius: 50%; background: var(--color-success);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px; font-size: 36px; color: #fff;
+        }
+        .success-screen h2 { font-family: var(--font-display); font-size: 32px; font-weight: 400; margin-bottom: 12px; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        .success-screen p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.8; }
+        .btn-home {
+            display: inline-block; margin-top: 32px; padding: 14px 40px;
+            border: 1px solid rgba(255,255,255,0.3); color: #fff; font-family: var(--font-nav);
+            font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+            transition: all 0.3s; background: transparent;
+        }
+        .btn-home:hover { background: #fff; color: #000; }
+
+        #summaryContent {
+            background: rgba(0,0,0,0.25) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .header { padding: 0 20px; height: 64px; }
+            .nav { display: none; }
+            .menu-toggle { display: flex; }
+            .echart-wrapper { margin-top: 64px; }
+            .progress-section { top: 64px; padding: 16px; }
+            .progress-step .step-label { font-size: 8px; letter-spacing: 0.5px; }
+            .progress-step .dot { width: 28px; height: 28px; font-size: 11px; }
+            .form-area { padding: 28px 16px 100px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .check-grid { grid-template-columns: 1fr 1fr; }
+            .page-title { font-size: 24px; }
+            .echart-header { padding: 32px 16px 24px; }
+        }
+        @media (max-width: 400px) { .check-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- BACKGROUND VIDEO — 풀스크린, 선명하게 -->
+    <div class="bg-video-wrap">
+        <video autoplay muted loop playsinline>
+            <source src="bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <header class="header">
+        <a href="index.html" class="logo"><div><div class="logo-mark">Hwasa</div><div class="logo-sub">Korean Skin Care</div></div></a>
+        <nav class="nav" id="nav">
+            <a href="index.html">Home</a><a href="program.html">Program</a><a href="echart.html" class="active">E-Chart</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="erp.html">ERP</a><a href="echart.html" class="nav-cta">상담 예약</a>
+        </nav>
+        <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    </header>
+
+    <div class="echart-wrapper">
+        <div class="echart-header">
+            <div class="label">Electronic Chart</div>
+            <h1>e-Chart <em>고객 관리</em></h1>
+            <p>고객님의 정보를 선택하고, 방문 시마다 관리 기록을 남겨주세요.</p>
+        </div>
+
+        <div class="progress-section"><div class="progress-bar-wrapper">
+            <div class="progress-step active" onclick="goToPage(1)"><div class="dot">1</div><div class="step-label">기본 정보</div></div>
+            <div class="progress-line" id="line1"><div class="fill"></div></div>
+            <div class="progress-step" onclick="goToPage(2)"><div class="dot">2</div><div class="step-label">피부 분석</div></div>
+            <div class="progress-line" id="line2"><div class="fill"></div></div>
+            <div class="progress-step" onclick="goToPage(3)"><div class="dot">3</div><div class="step-label">관리 부위</div></div>
+            <div class="progress-line" id="line3"><div class="fill"></div></div>
+            <div class="progress-step" onclick="goToPage(4)"><div class="dot">4</div><div class="step-label">시술 기록</div></div>
+            <div class="progress-line" id="line4"><div class="fill"></div></div>
+            <div class="progress-step" onclick="goToPage(5)"><div class="dot">5</div><div class="step-label">완료</div></div>
+        </div></div>
+
+        <div class="form-area">
+            <!-- PAGE 1 -->
+            <div class="form-page active" id="page1">
+                <h2 class="page-title">기본 <em>정보</em></h2><p class="page-subtitle">고객님의 기본 정보를 입력해 주세요.</p>
+                <div class="form-group form-row"><div><label class="form-label">이름 (한글)<span class="required">*</span></label><input type="text" class="form-input" id="nameKr" placeholder="홍길동"></div><div><label class="form-label">이름 (영문/베트남어)</label><input type="text" class="form-input" id="nameEn" placeholder="Hong Gildong"></div></div>
+                <div class="form-group form-row"><div><label class="form-label">전화번호<span class="required">*</span></label><input type="tel" class="form-input" id="phone" placeholder="0xx-xxxx-xxxx"></div><div><label class="form-label">생년월일<span class="required">*</span></label><input type="date" class="form-input" id="birthdate"></div></div>
+                <div class="form-group form-row"><div><label class="form-label">성별<span class="required">*</span></label><select class="form-select" id="gender"><option value="">선택</option><option value="female">여성</option><option value="male">남성</option></select></div><div><label class="form-label">국적</label><select class="form-select" id="nationality"><option value="">선택</option><option value="korean">한국</option><option value="vietnamese">베트남</option><option value="japanese">일본</option><option value="chinese">중국</option><option value="other">기타</option></select></div></div>
+                <div class="form-divider"></div>
+                <div class="form-group form-row"><div><label class="form-label">최초 방문일</label><input type="date" class="form-input" id="firstVisit"></div><div><label class="form-label">방문 경로</label><select class="form-select" id="visitSource"><option value="">선택</option><option value="instagram">인스타그램</option><option value="kakao">카카오톡</option><option value="referral">지인 소개</option><option value="blog">블로그/검색</option><option value="facebook">페이스북</option><option value="walk-in">매장 방문</option><option value="other">기타</option></select></div></div>
+                <div class="form-group form-row"><div><label class="form-label">거주 지역</label><select class="form-select" id="area"><option value="">선택</option><option value="myddinh">미딩 (Mỹ Đình)</option><option value="caugiay">꺼우저이 (Cầu Giấy)</option><option value="dongda">동다 (Đống Đa)</option><option value="hoankiem">호안끼엠 (Hoàn Kiếm)</option><option value="tayho">떠이호 (Tây Hồ)</option><option value="longbien">롱비엔 (Long Biên)</option><option value="hadong">하동 (Hà Đông)</option><option value="namtuliem">남뜨리엠 (Nam Từ Liêm)</option><option value="bactuliem">박뜨리엠 (Bắc Từ Liêm)</option><option value="thanhxuan">타인쑤언 (Thanh Xuân)</option><option value="other">기타</option></select></div><div><label class="form-label">연령대</label><select class="form-select" id="ageRange"><option value="">선택</option><option value="10s">10대</option><option value="20s">20대</option><option value="30s">30대</option><option value="40s">40대</option><option value="50s">50대</option><option value="60+">60대 이상</option></select></div></div>
+            </div>
+
+            <!-- PAGE 2 -->
+            <div class="form-page" id="page2">
+                <h2 class="page-title">피부 <em>분석</em></h2><p class="page-subtitle">고객님의 피부 상태와 건강 정보를 선택해 주세요.</p>
+                <div class="form-section-title">피부 타입</div>
+                <div class="form-group"><div class="check-grid" id="skinType">
+                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="dry"><div class="check-dot"></div><span class="check-label">건성</span></label>
+                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="oily"><div class="check-dot"></div><span class="check-label">지성</span></label>
+                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="combination"><div class="check-dot"></div><span class="check-label">복합성</span></label>
+                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="sensitive"><div class="check-dot"></div><span class="check-label">민감성</span></label>
+                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="normal"><div class="check-dot"></div><span class="check-label">중성</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">피부 고민 (복수 선택)</div>
+                <div class="form-group"><div class="check-grid check-square" id="skinConcerns">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="wrinkle"><div class="check-dot"></div><span class="check-label">주름/탄력</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="pigment"><div class="check-dot"></div><span class="check-label">색소/기미</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="acne"><div class="check-dot"></div><span class="check-label">여드름/트러블</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="pore"><div class="check-dot"></div><span class="check-label">모공</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="redness"><div class="check-dot"></div><span class="check-label">홍조/붉은기</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="dryness"><div class="check-dot"></div><span class="check-label">건조/각질</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="whitening"><div class="check-dot"></div><span class="check-label">미백/톤업</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="lifting"><div class="check-dot"></div><span class="check-label">리프팅/처짐</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="scar"><div class="check-dot"></div><span class="check-label">흉터/자국</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="dark-circle"><div class="check-dot"></div><span class="check-label">다크서클</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="elasticity"><div class="check-dot"></div><span class="check-label">탄력 저하</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="freckle"><div class="check-dot"></div><span class="check-label">주근깨</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">알레르기 / 건강 상태 (복수 선택)</div>
+                <div class="form-group"><div class="check-grid check-square" id="allergyList">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="none"><div class="check-dot"></div><span class="check-label">해당 없음</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="metal"><div class="check-dot"></div><span class="check-label">금속 알레르기</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="cosmetic"><div class="check-dot"></div><span class="check-label">화장품 알레르기</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="fragrance"><div class="check-dot"></div><span class="check-label">향료 과민</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="alcohol"><div class="check-dot"></div><span class="check-label">알코올 과민</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="latex"><div class="check-dot"></div><span class="check-label">라텍스 알레르기</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="food"><div class="check-dot"></div><span class="check-label">식품 알레르기</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="atopy"><div class="check-dot"></div><span class="check-label">아토피/습진</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="allergy-other"><div class="check-dot"></div><span class="check-label">기타</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">복용 중 약물 (복수 선택)</div>
+                <div class="form-group"><div class="check-grid check-square" id="medicationList">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="med-none"><div class="check-dot"></div><span class="check-label">해당 없음</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="retinol"><div class="check-dot"></div><span class="check-label">레티놀/트레티노인</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="isotretinoin"><div class="check-dot"></div><span class="check-label">로아큐탄</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="steroid"><div class="check-dot"></div><span class="check-label">스테로이드</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="antibiotic"><div class="check-dot"></div><span class="check-label">항생제</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="blood-thinner"><div class="check-dot"></div><span class="check-label">혈액 희석제</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="hormone"><div class="check-dot"></div><span class="check-label">호르몬제/피임약</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="blood-pressure"><div class="check-dot"></div><span class="check-label">고혈압/당뇨약</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="supplement"><div class="check-dot"></div><span class="check-label">건강보조식품</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="med-other"><div class="check-dot"></div><span class="check-label">기타</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">사용 중인 스킨케어 브랜드 (복수 선택)</div>
+                <div class="form-group"><div class="check-grid check-square" id="skincareBrand">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="sulwhasoo"><div class="check-dot"></div><span class="check-label">설화수</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="laneige"><div class="check-dot"></div><span class="check-label">라네즈</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="innisfree"><div class="check-dot"></div><span class="check-label">이니스프리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="skii"><div class="check-dot"></div><span class="check-label">SK-II</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="cosrx"><div class="check-dot"></div><span class="check-label">COSRX</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="drjart"><div class="check-dot"></div><span class="check-label">닥터자르트</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="amorepacific"><div class="check-dot"></div><span class="check-label">아모레퍼시픽</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="brand-other"><div class="check-dot"></div><span class="check-label">기타</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">특이 사항 (복수 선택)</div>
+                <div class="form-group"><div class="check-grid check-square" id="specialCondition">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="cond-none"><div class="check-dot"></div><span class="check-label">해당 없음</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="pregnant"><div class="check-dot"></div><span class="check-label">임신 중</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="breastfeeding"><div class="check-dot"></div><span class="check-label">수유 중</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="laser-recent"><div class="check-dot"></div><span class="check-label">최근 레이저 시술</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="surgery-recent"><div class="check-dot"></div><span class="check-label">최근 피부 수술</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="keloid"><div class="check-dot"></div><span class="check-label">켈로이드 체질</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="sun-sensitive"><div class="check-dot"></div><span class="check-label">광과민증</span></label>
+                </div></div>
+            </div>
+
+            <!-- PAGE 3 -->
+            <div class="form-page" id="page3">
+                <h2 class="page-title">관리 <em>부위</em></h2><p class="page-subtitle">관리가 필요한 부위와 희망 프로그램을 선택해 주세요.</p>
+                <div class="form-section-title">얼굴 부위</div>
+                <div class="form-group"><div class="check-grid check-square" id="faceArea">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="forehead"><div class="check-dot"></div><span class="check-label">이마</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="eye"><div class="check-dot"></div><span class="check-label">눈가</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="nose"><div class="check-dot"></div><span class="check-label">코</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="cheek"><div class="check-dot"></div><span class="check-label">볼/광대</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="mouth"><div class="check-dot"></div><span class="check-label">입가/팔자</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="chin"><div class="check-dot"></div><span class="check-label">턱선/턱</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="neck"><div class="check-dot"></div><span class="check-label">목/데콜테</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="scalp"><div class="check-dot"></div><span class="check-label">두피</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">바디 부위</div>
+                <div class="form-group"><div class="check-grid check-square" id="bodyArea">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="back"><div class="check-dot"></div><span class="check-label">등</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="shoulder"><div class="check-dot"></div><span class="check-label">어깨</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="arm"><div class="check-dot"></div><span class="check-label">팔</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="abdomen"><div class="check-dot"></div><span class="check-label">복부</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="hip"><div class="check-dot"></div><span class="check-label">힙/골반</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="leg"><div class="check-dot"></div><span class="check-label">다리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="foot"><div class="check-dot"></div><span class="check-label">발</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">희망 관리 프로그램</div>
+                <div class="form-group"><div class="check-grid check-square" id="programs">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="facial-basic"><div class="check-dot"></div><span class="check-label">기본 페이셜</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="deep-cleansing"><div class="check-dot"></div><span class="check-label">딥클렌징</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="lifting-care"><div class="check-dot"></div><span class="check-label">리프팅 관리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="whitening-care"><div class="check-dot"></div><span class="check-label">미백 관리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="acne-care"><div class="check-dot"></div><span class="check-label">여드름 관리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="moisture"><div class="check-dot"></div><span class="check-label">수분/보습 관리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="body-massage"><div class="check-dot"></div><span class="check-label">바디 마사지</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="meridian"><div class="check-dot"></div><span class="check-label">경락 관리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="regeneration"><div class="check-dot"></div><span class="check-label">재생 관리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="special"><div class="check-dot"></div><span class="check-label">특수 관리</span></label>
+                </div></div>
+                <div class="form-divider"></div>
+                <div class="form-section-title">선호 관리 시간대</div>
+                <div class="form-group"><div class="check-grid" id="preferTime">
+                    <label class="check-item" onclick="toggleRadio(this,'preferTime')"><input type="radio" name="preferTime" value="morning"><div class="check-dot"></div><span class="check-label">오전 (9-12시)</span></label>
+                    <label class="check-item" onclick="toggleRadio(this,'preferTime')"><input type="radio" name="preferTime" value="afternoon"><div class="check-dot"></div><span class="check-label">오후 (12-15시)</span></label>
+                    <label class="check-item" onclick="toggleRadio(this,'preferTime')"><input type="radio" name="preferTime" value="evening"><div class="check-dot"></div><span class="check-label">저녁 (15-19시)</span></label>
+                </div></div>
+            </div>
+
+            <!-- PAGE 4 -->
+            <div class="form-page" id="page4">
+                <h2 class="page-title">시술 <em>기록</em></h2><p class="page-subtitle">오늘 방문 기록을 남겨주세요.</p>
+                <div class="visit-card">
+                    <div class="visit-card-header"><span class="visit-card-date" id="todayDate"></span><span class="visit-card-badge">금일 방문</span></div>
+                    <div class="form-group form-row"><div><label class="form-label">방문 회차</label><select class="form-select" id="visitCount"><option value="">선택</option><option value="1">1회차 (첫 방문)</option><option value="2">2회차</option><option value="3">3회차</option><option value="4">4회차</option><option value="5">5회차</option><option value="6">6~10회차</option><option value="11">11회차 이상</option></select></div><div><label class="form-label">담당자</label><select class="form-select" id="therapist"><option value="">선택</option><option value="director">원장</option><option value="staff1">스태프 1</option><option value="staff2">스태프 2</option></select></div></div>
+                    <div class="form-divider"></div>
+                    <div class="form-section-title">시술 항목 (복수 선택)</div>
+                    <div class="form-group"><div class="check-grid check-square" id="treatmentItems">
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="cleansing"><div class="check-dot"></div><span class="check-label">클렌징</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="scrub"><div class="check-dot"></div><span class="check-label">스크럽/필링</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="steam"><div class="check-dot"></div><span class="check-label">스팀/스킨스크러버</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="extraction"><div class="check-dot"></div><span class="check-label">압출</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="ampoule"><div class="check-dot"></div><span class="check-label">앰플/세럼 도포</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="massage"><div class="check-dot"></div><span class="check-label">마사지</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="mask"><div class="check-dot"></div><span class="check-label">마스크팩/모델링</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="led"><div class="check-dot"></div><span class="check-label">LED 테라피</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="lifting-device"><div class="check-dot"></div><span class="check-label">리프팅 기기</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="galvanic"><div class="check-dot"></div><span class="check-label">갈바닉/이온토</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="microcurrent"><div class="check-dot"></div><span class="check-label">미세전류</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="body-meridian"><div class="check-dot"></div><span class="check-label">경락 마사지</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="body-aroma"><div class="check-dot"></div><span class="check-label">아로마 바디</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="moisture-finish"><div class="check-dot"></div><span class="check-label">보습 마무리</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="sunscreen"><div class="check-dot"></div><span class="check-label">선크림 도포</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="treat-other"><div class="check-dot"></div><span class="check-label">기타</span></label>
+                    </div></div>
+                    <div class="form-divider"></div>
+                    <div class="form-group form-row"><div><label class="form-label">시술 시간</label><select class="form-select" id="duration"><option value="">선택</option><option value="30">30분</option><option value="60">60분</option><option value="90">90분</option><option value="120">120분</option><option value="150">150분</option></select></div><div><label class="form-label">결제 금액</label><select class="form-select" id="payment"><option value="">선택</option><option value="300000">300,000 VND</option><option value="500000">500,000 VND</option><option value="700000">700,000 VND</option><option value="1000000">1,000,000 VND</option><option value="1500000">1,500,000 VND</option><option value="2000000">2,000,000 VND</option><option value="custom">직접 입력</option></select></div></div>
+                    <div class="form-divider"></div>
+                    <div class="form-section-title">시술 후 피부 반응</div>
+                    <div class="form-group"><div class="check-grid check-square" id="skinReaction">
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="reaction-none"><div class="check-dot"></div><span class="check-label">특이 반응 없음</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="redness-temp"><div class="check-dot"></div><span class="check-label">일시적 홍조</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="swelling"><div class="check-dot"></div><span class="check-label">약간의 부기</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="tingling"><div class="check-dot"></div><span class="check-label">따가움/자극감</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="glow"><div class="check-dot"></div><span class="check-label">즉각 광채 개선</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="smooth"><div class="check-dot"></div><span class="check-label">피부결 개선</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="satisfied"><div class="check-dot"></div><span class="check-label">고객 만족</span></label>
+                    </div></div>
+                    <div class="form-divider"></div>
+                    <div class="form-section-title">홈케어 안내</div>
+                    <div class="form-group"><div class="check-grid check-square" id="homecareAdvice">
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="sunscreen-advice"><div class="check-dot"></div><span class="check-label">자외선 차단 필수</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="moisture-advice"><div class="check-dot"></div><span class="check-label">충분한 보습</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="no-exfoliate"><div class="check-dot"></div><span class="check-label">각질 제거 금지</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="no-sauna"><div class="check-dot"></div><span class="check-label">사우나/찜질 금지</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="no-makeup"><div class="check-dot"></div><span class="check-label">당일 화장 자제</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="water"><div class="check-dot"></div><span class="check-label">수분 섭취 권장</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="gentle-wash"><div class="check-dot"></div><span class="check-label">순한 세안</span></label>
+                        <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="no-alcohol"><div class="check-dot"></div><span class="check-label">음주 자제</span></label>
+                    </div></div>
+                    <div class="form-divider"></div>
+                    <div class="form-group form-row"><div><label class="form-label">다음 예약일</label><input type="date" class="form-input" id="nextVisit"></div><div><label class="form-label">다음 관리 추천</label><select class="form-select" id="nextTreatment"><option value="">선택</option><option value="same">동일 관리 반복</option><option value="facial-basic">기본 페이셜</option><option value="deep-cleansing">딥클렌징</option><option value="lifting">리프팅 관리</option><option value="whitening">미백 관리</option><option value="moisture">수분/보습 관리</option><option value="acne">여드름 관리</option><option value="regeneration">재생 관리</option><option value="body">바디 마사지</option><option value="special">특수 관리</option></select></div></div>
+                </div>
+            </div>
+
+            <!-- PAGE 5 -->
+            <div class="form-page" id="page5">
+                <h2 class="page-title">최종 <em>확인</em></h2><p class="page-subtitle">입력 내용을 확인한 후 저장해 주세요.</p>
+                <div id="summaryContent" style="padding:32px;margin-bottom:24px;"></div>
+                <div class="form-group"><label class="check-item check-square" onclick="toggleCheck(this)" style="border-color:var(--color-accent);"><input type="checkbox" id="consentCheck"><div class="check-dot"></div><span class="check-label">위 내용이 정확함을 확인하며, 개인정보 수집 및 이용에 동의합니다.</span></label></div>
+            </div>
+
+            <div class="success-screen" id="successScreen"><div class="success-icon">✓</div><h2>저장 완료</h2><p>E-Chart가 성공적으로 저장되었습니다.<br>클라우드에 동기화되면 ERP 시스템에서 확인하실 수 있습니다.</p><a href="index.html" class="btn-home">홈으로 돌아가기</a></div>
+        </div>
+
+        <div class="bottom-nav-full" id="bottomNav"><div class="bottom-nav-inner">
+            <button class="btn-nav btn-prev" id="btnPrev" onclick="prevPage()">← 이전</button>
+            <span class="page-indicator"><strong id="currentPageNum">1</strong> / 5</span>
+            <button class="btn-nav btn-next" id="btnNext" onclick="nextPage()">다음 →</button>
+        </div></div>
+    </div>
+
+    <script>
+        let currentPage=1;const totalPages=5;
+        document.getElementById('todayDate').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+        function goToPage(p){if(p<1||p>totalPages)return;const c=document.getElementById('page'+currentPage);if(c)c.classList.remove('active');currentPage=p;const t=document.getElementById('page'+currentPage);if(t){t.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}updateProgress();updateButtons();if(currentPage===5)generateSummary()}
+        function nextPage(){if(currentPage===5){submitForm();return}goToPage(currentPage+1)}
+        function prevPage(){goToPage(currentPage-1)}
+        function updateProgress(){document.querySelectorAll('.progress-step').forEach((s,i)=>{const n=i+1;s.classList.remove('active','done');if(n===currentPage)s.classList.add('active');else if(n<currentPage)s.classList.add('done')});for(let i=1;i<totalPages;i++){const l=document.getElementById('line'+i);if(l){l.classList.toggle('done',i<currentPage);l.querySelector('.fill').style.width=i<currentPage?'100%':'0%'}}document.getElementById('currentPageNum').textContent=currentPage}
+        function updateButtons(){document.getElementById('btnPrev').style.visibility=currentPage===1?'hidden':'visible';const n=document.getElementById('btnNext');if(currentPage===totalPages){n.textContent='저장하기 ✓';n.className='btn-nav btn-submit'}else{n.textContent='다음 →';n.className='btn-nav btn-next'}}
+        function toggleCheck(el){el.classList.toggle('selected');const inp=el.querySelector('input');if(inp)inp.checked=el.classList.contains('selected')}
+        function toggleRadio(el,gid){document.getElementById(gid).querySelectorAll('.check-item').forEach(i=>i.classList.remove('selected'));el.classList.add('selected');el.querySelector('input').checked=true}
+        function getSelected(id){return Array.from(document.querySelectorAll('#'+id+' .check-item.selected .check-label')).map(e=>e.textContent).join(', ')||'미선택'}
+        function getVal(id){const el=document.getElementById(id);if(!el)return'';if(el.tagName==='SELECT')return el.options[el.selectedIndex]?.text||'';return el.value||''}
+        function generateSummary(){const s=(t,c)=>'<div style="margin-bottom:20px"><div style="font-family:var(--font-nav);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--color-accent-light);margin-bottom:10px;font-weight:600">'+t+'</div><div style="font-size:13px;line-height:2;color:rgba(255,255,255,0.65)">'+c+'</div></div><div style="height:1px;background:rgba(255,255,255,0.1);margin:16px 0"></div>';document.getElementById('summaryContent').innerHTML=s('기본 정보','<b>이름:</b> '+getVal('nameKr')+' ('+getVal('nameEn')+')<br><b>전화:</b> '+getVal('phone')+'<br><b>성별:</b> '+getVal('gender')+' · <b>국적:</b> '+getVal('nationality')+' · <b>연령대:</b> '+getVal('ageRange')+'<br><b>방문경로:</b> '+getVal('visitSource')+' · <b>지역:</b> '+getVal('area'))+s('피부 분석','<b>피부타입:</b> '+getSelected('skinType')+'<br><b>피부고민:</b> '+getSelected('skinConcerns')+'<br><b>알레르기:</b> '+getSelected('allergyList')+'<br><b>복용약물:</b> '+getSelected('medicationList')+'<br><b>스킨케어:</b> '+getSelected('skincareBrand')+'<br><b>특이사항:</b> '+getSelected('specialCondition'))+s('관리 부위','<b>얼굴:</b> '+getSelected('faceArea')+'<br><b>바디:</b> '+getSelected('bodyArea')+'<br><b>프로그램:</b> '+getSelected('programs')+'<br><b>선호시간:</b> '+getSelected('preferTime'))+s('시술 기록','<b>날짜:</b> '+document.getElementById('todayDate').textContent+'<br><b>회차:</b> '+getVal('visitCount')+' · <b>담당:</b> '+getVal('therapist')+'<br><b>시술항목:</b> '+getSelected('treatmentItems')+'<br><b>시간:</b> '+getVal('duration')+' · <b>금액:</b> '+getVal('payment')+'<br><b>피부반응:</b> '+getSelected('skinReaction')+'<br><b>홈케어:</b> '+getSelected('homecareAdvice')+'<br><b>다음예약:</b> '+getVal('nextVisit')+' · <b>추천관리:</b> '+getVal('nextTreatment'))}
+        function submitForm(){if(!document.getElementById('consentCheck').checked){alert('동의를 체크해 주세요.');return}const d={ts:new Date().toISOString(),basic:{nameKr:getVal('nameKr'),nameEn:getVal('nameEn'),phone:getVal('phone'),birth:getVal('birthdate'),gender:getVal('gender'),nation:getVal('nationality'),area:getVal('area'),age:getVal('ageRange'),firstVisit:getVal('firstVisit'),source:getVal('visitSource')},skin:{type:getSelected('skinType'),concerns:getSelected('skinConcerns'),allergy:getSelected('allergyList'),medication:getSelected('medicationList'),brand:getSelected('skincareBrand'),condition:getSelected('specialCondition')},areas:{face:getSelected('faceArea'),body:getSelected('bodyArea'),programs:getSelected('programs'),time:getSelected('preferTime')},visit:{date:new Date().toISOString().split('T')[0],count:getVal('visitCount'),therapist:getVal('therapist'),items:getSelected('treatmentItems'),duration:getVal('duration'),payment:getVal('payment'),reaction:getSelected('skinReaction'),homecare:getSelected('homecareAdvice'),nextVisit:getVal('nextVisit'),nextTreatment:getVal('nextTreatment')}};console.log('📋 E-Chart:',JSON.stringify(d,null,2));document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active'));document.getElementById('successScreen').classList.add('active');document.getElementById('bottomNav').style.display='none'}
+        function toggleMenu(){const n=document.getElementById('nav');n.style.display=n.style.display==='flex'?'none':'flex';if(window.innerWidth<=768&&n.style.display==='flex'){n.style.cssText='display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;gap:28px;';n.querySelectorAll('a').forEach(a=>{a.style.color='#fff';a.style.fontSize='18px'})}}
+        updateButtons();
+    </script>
+</body>
+</html>

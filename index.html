@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hwasa K-Beauty | 하노이 프리미엄 한국식 피부관리</title>
+    <meta name="description" content="하노이 미딩에 위치한 프리미엄 한국식 피부관리 전문샵. 22년 경력의 전문가가 제공하는 정통 메디컬 스킨케어.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========== CSS VARIABLES ========== */
+        :root {
+            --color-bg: #FAFAF8;
+            --color-bg-dark: #0A0A0A;
+            --color-bg-cream: #F5F0EB;
+            --color-text: #1A1A1A;
+            --color-text-light: #F5F0EB;
+            --color-accent: #B8956A;
+            --color-accent-light: #D4B896;
+            --color-muted: #8A8A8A;
+            --color-border: rgba(26,26,26,0.12);
+            --color-border-light: rgba(245,240,235,0.2);
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Noto Sans KR', sans-serif;
+            --font-nav: 'Instrument Sans', sans-serif;
+            --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ========== RESET & BASE ========== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { 
+            scroll-behavior: smooth; 
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+        button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+        /* ========== BACKGROUND VIDEO ========== */
+        .bg-video-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .bg-video-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .bg-video-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(250, 250, 248, 0.82);
+            pointer-events: none;
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--color-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 2px; }
+
+        /* ========== LOADING SCREEN ========== */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--color-bg-dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
+            transition: opacity 0.8s var(--ease-smooth), visibility 0.8s;
+        }
+        .loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-text {
+            font-family: var(--font-display);
+            font-size: clamp(24px, 4vw, 42px);
+            color: var(--color-text-light);
+            letter-spacing: 8px;
+            font-weight: 300;
+        }
+        .loader-bar {
+            width: 120px;
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-bar::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; height: 100%;
+            width: 0;
+            background: var(--color-accent);
+            animation: loadBar 2s var(--ease-smooth) forwards;
+        }
+        @keyframes loadBar { to { width: 100%; } }
+
+        /* ========== HEADER / NAV ========== */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 0 48px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
+            border-bottom: 1px solid transparent;
+            background: transparent;
+        }
+        .header.scrolled {
+            background: rgba(250,250,248,0.85);
+            backdrop-filter: blur(20px);
+            border-color: var(--color-border);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-mark {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 300;
+            color: var(--color-text);
+            letter-spacing: 3px;
+        }
+        .logo-sub {
+            font-family: var(--font-nav);
+            font-size: 9px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-top: 2px;
+        }
+        .nav { display: flex; align-items: center; gap: 36px; }
+        .nav a {
+            font-family: var(--font-nav);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+        .nav a:hover, .nav a.active { color: var(--color-text); }
+        .nav-cta {
+            padding: 10px 24px;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent) !important;
+            font-size: 11px !important;
+            letter-spacing: 2px;
+            transition: all 0.3s !important;
+        }
+        .nav-cta:hover {
+            background: var(--color-accent);
+            color: #fff !important;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 28px;
+            height: 1px;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 700px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: transparent;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10,10,10,0.45);
+            z-index: 0;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 24px;
+        }
+        .hero-label {
+            font-family: var(--font-nav);
+            font-size: 11px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--color-accent-light);
+            margin-bottom: 24px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-out) 2.2s forwards;
+        }
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(42px, 7vw, 86px);
+            font-weight: 300;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-out) 2.4s forwards;
+        }
+        .hero-title em {
+            font-style: italic;
+            color: var(--color-accent-light);
+        }
+        .hero-desc {
+            font-size: 15px;
+            color: rgba(255,255,255,0.65);
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-out) 2.6s forwards;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-out) 2.8s forwards;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 40px;
+            background: var(--color-accent);
+            color: #fff;
+            font-family: var(--font-nav);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: all 0.4s var(--ease-smooth);
+        }
+        .btn-primary:hover { background: #A07D56; transform: translateY(-2px); }
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 40px;
+            border: 1px solid rgba(255,255,255,0.35);
+            color: #fff;
+            font-family: var(--font-nav);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+            transition: all 0.4s var(--ease-smooth);
+        }
+        .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeUp 1s var(--ease-out) 3.2s forwards;
+        }
+        .hero-scroll span {
+            font-family: var(--font-nav);
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+        }
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-accent);
+            animation: scrollDown 2s ease-in-out infinite;
+        }
+        @keyframes scrollDown { to { top: 100%; } }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* ========== REVEAL ANIMATION ========== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.9s var(--ease-out);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.9s var(--ease-out);
+        }
+        .reveal-left.visible { opacity: 1; transform: translateX(0); }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.9s var(--ease-out);
+        }
+        .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+        /* ========== SECTION COMMON ========== */
+        .section { padding: 140px 48px; position: relative; }
+        .section-dark { background: rgba(10,10,10,0.88); color: var(--color-text-light); backdrop-filter: blur(8px); }
+        .section-cream { background: rgba(245,240,235,0.88); backdrop-filter: blur(8px); }
+        .section-label {
+            font-family: var(--font-nav);
+            font-size: 11px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 4.5vw, 56px);
+            font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+        .section-title em { font-style: italic; }
+        .section-desc {
+            font-size: 15px;
+            line-height: 1.9;
+            font-weight: 300;
+            color: var(--color-muted);
+            max-width: 520px;
+        }
+        .section-dark .section-desc { color: rgba(255,255,255,0.5); }
+        .divider-line {
+            width: 48px;
+            height: 1px;
+            background: var(--color-accent);
+            margin: 28px 0;
+        }
+
+        /* ========== PHILOSOPHY SECTION ========== */
+        .philosophy {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .philosophy-img {
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+        }
+        .philosophy-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s var(--ease-smooth);
+        }
+        .philosophy-img:hover img { transform: scale(1.05); }
+        .philosophy-img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid var(--color-border);
+            pointer-events: none;
+        }
+
+        /* ========== SERVICES SECTION ========== */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            max-width: 1400px;
+            margin: 60px auto 0;
+        }
+        .service-card {
+            position: relative;
+            height: 500px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .service-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s var(--ease-smooth);
+        }
+        .service-card:hover img { transform: scale(1.08); }
+        .service-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 40%, rgba(10,10,10,0.85) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 40px;
+            transition: background 0.5s;
+        }
+        .service-card:hover .service-card-overlay {
+            background: linear-gradient(180deg, transparent 20%, rgba(10,10,10,0.9) 100%);
+        }
+        .service-card-num {
+            font-family: var(--font-display);
+            font-size: 14px;
+            color: var(--color-accent-light);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .service-card h3 {
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 400;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .service-card p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+        .service-card .arrow {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s var(--ease-smooth);
+        }
+        .service-card:hover .arrow { opacity: 1; transform: translateY(0); }
+
+        /* ========== STATS BAR ========== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 48px;
+            text-align: center;
+        }
+        .stat-item { padding: 20px 0; }
+        .stat-num {
+            font-family: var(--font-display);
+            font-size: clamp(42px, 5vw, 64px);
+            font-weight: 300;
+            color: var(--color-accent);
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+        .stat-label {
+            font-size: 13px;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.45);
+            font-weight: 300;
+        }
+
+        /* ========== FEATURED BANNER ========== */
+        .featured {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            min-height: 600px;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 0;
+        }
+        .featured-img {
+            position: relative;
+            overflow: hidden;
+        }
+        .featured-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .featured-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+        }
+        .featured-text .btn-outline {
+            border-color: var(--color-text);
+            color: var(--color-text);
+            align-self: flex-start;
+            margin-top: 32px;
+        }
+        .featured-text .btn-outline:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            background: transparent;
+        }
+
+        /* ========== INSTAGRAM SECTION ========== */
+        .insta-section { text-align: center; }
+        .insta-section .section-label { color: var(--color-accent); }
+        .insta-grid {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 48px;
+            overflow: hidden;
+        }
+        .insta-item {
+            width: 240px;
+            height: 240px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        .insta-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s var(--ease-smooth);
+        }
+        .insta-item:hover img { transform: scale(1.1); }
+        .insta-item::after {
+            content: '↗';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,10,10,0.5);
+            color: #fff;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .insta-item:hover::after { opacity: 1; }
+
+        /* ========== CTA SECTION ========== */
+        .cta-section {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .cta-section .section-title { max-width: 700px; }
+        .cta-section .section-desc { text-align: center; margin-bottom: 48px; }
+        .cta-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        .cta-buttons .btn-primary { background: #fff; color: var(--color-bg-dark); }
+        .cta-buttons .btn-primary:hover { background: var(--color-accent); color: #fff; }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: rgba(10,10,10,0.92);
+            color: rgba(255,255,255,0.4);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+        }
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 48px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 48px 60px;
+        }
+        .footer-brand .logo-mark { font-size: 24px; }
+        .footer-brand p {
+            font-size: 13px;
+            line-height: 1.8;
+            margin-top: 16px;
+            color: rgba(255,255,255,0.35);
+        }
+        .footer-col h4 {
+            font-family: var(--font-nav);
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 20px;
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 12px; }
+        .footer-col a {
+            font-size: 14px;
+            color: rgba(255,255,255,0.35);
+            transition: color 0.3s;
+        }
+        .footer-col a:hover { color: var(--color-accent); }
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 48px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+        .social-links { display: flex; gap: 20px; }
+        .social-links a { 
+            color: rgba(255,255,255,0.3); 
+            font-size: 13px;
+            transition: color 0.3s;
+        }
+        .social-links a:hover { color: var(--color-accent); }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .section { padding: 100px 32px; }
+            .philosophy { grid-template-columns: 1fr; gap: 48px; }
+            .philosophy-img { height: 400px; }
+            .services-grid { grid-template-columns: 1fr 1fr; }
+            .featured { grid-template-columns: 1fr; }
+            .featured-text { padding: 60px 32px; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+            .footer-top { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 0 24px; height: 64px; }
+            .nav { display: none; }
+            .menu-toggle { display: flex; }
+            .section { padding: 80px 20px; }
+            .hero-content { padding: 0 20px; }
+            .services-grid { grid-template-columns: 1fr; }
+            .service-card { height: 380px; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .footer-top { grid-template-columns: 1fr; gap: 32px; padding: 60px 24px 40px; }
+            .footer-bottom { flex-direction: column; gap: 16px; text-align: center; padding: 20px 24px; }
+            .insta-item { width: 160px; height: 160px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 36px; }
+            .stats-bar { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND VIDEO (persistent across scroll) -->
+    <div class="bg-video-wrap">
+        <video autoplay muted loop playsinline>
+            <source src="bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- LOADER -->
+    <div class="loader" id="loader">
+        <div class="loader-text">HWASA</div>
+        <div class="loader-bar"></div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <a href="index.html" class="logo">
+            <div>
+                <div class="logo-mark">Hwasa</div>
+                <div class="logo-sub">Korean Skin Care</div>
+            </div>
+        </a>
+        <nav class="nav" id="nav">
+            <a href="index.html" class="active">Home</a>
+            <a href="program.html">Program</a>
+            <a href="echart.html">E-Chart</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="erp.html">ERP</a>
+            <a href="echart.html" class="nav-cta">상담 예약</a>
+        </nav>
+        <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <p class="hero-label">Premium Korean Skin Care in Hanoi</p>
+            <h1 class="hero-title">Unveil Your <em>True</em> Beauty</h1>
+            <p class="hero-desc">
+                피부 관리 22년 경력의 전문가가 하노이에서 제공하는<br>
+                정통 한국식 메디컬 스킨케어
+            </p>
+            <div class="hero-buttons">
+                <a href="echart.html" class="btn-primary">상담 예약하기 →</a>
+                <a href="program.html" class="btn-outline">프로그램 보기</a>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- PHILOSOPHY -->
+    <section class="section section-cream">
+        <div class="philosophy">
+            <div class="reveal-left">
+                <div class="section-label">Our Philosophy</div>
+                <h2 class="section-title">피부 과학과 <em>정성</em>이<br>만나는 곳</h2>
+                <div class="divider-line"></div>
+                <p class="section-desc">
+                    22년간 축적된 피부 관리 노하우와 한국 최신 메디컬 스킨케어 기술을 결합하여,
+                    하노이에서 가장 신뢰할 수 있는 프리미엄 피부관리를 제공합니다.
+                    고객 한 분 한 분의 피부 상태를 정밀하게 분석하고,
+                    맞춤형 솔루션을 제안합니다.
+                </p>
+                <a href="about.html" class="btn-outline" style="border-color: var(--color-text); color: var(--color-text); margin-top: 32px;">
+                    자세히보기 →
+                </a>
+            </div>
+            <div class="philosophy-img reveal-right">
+                <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80" alt="Korean Skincare Treatment">
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section section-dark">
+        <div style="text-align: center; margin-bottom: 20px;" class="reveal">
+            <div class="section-label">Our Programs</div>
+            <h2 class="section-title" style="color: #fff;">Signature <em>Programs</em></h2>
+        </div>
+        <div class="services-grid">
+            <div class="service-card reveal">
+                <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=80" alt="Facial Care">
+                <div class="service-card-overlay">
+                    <div class="service-card-num">01</div>
+                    <h3>페이셜 케어</h3>
+                    <p>모공, 주름, 색소 등 피부 고민별 맞춤 관리</p>
+                </div>
+                <div class="arrow">↗</div>
+            </div>
+            <div class="service-card reveal" style="transition-delay: 0.15s;">
+                <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&q=80" alt="Body Massage">
+                <div class="service-card-overlay">
+                    <div class="service-card-num">02</div>
+                    <h3>바디 마사지</h3>
+                    <p>한국식 경락 마사지와 아로마 테라피</p>
+                </div>
+                <div class="arrow">↗</div>
+            </div>
+            <div class="service-card reveal" style="transition-delay: 0.3s;">
+                <img src="https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&q=80" alt="Special Care">
+                <div class="service-card-overlay">
+                    <div class="service-card-num">03</div>
+                    <h3>특수 관리</h3>
+                    <p>리프팅, 재생, 미백 등 전문 메디컬 케어</p>
+                </div>
+                <div class="arrow">↗</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="section section-dark" style="padding-top: 0; padding-bottom: 100px;">
+        <div class="stats-bar reveal">
+            <div class="stat-item">
+                <div class="stat-num" data-count="22">0</div>
+                <div class="stat-label">Years of Experience</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-count="3500">0</div>
+                <div class="stat-label">Satisfied Clients</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-count="15">0</div>
+                <div class="stat-label">Specialized Treatments</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-count="98">0</div>
+                <div class="stat-label">% Client Satisfaction</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED -->
+    <section class="section">
+        <div class="featured">
+            <div class="featured-img reveal-left">
+                <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=900&q=80" alt="E-Chart Consultation">
+            </div>
+            <div class="featured-text reveal-right">
+                <div class="section-label">E-Chart System</div>
+                <h2 class="section-title">온라인으로 간편하게<br><em>피부 상담</em></h2>
+                <div class="divider-line"></div>
+                <p class="section-desc">
+                    방문 전 온라인 E-Chart를 작성하시면, 피부 상태를 미리 분석하여
+                    최적의 맞춤 관리 프로그램을 준비해 드립니다.
+                    더 정확하고 효율적인 상담이 가능합니다.
+                </p>
+                <a href="echart.html" class="btn-outline">E-Chart 작성하기 →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section section-dark cta-section">
+        <div class="reveal">
+            <div class="section-label">Book Now</div>
+            <h2 class="section-title" style="color: #fff;">당신만의 <em>뷰티 플랜</em>을<br>시작하세요</h2>
+            <p class="section-desc" style="color: rgba(255,255,255,0.45);">
+                지금 상담을 예약하고, 22년 경력 전문가의<br>
+                프리미엄 피부관리를 경험하세요.
+            </p>
+            <div class="cta-buttons">
+                <a href="echart.html" class="btn-primary">상담 예약 →</a>
+                <a href="contact.html" class="btn-outline">연락하기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="logo-mark">Hwasa</div>
+                <div class="logo-sub" style="color: var(--color-accent);">Korean Skin Care</div>
+                <p>하노이 미딩에 위치한 프리미엄<br>한국식 피부관리 전문샵</p>
+            </div>
+            <div class="footer-col">
+                <h4>Menu</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="program.html">Program</a></li>
+                    <li><a href="echart.html">E-Chart</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="erp.html">ERP</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:+84xxxxxxxxx">📞 전화 상담</a></li>
+                    <li><a href="#">💬 카카오톡</a></li>
+                    <li><a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">📸 Instagram</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hours</h4>
+                <ul>
+                    <li><a href="#">월–토: 9:00 – 19:00</a></li>
+                    <li><a href="#">일요일: 휴무</a></li>
+                    <li><a href="contact.html">📍 오시는 길</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Hwasa K-Beauty. All rights reserved.</span>
+            <div class="social-links">
+                <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">Instagram</a>
+                <a href="#">KakaoTalk</a>
+                <a href="#">Facebook</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 2200);
+        });
+
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('scrolled', window.scrollY > 60);
+        });
+
+        // Scroll reveal
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Counter animation
+        const counters = document.querySelectorAll('[data-count]');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.dataset.count);
+                    let current = 0;
+                    const step = target / 60;
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        entry.target.textContent = Math.floor(current).toLocaleString();
+                        if (target === 98) entry.target.textContent = Math.floor(current) + '%';
+                    }, 25);
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(c => counterObserver.observe(c));
+
+        // Mobile menu
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+            if (window.innerWidth <= 768 && nav.style.display === 'flex') {
+                nav.style.cssText = `
+                    display: flex; flex-direction: column; position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(10,10,10,0.97); z-index: 999;
+                    align-items: center; justify-content: center; gap: 28px;
+                `;
+                nav.querySelectorAll('a').forEach(a => {
+                    a.style.color = '#fff';
+                    a.style.fontSize = '18px';
+                });
+            }
+        }
+    </script>
+</body>
+</html>

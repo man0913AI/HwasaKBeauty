@@ -41,12 +41,13 @@
         /* 오버레이/블러 없음 — 영상 그대로 표시 */
 
         /* ========== HEADER — 완전 투명 ========== */
+        .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
         .header {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             padding: 0 48px; height: 80px;
             display: flex; align-items: center; justify-content: space-between;
             background: transparent;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: none;
         }
         .logo-mark {
             font-family: var(--font-display); font-size: 28px; font-weight: 300;
@@ -87,7 +88,7 @@
         .echart-header {
             background: transparent;
             padding: 48px 24px 32px; text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: none;
         }
         .echart-header .label {
             font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
@@ -109,7 +110,7 @@
         .progress-section {
             background: rgba(0,0,0,0.25);
             padding: 20px 24px; position: sticky; top: 80px; z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: none;
         }
         .progress-bar-wrapper { max-width: 700px; margin: 0 auto; display: flex; align-items: center; }
         .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
@@ -296,7 +297,8 @@
 
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
-            .header { padding: 0 20px; height: 64px; }
+            .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
+        .header { padding: 0 20px; height: 64px; }
             .nav { display: none; }
             .menu-toggle { display: flex; }
             .echart-wrapper { margin-top: 64px; }
@@ -321,9 +323,9 @@
     </div>
 
     <header class="header">
-        <a href="index.html" class="logo"><div><div class="logo-mark">Hwasa</div><div class="logo-sub">Korean Skin Care</div></div></a>
+        <a href="index.html" class="logo"><img src="logo.png" alt="Hwasa K-Beauty" class="logo-img"></a>
         <nav class="nav" id="nav">
-            <a href="index.html">Home</a><a href="program.html">Program</a><a href="echart.html" class="active">E-Chart</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="erp.html">ERP</a><a href="echart.html" class="nav-cta">상담 예약</a>
+            <a href="index.html">Home</a><a href="diploma.html">Diploma</a><a href="program.html">Program</a><a href="echart.html" class="active">E-Chart</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="erp.html">ERP</a><a href="echart.html" class="nav-cta">상담 예약</a>
         </nav>
         <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     </header>

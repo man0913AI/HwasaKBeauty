@@ -109,7 +109,7 @@
             left: 0; top: 0; height: 100%;
             width: 0;
             background: var(--color-accent);
-            animation: loadBar 2s var(--ease-smooth) forwards;
+            animation: loadBar 2.2s var(--ease-smooth) forwards;
         }
         @keyframes loadBar { to { width: 100%; } }
 
@@ -123,13 +123,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: background 0.4s, border-color 0.4s;
-            border-bottom: 1px solid transparent;
+            transition: none;
+            border-bottom: none;
             background: transparent;
         }
         .header.scrolled {
-            background: rgba(10,10,10,0.35);
-            border-color: var(--color-border-light);
+            background: transparent;
+            border-color: transparent;
         }
         .logo {
             display: flex;
@@ -611,9 +611,9 @@
 
         /* ========== FOOTER ========== */
         .footer {
-            background: rgba(10,10,10,0.55);
+            background: transparent;
             color: rgba(255,255,255,0.4);
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: none;
         }
         .footer-top {
             display: grid;
@@ -650,7 +650,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 24px 48px;
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -706,8 +706,9 @@
 
     <!-- LOADER -->
     <div class="loader" id="loader">
-        <div class="loader-text">HWASA</div>
+        <div class="loader-text">HWASA <span style="font-size:0.5em; font-style:italic; color:var(--color-accent-light); letter-spacing:3px;">in Hanoi</span></div>
         <div class="loader-bar"></div>
+        <div class="loader-date" id="loaderDate" style="font-family:var(--font-nav); font-size:12px; color:rgba(255,255,255,0.35); letter-spacing:3px; margin-top:8px;">2023.01.01</div>
     </div>
 
     <!-- HEADER -->
@@ -864,8 +865,7 @@
     <footer class="footer">
         <div class="footer-top">
             <div class="footer-brand">
-                <div class="logo-mark">Hwasa</div>
-                <div class="logo-sub" style="color: var(--color-accent);">Korean Skin Care</div>
+                <a href="index.html"><img src="logo.png" alt="Hwasa K-Beauty" class="logo-img" style="height:52px; filter:invert(1) brightness(2);"></a>
                 <p>하노이 미딩에 위치한 프리미엄<br>한국식 피부관리 전문샵</p>
             </div>
             <div class="footer-col">
@@ -908,17 +908,39 @@
 
     <!-- SCRIPTS -->
     <script>
-        // Loader
+        // Loader with date counter
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
-            }, 2200);
+            const startDate = new Date('2023-01-01');
+            const endDate = new Date();
+            const totalMs = endDate.getTime() - startDate.getTime();
+            const duration = 2200;
+            const dateEl = document.getElementById('loaderDate');
+            const startTime = performance.now();
+            
+            function animateDate(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentMs = startDate.getTime() + (totalMs * progress);
+                const d = new Date(currentMs);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dateEl.textContent = y + '.' + m + '.' + day;
+                if (progress < 1) {
+                    requestAnimationFrame(animateDate);
+                } else {
+                    setTimeout(() => {
+                        document.getElementById('loader').classList.add('hidden');
+                    }, 300);
+                }
+            }
+            requestAnimationFrame(animateDate);
         });
 
         // Header scroll effect
         const header = document.getElementById('header');
         window.addEventListener('scroll', () => {
-            header.classList.toggle('scrolled', window.scrollY > 60);
+            // scroll effect disabled
         });
 
         // Scroll reveal

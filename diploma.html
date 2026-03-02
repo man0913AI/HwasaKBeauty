@@ -59,22 +59,22 @@
             justify-content: space-between;
             transition: none;
             border-bottom: none;
-            background: transparent;
-            backdrop-filter: none;
+            background: rgba(10,10,10,0.92); backdrop-filter: blur(8px);
+            
             border-color: transparent;
         }
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
-        }
+         flex-shrink: 0; }
         .logo-img {
             height: 68px;
             width: auto;
             filter: invert(1) brightness(2);
             transition: opacity 0.3s;
         }
-        .nav { display: flex; align-items: center; gap: 36px; }
+        .nav { display: flex; align-items: center; gap: 20px; }
         .nav a {
             font-family: var(--font-nav);
             font-size: 12px;
@@ -83,7 +83,7 @@
             color: #fff;
             transition: color 0.3s;
             font-weight: 700;
-        }
+         white-space: nowrap; }
         .nav a:hover, .nav a.active { color: var(--color-accent); }
         .nav-cta {
             padding: 10px 24px;
@@ -413,7 +413,7 @@
 
         /* ========== FOOTER ========== */
         .footer {
-            background: transparent;
+            background: rgba(10,10,10,0.92); backdrop-filter: blur(8px);
             color: rgba(255,255,255,0.4);
             border-top: none;
         }

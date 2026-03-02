@@ -178,7 +178,7 @@
         .bg-video-wrap {
             position: fixed;
             inset: 0;
-            z-index: 0;
+            z-index: -1;
             overflow: hidden;
         }
         .bg-video-wrap video {
@@ -186,7 +186,13 @@
             height: 100%;
             object-fit: cover;
         }
-        
+        .bg-video-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>

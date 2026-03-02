@@ -184,7 +184,22 @@
             height: 100%;
             object-fit: cover;
         }
-    </style>
+        
+        /* Scroll container: content only scrolls below header */
+        html, body { overflow: hidden; height: 100%; margin: 0; }
+        .scroll-container {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { scrollbar-width: none; }
+        </style>
 </head>
 <body>
     <div class="bg-video-wrap">
@@ -213,6 +228,7 @@
             <span></span><span></span><span></span>
         </div>
     </header>
+    <div class="scroll-container">
 
     <section class="page-hero">
         <p class="page-hero-label">Skin Care Programs</p>
@@ -318,6 +334,7 @@
         </div>
     </footer>
 
+    </div><!-- scroll-container -->
     <script>
         const revealElements = document.querySelectorAll('.reveal');
         const revealObserver = new IntersectionObserver((entries) => {

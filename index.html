@@ -686,7 +686,22 @@
             .hero-title { font-size: 36px; }
             .stats-bar { grid-template-columns: 1fr; }
         }
-    </style>
+        
+        /* Scroll container: content only scrolls below header */
+        html, body { overflow: hidden; height: 100%; margin: 0; }
+        .scroll-container {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { scrollbar-width: none; }
+        </style>
 </head>
 <body>
 
@@ -725,6 +740,7 @@
             <span></span><span></span><span></span>
         </div>
     </header>
+    <div class="scroll-container">
 
     <!-- HERO -->
     <section class="hero" id="hero">
@@ -906,6 +922,7 @@
     </footer>
 
     <!-- SCRIPTS -->
+    </div><!-- scroll-container -->
     <script>
         // Loader with date counter
         window.addEventListener('load', () => {

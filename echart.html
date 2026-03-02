@@ -310,7 +310,22 @@
             .echart-header { padding: 32px 16px 24px; }
         }
         @media (max-width: 400px) { .check-grid { grid-template-columns: 1fr; } }
-    </style>
+    
+        /* Scroll container */
+        html, body { overflow: hidden; height: 100%; margin: 0; }
+        .scroll-container {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { scrollbar-width: none; }
+        </style>
 </head>
 <body>
     <!-- BACKGROUND VIDEO — 풀스크린, 선명하게 -->
@@ -336,6 +351,7 @@
         </nav>
         <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     </header>
+    <div class="scroll-container">
 
     <div class="echart-wrapper">
         <div class="echart-header">
@@ -568,6 +584,7 @@
         </div></div>
     </div>
 
+    </div><!-- scroll-container -->
     <script>
         let currentPage=1;const totalPages=5;
         document.getElementById('todayDate').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});

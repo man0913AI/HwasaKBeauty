@@ -66,7 +66,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: transparent;
+            background: rgba(0, 0, 0, 0.08);
             pointer-events: none;
         }
 
@@ -212,7 +212,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: transparent;
+            background: rgba(10,10,10,0.20);
             z-index: 0;
         }
         .hero-content {
@@ -251,7 +251,7 @@
         }
         .hero-desc {
             font-size: 15px;
-            color: #fff;
+            color: rgba(255,255,255,0.65);
             font-weight: 300;
             line-height: 1.8;
             margin-bottom: 40px;
@@ -317,7 +317,7 @@
             font-size: 10px;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: #fff;
+            color: rgba(255,255,255,0.4);
         }
         .scroll-line {
             width: 1px;
@@ -363,9 +363,9 @@
         .reveal-right.visible { opacity: 1; transform: translateX(0); }
 
         /* ========== SECTION COMMON ========== */
-        .section { padding: 140px 48px; position: relative; background: transparent; }
-        .section-dark { background: transparent; color: var(--color-text-light); }
-        .section-cream { background: transparent; color: var(--color-text-light); }
+        .section { padding: 140px 48px; position: relative; background: rgba(10,10,10,0.25); }
+        .section-dark { background: rgba(10,10,10,0.35); color: var(--color-text-light); }
+        .section-cream { background: rgba(20,20,18,0.30); color: var(--color-text-light); }
         .section-label {
             font-family: var(--font-nav);
             font-size: 11px;
@@ -387,10 +387,10 @@
             font-size: 15px;
             line-height: 1.9;
             font-weight: 300;
-            color: #fff;
+            color: rgba(255,255,255,0.6);
             max-width: 520px;
         }
-        .section-dark .section-desc { color: #fff; }
+        .section-dark .section-desc { color: rgba(255,255,255,0.5); }
         .divider-line {
             width: 48px;
             height: 1px;
@@ -438,7 +438,7 @@
             height: 500px;
             overflow: hidden;
             cursor: pointer;
-            background: transparent;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2520 100%);
         }
         .service-card img {
             width: 100%;
@@ -450,7 +450,7 @@
         .service-card-overlay {
             position: absolute;
             inset: 0;
-            background: transparent;
+            background: linear-gradient(180deg, transparent 40%, rgba(10,10,10,0.85) 100%);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -458,7 +458,7 @@
             transition: background 0.5s;
         }
         .service-card:hover .service-card-overlay {
-            background: transparent;
+            background: linear-gradient(180deg, transparent 20%, rgba(10,10,10,0.9) 100%);
         }
         .service-card-num {
             font-family: var(--font-display);
@@ -476,7 +476,7 @@
         }
         .service-card p {
             font-size: 13px;
-            color: #fff;
+            color: rgba(255,255,255,0.5);
             font-weight: 300;
             line-height: 1.6;
         }
@@ -520,7 +520,7 @@
         .stat-label {
             font-size: 13px;
             letter-spacing: 1px;
-            color: #fff;
+            color: rgba(255,255,255,0.45);
             font-weight: 300;
         }
 
@@ -588,7 +588,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: transparent;
+            background: rgba(10,10,10,0.5);
             color: #fff;
             font-size: 24px;
             opacity: 0;
@@ -612,7 +612,7 @@
         /* ========== FOOTER ========== */
         .footer {
             background: transparent;
-            color: #fff;
+            color: rgba(255,255,255,0.4);
             border-top: none;
         }
         .footer-top {
@@ -628,21 +628,21 @@
             font-size: 13px;
             line-height: 1.8;
             margin-top: 16px;
-            color: #fff;
+            color: rgba(255,255,255,0.35);
         }
         .footer-col h4 {
             font-family: var(--font-nav);
             font-size: 11px;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: #fff;
+            color: rgba(255,255,255,0.6);
             margin-bottom: 20px;
         }
         .footer-col ul { list-style: none; }
         .footer-col li { margin-bottom: 12px; }
         .footer-col a {
             font-size: 14px;
-            color: #fff;
+            color: rgba(255,255,255,0.35);
             transition: color 0.3s;
         }
         .footer-col a:hover { color: var(--color-accent); }
@@ -658,7 +658,7 @@
         }
         .social-links { display: flex; gap: 20px; }
         .social-links a { 
-            color: #fff; 
+            color: rgba(255,255,255,0.3); 
             font-size: 13px;
             transition: color 0.3s;
         }
@@ -720,9 +720,7 @@
             <a href="index.html" class="active">Home</a>
             <a href="diploma.html">Diploma</a>
             <a href="program.html">Program</a>
-            <a href="selfbeauty.html">Self Beauty</a>
             <a href="echart.html">E-Chart</a>
-            <a href="letter.html">Letter</a>
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
             <a href="erp.html">ERP</a>
@@ -852,7 +850,7 @@
         <div class="reveal">
             <div class="section-label">Book Now</div>
             <h2 class="section-title" style="color: #fff;">당신만의 <em>뷰티 플랜</em>을<br>시작하세요</h2>
-            <p class="section-desc" style="color: #fff;">
+            <p class="section-desc" style="color: rgba(255,255,255,0.45);">
                 지금 상담을 예약하고, 22년 경력 전문가의<br>
                 프리미엄 피부관리를 경험하세요.
             </p>
@@ -876,12 +874,10 @@
                     <li><a href="index.html">Home</a></li>
                     <li><a href="diploma.html">Diploma</a></li>
                     <li><a href="program.html">Program</a></li>
-                    <li><a href="selfbeauty.html">Self Beauty</a></li>
                     <li><a href="echart.html">E-Chart</a></li>
-                    <li><a href="letter.html">Letter</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="erp.html">ERP</a></li>
-                
+                </ul>
             </div>
             <div class="footer-col">
                 <h4>Contact</h4>

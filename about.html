@@ -197,7 +197,7 @@
 </head>
 <body>
     <div class="bg-video-wrap">
-        <video autoplay muted loop playsinline>
+        <video muted loop playsinline preload="auto" style="pointer-events:none;">
             <source src="bg-video.mp4" type="video/mp4">
         </video>
     </div>
@@ -325,5 +325,6 @@
             }
         }
     </script>
+<script>var v=document.querySelector(".bg-video-wrap video");if(v){v.currentTime=0.5;v.pause();}</script>
 </body>
 </html>

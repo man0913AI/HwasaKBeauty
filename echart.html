@@ -80,6 +80,10 @@
             position: relative; z-index: 1;
             margin-top: 80px; min-height: calc(100vh - 80px);
             display: flex; flex-direction: column;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
         }
 
         /* ========== ECHART HEADER — 투명 ========== */
@@ -107,7 +111,7 @@
         /* ========== PROGRESS BAR — 투명 ========== */
         .progress-section {
             background: transparent;
-            padding: 20px 24px; position: sticky; top: 80px; z-index: 100;
+            padding: 148px 24px 16px; position: sticky; top: 80px; z-index: 100;
             border-bottom: none;
         }
         .progress-bar-wrapper { max-width: 580px; margin: 0 auto; display: flex; align-items: center; }
@@ -143,7 +147,7 @@
         .progress-line.done .fill { width: 100%; background: var(--color-success); }
 
         /* ========== FORM AREA ========== */
-        .form-area { flex: 1; padding: 40px 24px 120px; max-width: 640px; margin: 0 auto; width: 100%; }
+        .form-area { flex: 1; padding: 24px 40px 120px; max-width: 640px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         .form-page {
             display: none; opacity: 0; transform: translateX(30px);
             transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);

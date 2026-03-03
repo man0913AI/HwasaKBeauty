@@ -173,6 +173,42 @@
         }
         .scroll-container::-webkit-scrollbar { display: none; }
         .scroll-container { scrollbar-width: none; }
+        /* ========== FOOTER-SLIM ========== */
+        .footer-slim {
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 20px 40px;
+        }
+        .footer-slim-inner {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 16px;
+        }
+        .footer-copy {
+            font-family: var(--font-nav); font-size: 11px;
+            letter-spacing: 1px; color: rgba(255,255,255,0.45);
+        }
+        .footer-qr-slots { display: flex; gap: 12px; }
+        .footer-qr-placeholder {
+            width: 52px; height: 52px;
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-nav); font-size: 9px;
+            letter-spacing: 1px; color: rgba(255,255,255,0.4);
+            text-align: center; line-height: 1.4;
+        }
+        .footer-slim-links { display: flex; align-items: center; gap: 20px; }
+        .footer-slim-links a {
+            font-family: var(--font-nav); font-size: 11px;
+            letter-spacing: 2px; color: rgba(255,255,255,0.5);
+            text-decoration: none; text-transform: uppercase; transition: color 0.3s;
+        }
+        .footer-slim-links a:hover { color: var(--color-accent-light); }
+        .footer-contact-btn {
+            border: 1px solid rgba(255,255,255,0.3) !important;
+            padding: 6px 16px; border-radius: 2px;
+        }
         </style>
 </head>
 <body>

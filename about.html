@@ -150,13 +150,24 @@
         .bg-video-wrap {
             position: fixed;
             inset: 0;
-            z-index: -1;
+            z-index: -2;
             overflow: hidden;
         }
         .bg-video-wrap video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+        /* 중앙 눈부심 개선 */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(ellipse 55% 45% at 50% 48%,
+                rgba(0,0,0,0.42) 0%,
+                rgba(0,0,0,0.18) 45%,
+                transparent 70%);
         }
         
         /* Scroll container: content only scrolls below header */
@@ -181,6 +192,7 @@
             <source src="bg-video.mp4" type="video/mp4">
         </video>
     </div>
+    <div class="bg-overlay"></div>
 
     <header class="header" id="header">
         <a href="index.html" class="logo">

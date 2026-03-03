@@ -26,11 +26,11 @@
         a { text-decoration: none; color: inherit; }
         button { border: none; background: none; cursor: pointer; font-family: inherit; }
 
-        /* ========== BACKGROUND VIDEO — 풀스크린, 오버레이 없음 ========== */
+        /* ========== BACKGROUND VIDEO ========== */
         .bg-video-wrap {
             position: fixed;
             inset: 0;
-            z-index: -1;
+            z-index: -2;
             overflow: hidden;
         }
         .bg-video-wrap video {
@@ -38,59 +38,54 @@
             height: 100%;
             object-fit: cover;
         }
+        /* 눈부심 개선: 중앙 빛나는 원만 자연스럽게 눌러줌 */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(ellipse 55% 45% at 50% 48%,
+                rgba(0,0,0,0.42) 0%,
+                rgba(0,0,0,0.18) 45%,
+                transparent 70%);
+        }
 
         /* ========== HEADER — 완전 투명 ========== */
-        .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
+        /* ========== HEADER ========== */
+        .logo-img { height: 52px; width: auto; filter: invert(1) brightness(2); }
         .header {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            padding: 0 48px 0 20px; height: 80px;
+            padding: 0 16px; height: 56px;
             display: flex; align-items: center; justify-content: space-between;
             background: transparent;
-            border-bottom: none; transition: none;
         }
-        .logo-mark {
-            font-family: var(--font-display); font-size: 28px; font-weight: 300;
-            color: #fff; letter-spacing: 3px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-        }
-        .logo-sub {
-            font-family: var(--font-nav); font-size: 9px; letter-spacing: 4px;
-            text-transform: uppercase; color: var(--color-accent-light); margin-top: 2px;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-        }
-        .nav { display: flex; align-items: center; gap: 20px; }
-        .nav a {
-            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
-            text-transform: uppercase; color: #fff;
-            transition: color 0.3s; font-weight: 700;
-         white-space: nowrap; }
+        .logo-mark { font-family: var(--font-display); font-size: 22px; font-weight: 300; color: #fff; letter-spacing: 3px; }
+        .logo-sub { font-family: var(--font-nav); font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--color-accent-light); }
+        .nav { display: flex; align-items: center; gap: 16px; }
+        .nav a { font-family: var(--font-nav); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.85); transition: color 0.3s; white-space: nowrap; }
         .nav a:hover, .nav a.active { color: #fff; }
-        .nav-cta {
-            padding: 10px 24px; border: 1px solid var(--color-accent);
-            color: var(--color-accent) !important; font-size: 11px !important;
-            letter-spacing: 2px; transition: all 0.3s !important;
-            text-shadow: none !important;
-        }
+        .nav-cta { padding: 8px 14px; border: 1px solid var(--color-accent); color: var(--color-accent) !important; font-size: 10px !important; }
         .nav-cta:hover { background: var(--color-accent); color: #fff !important; }
-        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; z-index: 1001; }
-        .menu-toggle span { display: block; width: 28px; height: 1px; background: #fff; }
+        .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; z-index: 1001; background: none; border: none; }
+        .menu-toggle span { display: block; width: 24px; height: 1px; background: #fff; }
 
-        /* ========== WRAPPER ========== */
+        /* ========== WRAPPER — 고정, 스크롤 없음 ========== */
         .echart-wrapper {
-            position: relative; z-index: 1;
-            margin-top: 80px; min-height: calc(100vh - 80px);
-            display: flex; flex-direction: column;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+            position: fixed;
+            top: 56px; left: 0; right: 0; bottom: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            max-width: 680px;
+            margin: 0 auto;
             width: 100%;
         }
 
-        /* ========== ECHART HEADER — 투명 ========== */
-        .echart-header {
+        /* ========== PROGRESS BAR ========== */
+        .progress-section {
             background: transparent;
-            padding: 48px 24px 32px; text-align: center;
-            border-bottom: none;
+            padding: 8px 16px;
+            flex-shrink: 0;
         }
         .echart-header .label {
             font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
@@ -109,12 +104,8 @@
         }
 
         /* ========== PROGRESS BAR — 투명 ========== */
-        .progress-section {
-            background: transparent;
-            padding: 148px 24px 16px; position: sticky; top: 80px; z-index: 100;
-            border-bottom: none;
-        }
-        .progress-bar-wrapper { max-width: 580px; margin: 0 auto; display: flex; align-items: center; }
+
+        .progress-bar-wrapper { max-width: 100%; margin: 0; display: flex; align-items: center; }
         .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .progress-step .dot {
             width: 32px; height: 32px; border-radius: 50%;
@@ -147,24 +138,26 @@
         .progress-line.done .fill { width: 100%; background: var(--color-success); }
 
         /* ========== FORM AREA ========== */
-        .form-area { flex: 1; padding: 24px 40px 120px; max-width: 640px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .form-area { flex: 1; padding: 16px 20px 80px; max-width: 100%; width: 100%; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+        .form-area::-webkit-scrollbar { display: none; }
+        .form-area { scrollbar-width: none; }
         .form-page {
             display: none; opacity: 0; transform: translateX(30px);
             transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
         }
         .form-page.active { display: block; opacity: 1; transform: translateX(0); }
         .page-title {
-            font-family: var(--font-display); font-size: 28px; font-weight: 400;
-            margin-bottom: 8px; color: #1a1a1a;
+            font-family: var(--font-display); font-size: 22px; font-weight: 400;
+            margin-bottom: 6px; color: #1a1a1a;
         }
         .page-title em { font-style: italic; color: var(--color-accent); }
         .page-subtitle {
-            font-size: 13px; color: #444;
-            margin-bottom: 36px; font-weight: 300;
+            font-size: 12px; color: #444;
+            margin-bottom: 20px; font-weight: 300;
         }
 
         /* ========== FORM ELEMENTS — 반투명 ========== */
-        .form-group { margin-bottom: 24px; }
+        .form-group { margin-bottom: 14px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .form-label {
             display: block; font-family: var(--font-nav); font-size: 11px;
@@ -174,7 +167,7 @@
         .form-label .required { color: var(--color-danger); margin-left: 2px; }
 
         .form-input, .form-select, .form-textarea {
-            width: 100%; padding: 14px 16px;
+            width: 100%; padding: 10px 12px;
             border: 1px solid rgba(0,0,0,0.15); border-radius: 0;
             background: rgba(255,255,255,0.6);
             font-family: var(--font-body); font-size: 14px;
@@ -198,7 +191,7 @@
         .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
         .check-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 12px 16px;
+            padding: 8px 12px;
             border: 1px solid rgba(0,0,0,0.12);
             cursor: pointer; transition: all 0.3s;
             background: rgba(255,255,255,0.5);
@@ -219,9 +212,9 @@
         .check-dot::after { content: '✓'; font-size: 10px; color: #fff; opacity: 0; transition: opacity 0.2s; }
         .check-item.selected .check-dot::after { opacity: 1; }
         .check-square .check-dot { border-radius: 4px; }
-        .check-label { font-size: 13px; font-weight: 400; color: #1a1a1a; }
+        .check-label { font-size: 12px; font-weight: 400; color: #1a1a1a; }
 
-        .form-divider { height: 1px; background: rgba(0,0,0,0.1); margin: 32px 0; }
+        .form-divider { height: 1px; background: rgba(0,0,0,0.1); margin: 16px 0; }
         .form-section-title {
             font-family: var(--font-nav); font-size: 12px; letter-spacing: 3px;
             text-transform: uppercase; color: var(--color-accent);
@@ -251,13 +244,13 @@
             border-top: 1px solid rgba(0,0,0,0.1); z-index: 200;
         }
         .bottom-nav-inner {
-            max-width: 640px; margin: 0 auto; padding: 16px 24px;
+            max-width: 680px; margin: 0 auto; padding: 10px 20px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .page-indicator { font-family: var(--font-nav); font-size: 12px; letter-spacing: 1px; color: #1a1a1a; }
         .page-indicator strong { color: var(--color-accent-light); }
         .btn-nav {
-            padding: 12px 32px; font-family: var(--font-nav); font-size: 12px;
+            padding: 10px 24px; font-family: var(--font-nav); font-size: 11px;
             letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
             transition: all 0.3s var(--ease-smooth);
         }
@@ -294,68 +287,28 @@
 
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
-            .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
-        .header { padding: 0 20px; height: 64px; }
             .nav { display: none; }
             .menu-toggle { display: flex; }
-            .echart-wrapper { margin-top: 64px; }
-            .progress-section { top: 64px; padding: 16px; }
-            .progress-step .step-label { font-size: 8px; letter-spacing: 0.5px; }
-            .progress-step .dot { width: 28px; height: 28px; font-size: 11px; }
-            .form-area { padding: 28px 16px 100px; }
-            .form-row { grid-template-columns: 1fr; gap: 0; }
             .check-grid { grid-template-columns: 1fr 1fr; }
-            .page-title { font-size: 24px; }
-            .echart-header { padding: 32px 16px 24px; }
         }
-        @media (max-width: 400px) { .check-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 400px) {
+            .check-grid { grid-template-columns: 1fr; }
+        }
     
 
-        /* ========== CLIPBOARD LAYER ========== */
-        .clipboard-layer {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 0;
-            width: min(700px, 82vw);
-            pointer-events: none;
-        }
-        .clipboard-img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: drop-shadow(0 8px 40px rgba(0,0,0,0.6));
-        }
-
-        /* Scroll container */
+        /* ========== 전체 고정, 스크롤 없음 ========== */
         html, body { overflow: hidden; height: 100%; margin: 0; }
-        .scroll-container {
-            position: fixed;
-            top: 80px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            z-index: 2;
-        }
-        .scroll-container::-webkit-scrollbar { display: none; }
-        .scroll-container { scrollbar-width: none; }
         </style>
 </head>
 <body>
-    <!-- BACKGROUND VIDEO — 풀스크린, 선명하게 -->
+    <!-- BACKGROUND VIDEO -->
     <div class="bg-video-wrap">
         <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
             <source src="bg-video.mp4" type="video/mp4">
         </video>
     </div>
-
-    <!-- CLIPBOARD LAYER — 배경영상 위, 폼 콘텐츠 아래 -->
-    <div class="clipboard-layer">
-        <img src="images/echart_clipboard.png" alt="" class="clipboard-img">
-    </div>
+    <!-- 눈부심 개선 오버레이 -->
+    <div class="bg-overlay"></div>
 
     <header class="header">
         <a href="index.html" class="logo"><img src="logo.png" alt="Hwasa K-Beauty" class="logo-img"></a>
@@ -375,8 +328,6 @@
         </nav>
         <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     </header>
-    <div class="scroll-container">
-
     <div class="echart-wrapper">
 
         <div class="progress-section"><div class="progress-bar-wrapper">
@@ -603,11 +554,11 @@
         </div></div>
     </div>
 
-    </div><!-- scroll-container -->
+
     <script>
         let currentPage=1;const totalPages=5;
         document.getElementById('todayDate').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-        function goToPage(p){if(p<1||p>totalPages)return;const c=document.getElementById('page'+currentPage);if(c)c.classList.remove('active');currentPage=p;const t=document.getElementById('page'+currentPage);if(t){t.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}updateProgress();updateButtons();if(currentPage===5)generateSummary()}
+        function goToPage(p){if(p<1||p>totalPages)return;const c=document.getElementById('page'+currentPage);if(c)c.classList.remove('active');currentPage=p;const t=document.getElementById('page'+currentPage);if(t){t.classList.add('active');const fa=document.querySelector('.form-area');if(fa)fa.scrollTop=0;}updateProgress();updateButtons();if(currentPage===5)generateSummary()}
         function nextPage(){if(currentPage===5){submitForm();return}goToPage(currentPage+1)}
         function prevPage(){goToPage(currentPage-1)}
         function updateProgress(){document.querySelectorAll('.progress-step').forEach((s,i)=>{const n=i+1;s.classList.remove('active','done');if(n===currentPage)s.classList.add('active');else if(n<currentPage)s.classList.add('done')});for(let i=1;i<totalPages;i++){const l=document.getElementById('line'+i);if(l){l.classList.toggle('done',i<currentPage);l.querySelector('.fill').style.width=i<currentPage?'100%':'0%'}}document.getElementById('currentPageNum').textContent=currentPage}

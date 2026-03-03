@@ -252,10 +252,10 @@
             margin: 0 auto;
         }
         .appointment-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            max-width: 340px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 960px;
             margin: 0 auto;
         }
         .appointment-card {
@@ -278,8 +278,14 @@
             background: #fff;
         }
         .appointment-card .diploma-card-info {
-            padding: 20px 24px;
+            padding: 10px 12px;
             border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .appointment-card .diploma-card-info h4 {
+            font-size: 13px;
+        }
+        .appointment-card .diploma-card-info p {
+            font-size: 11px;
         }
 
         /* Certificate Gallery (landscape full-view) */
@@ -415,6 +421,7 @@
 
         /* ========== RESPONSIVE ========== */
         @media (max-width: 1024px) {
+            .appointment-stack { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 768px) {
             .header { padding: 0 24px; height: 64px; }
@@ -424,6 +431,7 @@
             .page-hero { padding: 88px 20px 16px; }
             .diploma-gallery {  grid-template-columns: 1fr 1fr; gap: 12px; }
             .appointment-grid { grid-template-columns: 1fr; gap: 12px; }
+            .appointment-stack { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .cert-gallery { grid-template-columns: 1fr; gap: 12px; }
             .timeline::before { left: 20px; }
             .timeline-item:nth-child(odd),

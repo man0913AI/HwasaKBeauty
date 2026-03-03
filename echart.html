@@ -110,7 +110,7 @@
             padding: 20px 24px; position: sticky; top: 80px; z-index: 100;
             border-bottom: none;
         }
-        .progress-bar-wrapper { max-width: 700px; margin: 0 auto; display: flex; align-items: center; }
+        .progress-bar-wrapper { max-width: 580px; margin: 0 auto; display: flex; align-items: center; }
         .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .progress-step .dot {
             width: 32px; height: 32px; border-radius: 50%;
@@ -143,7 +143,7 @@
         .progress-line.done .fill { width: 100%; background: var(--color-success); }
 
         /* ========== FORM AREA ========== */
-        .form-area { flex: 1; padding: 40px 24px 120px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .form-area { flex: 1; padding: 40px 24px 120px; max-width: 640px; margin: 0 auto; width: 100%; }
         .form-page {
             display: none; opacity: 0; transform: translateX(30px);
             transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
@@ -247,7 +247,7 @@
             border-top: 1px solid rgba(0,0,0,0.1); z-index: 200;
         }
         .bottom-nav-inner {
-            max-width: 800px; margin: 0 auto; padding: 16px 24px;
+            max-width: 640px; margin: 0 auto; padding: 16px 24px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .page-indicator { font-family: var(--font-nav); font-size: 12px; letter-spacing: 1px; color: #1a1a1a; }
@@ -314,7 +314,7 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 0;
-            width: min(860px, 96vw);
+            width: min(700px, 82vw);
             pointer-events: none;
         }
         .clipboard-img {
@@ -374,11 +374,6 @@
     <div class="scroll-container">
 
     <div class="echart-wrapper">
-        <div class="echart-header">
-            <div class="label">Electronic Chart</div>
-            <h1>e-Chart <em>고객 관리</em></h1>
-            <p>고객님의 정보를 선택하고, 방문 시마다 관리 기록을 남겨주세요.</p>
-        </div>
 
         <div class="progress-section"><div class="progress-bar-wrapper">
             <div class="progress-step active" onclick="goToPage(1)"><div class="dot">1</div><div class="step-label">기본 정보</div></div>

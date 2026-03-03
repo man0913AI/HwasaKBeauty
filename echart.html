@@ -73,10 +73,10 @@
         .echart-wrapper {
             position: fixed;
             top: 56px; left: 0; right: 0; bottom: 0;
-            z-index: 2;
+            z-index: 3;
             display: flex;
             flex-direction: column;
-            max-width: 680px;
+            max-width: 600px;
             margin: 0 auto;
             width: 100%;
         }
@@ -296,6 +296,23 @@
         }
     
 
+        /* ========== CLIPBOARD FRAME ========== */
+        .clipboard-layer {
+            position: fixed;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            width: min(700px, 92vw);
+            pointer-events: none;
+        }
+        .clipboard-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 8px 40px rgba(0,0,0,0.5));
+        }
+
         /* ========== 전체 고정, 스크롤 없음 ========== */
         html, body { overflow: hidden; height: 100%; margin: 0; }
         </style>
@@ -309,6 +326,10 @@
     </div>
     <!-- 눈부심 개선 오버레이 -->
     <div class="bg-overlay"></div>
+    <!-- CLIPBOARD FRAME -->
+    <div class="clipboard-layer">
+        <img src="images/echart_clipboard.png" alt="" class="clipboard-img">
+    </div>
 
     <header class="header">
         <a href="index.html" class="logo"><img src="logo.png" alt="Hwasa K-Beauty" class="logo-img"></a>

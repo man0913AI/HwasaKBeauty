@@ -227,29 +227,58 @@
         }
         .apply-success p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.8; }
 
-        /* ── FOOTER ─────────────────────────────────────── */
-        .footer { background: transparent; color: #fff; border-top: none; }
-        .footer-top {
-            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px;
-            max-width: 1400px; margin: 0 auto; padding: 80px 48px 60px;
+        /* ── SLIM FOOTER ────────────────────────────────── */
+        .footer-slim {
+            background: transparent;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            min-height: 140px;
         }
-        .footer-brand p { font-size: 13px; line-height: 1.8; margin-top: 16px; color: #fff; }
-        .footer-col h4 {
-            font-family: var(--font-nav); font-size: 11px; letter-spacing: 3px;
-            text-transform: uppercase; color: #fff; margin-bottom: 20px;
+        .footer-slim-inner {
+            max-width: 1400px; margin: 0 auto;
+            padding: 28px 48px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 32px; flex-wrap: wrap;
         }
-        .footer-col ul { list-style: none; }
-        .footer-col li { margin-bottom: 12px; }
-        .footer-col a { font-size: 14px; color: #fff; transition: color 0.3s; }
-        .footer-col a:hover { color: var(--color-accent); }
-        .footer-bottom {
-            max-width: 1400px; margin: 0 auto; padding: 24px 48px;
-            border-top: none;
-            display: flex; justify-content: space-between; align-items: center; font-size: 12px;
+        .footer-copy {
+            font-size: 12px; color: rgba(255,255,255,0.45);
+            font-family: var(--font-nav); letter-spacing: 1px;
+            flex-shrink: 0;
         }
-        .social-links { display: flex; gap: 20px; }
-        .social-links a { color: #fff; font-size: 13px; transition: color 0.3s; }
-        .social-links a:hover { color: var(--color-accent); }
+        .footer-qr-slots {
+            display: flex; gap: 28px; align-items: center;
+            /* QR코드 자리 — 나중에 img 태그 삽입 */
+        }
+        .footer-qr-placeholder {
+            width: 80px; height: 80px;
+            border: 1px dashed rgba(184,149,106,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: rgba(184,149,106,0.35);
+            font-family: var(--font-nav); letter-spacing: 1px;
+            text-transform: uppercase; text-align: center; line-height: 1.4;
+        }
+        .footer-slim-links {
+            display: flex; align-items: center; gap: 24px; flex-shrink: 0;
+        }
+        .footer-slim-links a {
+            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
+            text-transform: uppercase; color: #fff; transition: color 0.3s;
+            white-space: nowrap;
+        }
+        .footer-slim-links a:hover { color: var(--color-accent); }
+        .footer-slim-links .footer-contact-btn {
+            padding: 8px 20px; border: 1px solid rgba(184,149,106,0.5);
+            color: var(--color-accent) !important;
+        }
+        .footer-slim-links .footer-contact-btn:hover {
+            background: var(--color-accent); color: #fff !important;
+        }
+        @media (max-width: 768px) {
+            .footer-slim-inner {
+                flex-direction: column; align-items: center;
+                text-align: center; padding: 28px 24px; gap: 20px;
+            }
+            .footer-slim-links { gap: 16px; flex-wrap: wrap; justify-content: center; }
+        }
 
         /* ── BG VIDEO & SCROLL ──────────────────────────── */
         .bg-video-wrap { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
@@ -264,7 +293,6 @@
 
         /* ── RESPONSIVE ─────────────────────────────────── */
         @media (max-width: 1024px) {
-            .footer-top { grid-template-columns: 1fr 1fr; }
             .highlight-grid { grid-template-columns: 1fr 1fr 1fr; }
         }
         @media (max-width: 768px) {
@@ -273,8 +301,6 @@
             .menu-toggle { display: flex; }
             .section { padding: 60px 20px; }
             .page-hero { padding: 88px 20px 16px; }
-            .footer-top { grid-template-columns: 1fr; gap: 32px; padding: 60px 24px 40px; }
-            .footer-bottom { flex-direction: column; gap: 16px; text-align: center; padding: 20px 24px; }
             .highlight-grid { grid-template-columns: 1fr; }
             .curriculum-grid { grid-template-columns: 1fr; }
             .apply-wrap { padding: 36px 24px; }
@@ -529,55 +555,17 @@
         </div>
     </section>
 
-    <footer class="footer">
-        <div class="footer-top">
-            <div class="footer-brand">
-                <a href="index.html" class="logo">
-                    <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
-                </a>
-                <p>하노이 미딩에 위치한 프리미엄<br>한국식 피부관리 전문샵</p>
+    <footer class="footer-slim">
+        <div class="footer-slim-inner">
+            <span class="footer-copy">&copy; 2026 Hwasa K-Beauty. All rights reserved.</span>
+            <div class="footer-qr-slots">
+                <div class="footer-qr-placeholder">QR<br>Homepage</div>
+                <div class="footer-qr-placeholder">QR<br>E-Chart</div>
             </div>
-            <div class="footer-col">
-                <h4>Menu</h4>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="diploma.html">Diploma</a></li>
-                    <li><a href="program.html">Program</a></li>
-                    <li><a href="selfbeauty.html">Self Beauty</a></li>
-                    <li><a href="echart.html">E-Chart</a></li>
-                    <li><a href="letter.html">Letter</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="shop.html">Shop</a></li>
-                    <li><a href="academy.html">Academy</a></li>
-                    <li><a href="erp.html">ERP</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Contact</h4>
-                <ul>
-                    <li><a href="tel:+840326842002">📞 전화 상담 : +840326842002</a></li>
-                    <li><a href="https://open.kakao.com/o/suDPpihg" target="_blank">💬 카카오톡</a></li>
-                    <li><a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">📸 Instagram</a></li>
-                    <li><a href="https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3FscreenType%3DBOOKING%26dropOffAddress%3DHwasa%20K-Beauty%2C%20A1%20Five%20Star%20My%20Dinh%2C%20Hanoi%26dropoff_lat%3D21.0138%26dropoff_lng%3D105.7697&af_web_dp=https%3A%2F%2Fwww.grab.com" target="_blank">🚕 Grab</a></li>
-                    <li><a href="https://www.google.com/maps/dir/?api=1&destination=Hwasa+K+Beauty+A1+Khu+Five+Star+My+Dinh+Tu+Liem+Hanoi+Vietnam&travelmode=driving" target="_blank">📍 Google Map</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Hours</h4>
-                <ul>
-                    <li><a href="#">월–일: 09:00 – 19:30</a></li>
-                    <li><a href="#">금요일: – 21:00</a></li>
-                    <li><a href="#">연중무휴(명절제외)</a></li>
-                    <li><a href="contact.html">📍 오시는 길</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <span>&copy; 2026 Hwasa K-Beauty. All rights reserved.</span>
-            <div class="social-links">
+            <div class="footer-slim-links">
                 <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">Instagram</a>
-                <a href="#">KakaoTalk</a>
-                <a href="#">Facebook</a>
+                <a href="https://open.kakao.com/o/suDPpihg" target="_blank">KakaoTalk</a>
+                <a href="contact.html" class="footer-contact-btn">Contact</a>
             </div>
         </div>
     </footer>

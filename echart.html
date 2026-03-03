@@ -114,7 +114,7 @@
         .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .progress-step .dot {
             width: 32px; height: 32px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.25);
+            border: 2px solid rgba(0,0,0,0.25);
             display: flex; align-items: center; justify-content: center;
             font-family: var(--font-nav); font-size: 12px; font-weight: 600;
             color: #fff; background: transparent;
@@ -127,9 +127,8 @@
         .progress-step.done .dot { border-color: var(--color-success); color: #fff; background: var(--color-success); }
         .progress-step .step-label {
             font-family: var(--font-nav); font-size: 10px; letter-spacing: 1px;
-            text-transform: uppercase; color: #fff;
+            text-transform: uppercase; color: #444;
             margin-top: 8px; white-space: nowrap;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
         }
         .progress-step.active .step-label { color: var(--color-accent-light); }
         .progress-step.done .step-label { color: var(--color-success); }
@@ -152,14 +151,12 @@
         .form-page.active { display: block; opacity: 1; transform: translateX(0); }
         .page-title {
             font-family: var(--font-display); font-size: 28px; font-weight: 400;
-            margin-bottom: 8px; color: #fff;
-            text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+            margin-bottom: 8px; color: #1a1a1a;
         }
-        .page-title em { font-style: italic; color: var(--color-accent-light); }
+        .page-title em { font-style: italic; color: var(--color-accent); }
         .page-subtitle {
-            font-size: 13px; color: #fff;
+            font-size: 13px; color: #444;
             margin-bottom: 36px; font-weight: 300;
-            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
         }
 
         /* ========== FORM ELEMENTS — 반투명 ========== */
@@ -168,42 +165,41 @@
         .form-label {
             display: block; font-family: var(--font-nav); font-size: 11px;
             letter-spacing: 2px; text-transform: uppercase;
-            color: #fff; margin-bottom: 8px; font-weight: 600;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+            color: #1a1a1a; margin-bottom: 8px; font-weight: 600;
         }
         .form-label .required { color: var(--color-danger); margin-left: 2px; }
 
         .form-input, .form-select, .form-textarea {
             width: 100%; padding: 14px 16px;
-            border: 1px solid rgba(255,255,255,0.15); border-radius: 0;
-            background: transparent;
+            border: 1px solid rgba(0,0,0,0.15); border-radius: 0;
+            background: rgba(255,255,255,0.6);
             font-family: var(--font-body); font-size: 14px;
-            color: #fff; transition: border-color 0.3s, box-shadow 0.3s;
+            color: #1a1a1a; transition: border-color 0.3s, box-shadow 0.3s;
             outline: none; -webkit-appearance: none;
         }
         .form-input:focus, .form-select:focus, .form-textarea:focus {
             border-color: var(--color-accent);
             box-shadow: 0 0 0 3px rgba(184,149,106,0.2);
         }
-        .form-input::placeholder { color: rgba(255,255,255,0.8); }
+        .form-input::placeholder { color: rgba(0,0,0,0.35); }
         .form-textarea { resize: vertical; min-height: 80px; }
         .form-select {
             cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;
         }
-        .form-select option { background: #1a1a1a; color: #fff; }
+        .form-select option { background: #fff; color: #1a1a1a; }
 
         /* ========== CHECK ITEMS — 반투명 ========== */
         .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
         .check-item {
             display: flex; align-items: center; gap: 10px;
             padding: 12px 16px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(0,0,0,0.12);
             cursor: pointer; transition: all 0.3s;
-            background: transparent;
+            background: rgba(255,255,255,0.5);
         }
-        .check-item:hover { border-color: #fff; background: transparent; }
+        .check-item:hover { border-color: #1a1a1a; background: rgba(255,255,255,0.8); }
         .check-item.selected {
             border-color: var(--color-accent);
             background: rgba(184,149,106,0.2);
@@ -211,7 +207,7 @@
         .check-item input { display: none; }
         .check-dot {
             width: 18px; height: 18px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.25);
+            border: 2px solid rgba(0,0,0,0.25);
             display: flex; align-items: center; justify-content: center;
             transition: all 0.3s; flex-shrink: 0;
         }
@@ -219,26 +215,25 @@
         .check-dot::after { content: '✓'; font-size: 10px; color: #fff; opacity: 0; transition: opacity 0.2s; }
         .check-item.selected .check-dot::after { opacity: 1; }
         .check-square .check-dot { border-radius: 4px; }
-        .check-label { font-size: 13px; font-weight: 400; color: #fff; }
+        .check-label { font-size: 13px; font-weight: 400; color: #1a1a1a; }
 
-        .form-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 32px 0; }
+        .form-divider { height: 1px; background: rgba(0,0,0,0.1); margin: 32px 0; }
         .form-section-title {
             font-family: var(--font-nav); font-size: 12px; letter-spacing: 3px;
-            text-transform: uppercase; color: var(--color-accent-light);
+            text-transform: uppercase; color: var(--color-accent);
             margin-bottom: 20px; font-weight: 600;
-            text-shadow: 0 1px 6px rgba(0,0,0,0.5);
         }
 
         /* ========== VISIT CARD — 반투명 ========== */
         .visit-card {
-            border: 1px solid rgba(255,255,255,0.1); padding: 24px; margin-bottom: 16px;
-            background: transparent;
+            border: 1px solid rgba(0,0,0,0.1); padding: 24px; margin-bottom: 16px;
+            background: rgba(255,255,255,0.3);
         }
         .visit-card-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);
         }
-        .visit-card-date { font-family: var(--font-nav); font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #fff; }
+        .visit-card-date { font-family: var(--font-nav); font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #1a1a1a; }
         .visit-card-badge {
             font-family: var(--font-nav); font-size: 10px; letter-spacing: 1px;
             text-transform: uppercase; padding: 4px 12px;
@@ -249,21 +244,21 @@
         .bottom-nav-full {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: transparent;
-            border-top: 1px solid rgba(255,255,255,0.08); z-index: 200;
+            border-top: 1px solid rgba(0,0,0,0.1); z-index: 200;
         }
         .bottom-nav-inner {
             max-width: 800px; margin: 0 auto; padding: 16px 24px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .page-indicator { font-family: var(--font-nav); font-size: 12px; letter-spacing: 1px; color: #fff; }
+        .page-indicator { font-family: var(--font-nav); font-size: 12px; letter-spacing: 1px; color: #1a1a1a; }
         .page-indicator strong { color: var(--color-accent-light); }
         .btn-nav {
             padding: 12px 32px; font-family: var(--font-nav); font-size: 12px;
             letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
             transition: all 0.3s var(--ease-smooth);
         }
-        .btn-prev { color: #fff; border: 1px solid rgba(255,255,255,0.15); background: transparent; }
-        .btn-prev:hover { border-color: #fff; color: #fff; }
+        .btn-prev { color: #1a1a1a; border: 1px solid rgba(0,0,0,0.2); background: rgba(255,255,255,0.5); }
+        .btn-prev:hover { border-color: #1a1a1a; color: #1a1a1a; background: rgba(255,255,255,0.8); }
         .btn-next { background: var(--color-accent); color: #fff; }
         .btn-next:hover { background: #A07D56; }
         .btn-submit { background: var(--color-success); color: #fff; padding: 12px 40px; }
@@ -288,9 +283,9 @@
         .btn-home:hover { background: #fff; color: #000; }
 
         #summaryContent {
-            background: transparent !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: #fff;
+            background: rgba(255,255,255,0.4) !important;
+            border: 1px solid rgba(0,0,0,0.1) !important;
+            color: #1a1a1a;
         }
 
         /* ========== RESPONSIVE ========== */
@@ -311,6 +306,24 @@
         }
         @media (max-width: 400px) { .check-grid { grid-template-columns: 1fr; } }
     
+
+        /* ========== CLIPBOARD LAYER ========== */
+        .clipboard-layer {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            width: min(860px, 96vw);
+            pointer-events: none;
+        }
+        .clipboard-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 8px 40px rgba(0,0,0,0.6));
+        }
+
         /* Scroll container */
         html, body { overflow: hidden; height: 100%; margin: 0; }
         .scroll-container {
@@ -321,7 +334,7 @@
             bottom: 0;
             overflow-y: auto;
             overflow-x: hidden;
-            z-index: 1;
+            z-index: 2;
         }
         .scroll-container::-webkit-scrollbar { display: none; }
         .scroll-container { scrollbar-width: none; }
@@ -333,6 +346,11 @@
         <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
             <source src="bg-video.mp4" type="video/mp4">
         </video>
+    </div>
+
+    <!-- CLIPBOARD LAYER — 배경영상 위, 폼 콘텐츠 아래 -->
+    <div class="clipboard-layer">
+        <img src="images/echart_clipboard.png" alt="" class="clipboard-img">
     </div>
 
     <header class="header">

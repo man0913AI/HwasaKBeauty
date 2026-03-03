@@ -707,7 +707,7 @@
 
     <!-- BACKGROUND VIDEO (persistent across scroll) -->
     <div class="bg-video-wrap">
-        <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
+        <video autoplay muted loop playsinline style="pointer-events:none;">
             <source src="bg-video.mp4" type="video/mp4">
         </video>
     </div>
@@ -716,7 +716,7 @@
     <div class="loader" id="loader">
         <div class="loader-text">HWASA <span style="font-size:0.5em; font-style:italic; color:var(--color-accent-light); letter-spacing:3px;">in Hanoi</span></div>
         <div class="loader-bar"></div>
-        <div class="loader-date" id="loaderDate" style="font-family:var(--font-nav); font-size:12px; color:rgba(255,255,255,0.35); letter-spacing:3px; margin-top:8px;">2023.01.01</div>
+        <div class="loader-date" id="loaderDate" style="font-family:var(--font-nav); font-size:12px; color:#fff; letter-spacing:3px; margin-top:8px;">2023.01.01</div>
     </div>
 
     <!-- HEADER -->
@@ -732,6 +732,8 @@
             <a href="echart.html">E-Chart</a>
             <a href="letter.html">Letter</a>
             <a href="about.html">About</a>
+            <a href="shop.html">Shop</a>
+            <a href="academy.html">Academy</a>
             <a href="contact.html">Contact</a>
             <a href="erp.html">ERP</a>
             <a href="echart.html" class="nav-cta">상담 예약</a>
@@ -889,6 +891,8 @@
                     <li><a href="echart.html">E-Chart</a></li>
                     <li><a href="letter.html">Letter</a></li>
                     <li><a href="about.html">About</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="academy.html">Academy</a></li>
                     <li><a href="erp.html">ERP</a></li>
                 
             </div>

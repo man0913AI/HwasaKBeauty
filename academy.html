@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academy | Hwasa K-Beauty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FAFAF8;
+            --color-bg-dark: #0A0A0A;
+            --color-bg-cream: #F5F0EB;
+            --color-text: #1A1A1A;
+            --color-text-light: #F5F0EB;
+            --color-accent: #B8956A;
+            --color-accent-light: #D4B896;
+            --color-muted: #8A8A8A;
+            --color-border: rgba(26,26,26,0.12);
+            --color-border-light: rgba(245,240,235,0.2);
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Noto Sans KR', sans-serif;
+            --font-nav: 'Instrument Sans', sans-serif;
+            --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg-dark);
+            color: var(--color-text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 2px; }
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 0 48px 0 20px; height: 80px;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: none; border-bottom: none;
+            background: transparent; border-color: transparent;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
+        .nav { display: flex; align-items: center; gap: 20px; }
+        .nav a {
+            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
+            text-transform: uppercase; color: #fff; transition: color 0.3s; font-weight: 700;
+            white-space: nowrap;
+        }
+        .nav a:hover, .nav a.active { color: var(--color-accent); }
+        .nav-cta {
+            padding: 10px 24px; border: 1px solid var(--color-accent);
+            color: var(--color-accent) !important; font-size: 11px !important;
+            letter-spacing: 2px; transition: all 0.3s !important;
+        }
+        .nav-cta:hover { background: var(--color-accent); color: #fff !important; }
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 1px; background: #fff; transition: all 0.3s; }
+        .page-hero {
+            padding: 96px 48px 24px; text-align: center;
+            background: transparent;
+        }
+        .page-hero-label {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 6px;
+            text-transform: uppercase; color: var(--color-accent-light); margin-bottom: 20px;
+        }
+        .page-hero-title {
+            font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px);
+            font-weight: 300; color: #fff; line-height: 1.2; margin-bottom: 16px;
+        }
+        .page-hero-title em { font-style: italic; color: var(--color-accent-light); }
+        .page-hero-desc {
+            font-size: 15px; color: #fff; font-weight: 300;
+            max-width: 520px; margin: 0 auto; line-height: 1.8;
+        }
+        .section { padding: 80px 48px; position: relative; }
+        .section-label {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
+            text-transform: uppercase; color: var(--color-accent); margin-bottom: 20px;
+        }
+        .section-title {
+            font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 48px);
+            font-weight: 300; line-height: 1.2; margin-bottom: 24px; color: #fff;
+        }
+        .section-title em { font-style: italic; }
+        .divider-line { width: 48px; height: 1px; background: var(--color-accent); margin: 28px 0; }
+        .section-header { text-align: center; margin-bottom: 56px; }
+        .section-header .divider-line { margin: 28px auto; }
+        .section-header .section-desc { margin: 0 auto; max-width: 540px; font-size: 15px; color: #fff; font-weight: 300; line-height: 1.9; }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s var(--ease-out); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── ACADEMY HIGHLIGHTS ────────────────────────── */
+        .highlight-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+            max-width: 960px; margin: 0 auto 80px;
+        }
+        .highlight-card {
+            border: 1px solid rgba(184,149,106,0.25);
+            padding: 32px 28px; text-align: center;
+        }
+        .highlight-icon { font-size: 36px; margin-bottom: 16px; }
+        .highlight-num {
+            font-family: var(--font-display); font-size: 44px; font-weight: 300;
+            color: var(--color-accent); line-height: 1;
+        }
+        .highlight-label {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 2px;
+            text-transform: uppercase; color: #fff; margin-top: 8px;
+        }
+
+        /* ── CURRICULUM CARDS ──────────────────────────── */
+        .curriculum-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 28px; max-width: 1300px; margin: 0 auto;
+        }
+        .curriculum-card {
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 32px 28px;
+            transition: border-color 0.3s, transform 0.3s;
+            position: relative; overflow: hidden;
+        }
+        .curriculum-card:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-4px);
+        }
+        .curriculum-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: var(--color-accent); opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .curriculum-card:hover::before { opacity: 1; }
+        .curriculum-level {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--color-accent); margin-bottom: 14px;
+        }
+        .curriculum-title {
+            font-family: var(--font-display); font-size: 24px; font-weight: 400;
+            color: #fff; margin-bottom: 12px; line-height: 1.3;
+        }
+        .curriculum-desc {
+            font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 300;
+            line-height: 1.8; margin-bottom: 20px;
+        }
+        .curriculum-tags {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+        }
+        .tag {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 1px;
+            text-transform: uppercase; padding: 4px 12px;
+            border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6);
+        }
+        .curriculum-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .curriculum-duration {
+            font-size: 13px; color: #fff; font-weight: 300;
+        }
+        .curriculum-duration strong {
+            display: block; font-family: var(--font-display); font-size: 18px;
+            color: var(--color-accent-light); font-weight: 400;
+        }
+        .curriculum-btn {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 2px;
+            text-transform: uppercase; padding: 9px 20px;
+            border: 1px solid rgba(255,255,255,0.2); color: #fff;
+            background: transparent; cursor: pointer; transition: all 0.3s;
+        }
+        .curriculum-btn:hover {
+            border-color: var(--color-accent); color: var(--color-accent);
+        }
+
+        /* ── APPLICATION SECTION ───────────────────────── */
+        .apply-wrap {
+            max-width: 860px; margin: 0 auto;
+            border: 1px solid rgba(184,149,106,0.3);
+            padding: 52px 60px;
+        }
+        .apply-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+            margin-top: 36px;
+        }
+        .apply-field { display: flex; flex-direction: column; gap: 8px; }
+        .apply-field label {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--color-accent);
+        }
+        .apply-field input,
+        .apply-field select,
+        .apply-field textarea {
+            background: transparent; border: 1px solid rgba(255,255,255,0.15);
+            color: #fff; font-family: var(--font-body); font-size: 14px;
+            padding: 12px 16px; outline: none; transition: border-color 0.3s;
+        }
+        .apply-field input:focus,
+        .apply-field select:focus,
+        .apply-field textarea:focus {
+            border-color: var(--color-accent);
+        }
+        .apply-field select option { background: #111; color: #fff; }
+        .apply-field textarea { resize: vertical; min-height: 90px; }
+        .apply-field.full { grid-column: 1 / -1; }
+        .apply-submit {
+            margin-top: 32px;
+            font-family: var(--font-nav); font-size: 12px; letter-spacing: 3px;
+            text-transform: uppercase; padding: 16px 48px;
+            background: var(--color-accent); color: #fff;
+            border: none; cursor: pointer; transition: opacity 0.3s;
+        }
+        .apply-submit:hover { opacity: 0.85; }
+        .apply-success {
+            display: none; text-align: center; padding: 60px 20px;
+        }
+        .apply-success .check { font-size: 48px; margin-bottom: 16px; }
+        .apply-success h3 {
+            font-family: var(--font-display); font-size: 28px; font-weight: 300;
+            color: #fff; margin-bottom: 12px;
+        }
+        .apply-success p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.8; }
+
+        /* ── FOOTER ─────────────────────────────────────── */
+        .footer { background: transparent; color: #fff; border-top: none; }
+        .footer-top {
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px;
+            max-width: 1400px; margin: 0 auto; padding: 80px 48px 60px;
+        }
+        .footer-brand p { font-size: 13px; line-height: 1.8; margin-top: 16px; color: #fff; }
+        .footer-col h4 {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 3px;
+            text-transform: uppercase; color: #fff; margin-bottom: 20px;
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 12px; }
+        .footer-col a { font-size: 14px; color: #fff; transition: color 0.3s; }
+        .footer-col a:hover { color: var(--color-accent); }
+        .footer-bottom {
+            max-width: 1400px; margin: 0 auto; padding: 24px 48px;
+            border-top: none;
+            display: flex; justify-content: space-between; align-items: center; font-size: 12px;
+        }
+        .social-links { display: flex; gap: 20px; }
+        .social-links a { color: #fff; font-size: 13px; transition: color 0.3s; }
+        .social-links a:hover { color: var(--color-accent); }
+
+        /* ── BG VIDEO & SCROLL ──────────────────────────── */
+        .bg-video-wrap { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+        .bg-video-wrap video { width: 100%; height: 100%; object-fit: cover; }
+        html, body { overflow: hidden; height: 100%; margin: 0; }
+        .scroll-container {
+            position: fixed; top: 80px; left: 0; right: 0; bottom: 0;
+            overflow-y: auto; overflow-x: hidden; z-index: 1;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { scrollbar-width: none; }
+
+        /* ── RESPONSIVE ─────────────────────────────────── */
+        @media (max-width: 1024px) {
+            .footer-top { grid-template-columns: 1fr 1fr; }
+            .highlight-grid { grid-template-columns: 1fr 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .header { padding: 0 24px; height: 64px; }
+            .nav { display: none; }
+            .menu-toggle { display: flex; }
+            .section { padding: 60px 20px; }
+            .page-hero { padding: 88px 20px 16px; }
+            .footer-top { grid-template-columns: 1fr; gap: 32px; padding: 60px 24px 40px; }
+            .footer-bottom { flex-direction: column; gap: 16px; text-align: center; padding: 20px 24px; }
+            .highlight-grid { grid-template-columns: 1fr; }
+            .curriculum-grid { grid-template-columns: 1fr; }
+            .apply-wrap { padding: 36px 24px; }
+            .apply-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-video-wrap">
+        <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
+            <source src="bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <header class="header" id="header">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
+        </a>
+        <nav class="nav" id="nav">
+            <a href="index.html">Home</a>
+            <a href="diploma.html">Diploma</a>
+            <a href="program.html">Program</a>
+            <a href="selfbeauty.html">Self Beauty</a>
+            <a href="echart.html">E-Chart</a>
+            <a href="letter.html">Letter</a>
+            <a href="about.html">About</a>
+            <a href="shop.html">Shop</a>
+            <a href="academy.html" class="active">Academy</a>
+            <a href="contact.html">Contact</a>
+            <a href="erp.html">ERP</a>
+            <a href="echart.html" class="nav-cta">상담 예약</a>
+        </nav>
+        <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+    </header>
+
+    <div class="scroll-container">
+
+    <section class="page-hero">
+        <p class="page-hero-label">Education &amp; Training</p>
+        <h1 class="page-hero-title">Hwasa <em>Academy</em></h1>
+        <p class="page-hero-desc">15년 경력 원장의 노하우를 담은 프리미엄 뷰티 교육 과정<br>입문부터 전문가 과정까지</p>
+    </section>
+
+    <!-- HIGHLIGHTS -->
+    <section class="section">
+        <div class="highlight-grid reveal">
+            <div class="highlight-card">
+                <div class="highlight-icon">🎓</div>
+                <div class="highlight-num">15+</div>
+                <div class="highlight-label">Years of Experience</div>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon">📜</div>
+                <div class="highlight-num">3</div>
+                <div class="highlight-label">Curriculum Levels</div>
+            </div>
+            <div class="highlight-card">
+                <div class="highlight-icon">🌏</div>
+                <div class="highlight-num">온·오프</div>
+                <div class="highlight-label">Online / Offline</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CURRICULUM -->
+    <section class="section">
+        <div class="section-header reveal">
+            <p class="section-label">Curriculum</p>
+            <h2 class="section-title">교육 <em>커리큘럼</em></h2>
+            <div class="divider-line"></div>
+            <p class="section-desc">기초 스킨케어부터 전문 피부관리사 취업·창업 과정까지 단계별로 구성된 체계적인 교육 프로그램입니다.</p>
+        </div>
+
+        <div class="curriculum-grid reveal">
+
+            <!-- BASIC -->
+            <div class="curriculum-card">
+                <p class="curriculum-level">Level 1 · Basic</p>
+                <h3 class="curriculum-title">기초 스킨케어<br>입문 과정</h3>
+                <p class="curriculum-desc">피부 타입 분석, 기본 클렌징, 수분관리 루틴 등 뷰티의 기본을 배웁니다. 뷰티 입문자 및 셀프케어에 관심 있는 분께 추천.</p>
+                <div class="curriculum-tags">
+                    <span class="tag">피부 분석</span>
+                    <span class="tag">클렌징</span>
+                    <span class="tag">수분 케어</span>
+                    <span class="tag">셀프 마사지</span>
+                </div>
+                <div class="curriculum-meta">
+                    <div class="curriculum-duration">
+                        <strong>4주 과정</strong>
+                        주 1회 · 2시간
+                    </div>
+                    <button class="curriculum-btn" onclick="scrollToApply('기초 스킨케어 입문 과정')">수강 신청</button>
+                </div>
+            </div>
+
+            <!-- INTERMEDIATE -->
+            <div class="curriculum-card">
+                <p class="curriculum-level">Level 2 · Intermediate</p>
+                <h3 class="curriculum-title">전문 피부 관리<br>심화 과정</h3>
+                <p class="curriculum-desc">딥클렌징, 각질 관리, 앰플 적용법, 피부 트러블 케어 등 전문 관리 기술을 습득합니다. 뷰티샵 취업 준비생에게 최적.</p>
+                <div class="curriculum-tags">
+                    <span class="tag">딥 클렌징</span>
+                    <span class="tag">각질 케어</span>
+                    <span class="tag">트러블 케어</span>
+                    <span class="tag">기기 관리</span>
+                </div>
+                <div class="curriculum-meta">
+                    <div class="curriculum-duration">
+                        <strong>8주 과정</strong>
+                        주 2회 · 2시간
+                    </div>
+                    <button class="curriculum-btn" onclick="scrollToApply('전문 피부 관리 심화 과정')">수강 신청</button>
+                </div>
+            </div>
+
+            <!-- ADVANCED -->
+            <div class="curriculum-card">
+                <p class="curriculum-level">Level 3 · Professional</p>
+                <h3 class="curriculum-title">원장 창업 마스터<br>클래스</h3>
+                <p class="curriculum-desc">Hwasa K-Beauty 원장이 직접 전수하는 프리미엄 과정. 관리 기술 + 고객 상담 + 샵 운영 노하우까지 모두 커버.</p>
+                <div class="curriculum-tags">
+                    <span class="tag">1:1 멘토링</span>
+                    <span class="tag">샵 운영</span>
+                    <span class="tag">고객 관리</span>
+                    <span class="tag">창업 컨설팅</span>
+                </div>
+                <div class="curriculum-meta">
+                    <div class="curriculum-duration">
+                        <strong>12주 과정</strong>
+                        맞춤형 일정
+                    </div>
+                    <button class="curriculum-btn" onclick="scrollToApply('원장 창업 마스터 클래스')">수강 신청</button>
+                </div>
+            </div>
+
+            <!-- ONLINE -->
+            <div class="curriculum-card">
+                <p class="curriculum-level">Online</p>
+                <h3 class="curriculum-title">온라인<br>셀프 뷰티 클래스</h3>
+                <p class="curriculum-desc">영상 강의 + 자료 제공. 시간·장소 제약 없이 수강 가능. 베트남 거주자 및 해외에서도 수강 가능합니다.</p>
+                <div class="curriculum-tags">
+                    <span class="tag">영상 강의</span>
+                    <span class="tag">PDF 교재</span>
+                    <span class="tag">Q&amp;A 지원</span>
+                    <span class="tag">언제든 수강</span>
+                </div>
+                <div class="curriculum-meta">
+                    <div class="curriculum-duration">
+                        <strong>자기 주도형</strong>
+                        무제한 기간
+                    </div>
+                    <button class="curriculum-btn" onclick="scrollToApply('온라인 셀프 뷰티 클래스')">수강 신청</button>
+                </div>
+            </div>
+
+            <!-- SPECIAL -->
+            <div class="curriculum-card">
+                <p class="curriculum-level">Special · Workshop</p>
+                <h3 class="curriculum-title">원데이<br>스페셜 워크숍</h3>
+                <p class="curriculum-desc">특정 주제 집중 워크숍. 골드 마스크팩 셀프 케어, 두피 관리, 바디 슬리밍 테크닉 등 테마별 진행.</p>
+                <div class="curriculum-tags">
+                    <span class="tag">원데이</span>
+                    <span class="tag">소수정예</span>
+                    <span class="tag">실습 중심</span>
+                </div>
+                <div class="curriculum-meta">
+                    <div class="curriculum-duration">
+                        <strong>1일 과정</strong>
+                        3~4시간
+                    </div>
+                    <button class="curriculum-btn" onclick="scrollToApply('원데이 스페셜 워크숍')">수강 신청</button>
+                </div>
+            </div>
+
+            <!-- KIDS / FAMILY -->
+            <div class="curriculum-card">
+                <p class="curriculum-level">Family</p>
+                <h3 class="curriculum-title">패밀리<br>스킨케어 클래스</h3>
+                <p class="curriculum-desc">가족 단위로 함께하는 뷰티 클래스. 자녀와 함께하는 천연 팩 만들기, 기초 케어 루틴 공유.</p>
+                <div class="curriculum-tags">
+                    <span class="tag">가족 참여</span>
+                    <span class="tag">천연 재료</span>
+                    <span class="tag">체험형</span>
+                </div>
+                <div class="curriculum-meta">
+                    <div class="curriculum-duration">
+                        <strong>1일 과정</strong>
+                        2시간
+                    </div>
+                    <button class="curriculum-btn" onclick="scrollToApply('패밀리 스킨케어 클래스')">수강 신청</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- APPLICATION FORM -->
+    <section class="section" id="applySection">
+        <div class="apply-wrap reveal">
+            <div id="applyForm">
+                <p class="section-label">Apply Now</p>
+                <h2 class="section-title">수강 <em>신청</em></h2>
+                <div class="divider-line"></div>
+                <p style="font-size:14px; color:rgba(255,255,255,0.7); font-weight:300; line-height:1.9;">
+                    아래 양식을 작성해 주시면 원장이 직접 연락드려 상세 안내를 해드립니다.
+                </p>
+                <div class="apply-grid">
+                    <div class="apply-field">
+                        <label>이름 / Name</label>
+                        <input type="text" id="applyName" placeholder="홍길동">
+                    </div>
+                    <div class="apply-field">
+                        <label>연락처 / Phone</label>
+                        <input type="text" id="applyPhone" placeholder="+84 / 010-xxxx-xxxx">
+                    </div>
+                    <div class="apply-field">
+                        <label>관심 과정 / Course</label>
+                        <select id="applyCourse">
+                            <option value="">과정을 선택하세요</option>
+                            <option>기초 스킨케어 입문 과정</option>
+                            <option>전문 피부 관리 심화 과정</option>
+                            <option>원장 창업 마스터 클래스</option>
+                            <option>온라인 셀프 뷰티 클래스</option>
+                            <option>원데이 스페셜 워크숍</option>
+                            <option>패밀리 스킨케어 클래스</option>
+                        </select>
+                    </div>
+                    <div class="apply-field">
+                        <label>수강 방식</label>
+                        <select id="applyMode">
+                            <option value="">선택</option>
+                            <option>오프라인 (하노이 매장)</option>
+                            <option>온라인</option>
+                            <option>미정 / 상담 후 결정</option>
+                        </select>
+                    </div>
+                    <div class="apply-field full">
+                        <label>문의 사항</label>
+                        <textarea id="applyMsg" placeholder="궁금한 점이나 요청 사항을 자유롭게 작성해 주세요."></textarea>
+                    </div>
+                </div>
+                <button class="apply-submit" onclick="submitApply()">수강 신청하기</button>
+            </div>
+            <div class="apply-success" id="applySuccess">
+                <div class="check">✅</div>
+                <h3>신청이 완료되었습니다!</h3>
+                <p>입력해 주신 정보를 바탕으로<br>빠른 시일 내에 연락드리겠습니다.<br><br>카카오톡으로도 문의 가능합니다 😊</p>
+                <a href="https://open.kakao.com/o/suDPpihg" target="_blank" style="display:inline-block;margin-top:24px;padding:12px 32px;border:1px solid var(--color-accent);color:var(--color-accent);font-family:var(--font-nav);font-size:11px;letter-spacing:2px;text-transform:uppercase;">카카오톡 바로가기</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
+                </a>
+                <p>하노이 미딩에 위치한 프리미엄<br>한국식 피부관리 전문샵</p>
+            </div>
+            <div class="footer-col">
+                <h4>Menu</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="diploma.html">Diploma</a></li>
+                    <li><a href="program.html">Program</a></li>
+                    <li><a href="selfbeauty.html">Self Beauty</a></li>
+                    <li><a href="echart.html">E-Chart</a></li>
+                    <li><a href="letter.html">Letter</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="academy.html">Academy</a></li>
+                    <li><a href="erp.html">ERP</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:+840326842002">📞 전화 상담 : +840326842002</a></li>
+                    <li><a href="https://open.kakao.com/o/suDPpihg" target="_blank">💬 카카오톡</a></li>
+                    <li><a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">📸 Instagram</a></li>
+                    <li><a href="https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3FscreenType%3DBOOKING%26dropOffAddress%3DHwasa%20K-Beauty%2C%20A1%20Five%20Star%20My%20Dinh%2C%20Hanoi%26dropoff_lat%3D21.0138%26dropoff_lng%3D105.7697&af_web_dp=https%3A%2F%2Fwww.grab.com" target="_blank">🚕 Grab</a></li>
+                    <li><a href="https://www.google.com/maps/dir/?api=1&destination=Hwasa+K+Beauty+A1+Khu+Five+Star+My+Dinh+Tu+Liem+Hanoi+Vietnam&travelmode=driving" target="_blank">📍 Google Map</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hours</h4>
+                <ul>
+                    <li><a href="#">월–일: 09:00 – 19:30</a></li>
+                    <li><a href="#">금요일: – 21:00</a></li>
+                    <li><a href="#">연중무휴(명절제외)</a></li>
+                    <li><a href="contact.html">📍 오시는 길</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Hwasa K-Beauty. All rights reserved.</span>
+            <div class="social-links">
+                <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">Instagram</a>
+                <a href="#">KakaoTalk</a>
+                <a href="#">Facebook</a>
+            </div>
+        </div>
+    </footer>
+
+    </div><!-- scroll-container -->
+    <script>
+        // Reveal
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // Mobile menu
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+            if (window.innerWidth <= 768 && nav.style.display === 'flex') {
+                nav.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.97);z-index:999;align-items:center;justify-content:center;gap:28px;`;
+            }
+        }
+
+        // Scroll to apply form and pre-select course
+        function scrollToApply(courseName) {
+            const sel = document.getElementById('applyCourse');
+            for (let i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].text === courseName) { sel.selectedIndex = i; break; }
+            }
+            document.getElementById('applySection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Submit
+        function submitApply() {
+            const name  = document.getElementById('applyName').value.trim();
+            const phone = document.getElementById('applyPhone').value.trim();
+            if (!name)  { document.getElementById('applyName').focus();  return; }
+            if (!phone) { document.getElementById('applyPhone').focus(); return; }
+            document.getElementById('applyForm').style.display = 'none';
+            document.getElementById('applySuccess').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

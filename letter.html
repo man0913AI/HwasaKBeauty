@@ -222,6 +222,8 @@
             <a href="echart.html">E-Chart</a>
             <a href="letter.html" class="active">Letter</a>
             <a href="about.html">About</a>
+            <a href="shop.html">Shop</a>
+            <a href="academy.html">Academy</a>
             <a href="contact.html">Contact</a>
             <a href="erp.html">ERP</a>
             <a href="echart.html" class="nav-cta">상담 예약</a>
@@ -238,30 +240,147 @@
         <p class="page-hero-desc">Hwasa K-Beauty의 정기 &amp; 비정기 뉴스레터</p>
     </section>
 
-    <section class="section">
-        <div style="display:flex;justify-content:center;gap:40px;max-width:960px;margin:0 auto;flex-wrap:wrap;">
-            <div class="reveal" style="flex:1;min-width:280px;max-width:440px;">
-                <video
-                    controls
-                    muted
-                    preload="metadata"
-                    style="width:100%;border:1px solid rgba(255,255,255,0.1);background:#000;display:block;"
-                >
-                    <source src="Letter/Letter_1.mp4" type="video/mp4">
-                </video>
-            </div>
-            <div class="reveal" style="flex:1;min-width:280px;max-width:440px;">
-                <video
-                    controls
-                    muted
-                    preload="metadata"
-                    style="width:100%;border:1px solid rgba(255,255,255,0.1);background:#000;display:block;"
-                >
-                    <source src="Letter/Letter_2.mp4" type="video/mp4">
-                </video>
+    <style>
+        /* ── 가로형 마블 프레임 ── */
+        .marble-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 48px 80px;
+        }
+        .marble-frame {
+            position: relative;
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+        }
+        .marble-frame.visible { opacity: 1; transform: translateY(0); }
+        .marble-frame:nth-child(1) { transition-delay: 0.05s; }
+        .marble-frame:nth-child(2) { transition-delay: 0.18s; }
+
+        /* 마블 외부 테두리 */
+        .marble-outer {
+            position: relative;
+            border-radius: 4px;
+            padding: 14px 14px 10px;
+            background:
+                linear-gradient(135deg,
+                    #e8e0d8 0%, #d4ccc4 15%,
+                    #bbb0a8 30%, #ccc4bc 45%,
+                    #ddd6ce 55%, #c8c0b8 70%,
+                    #b8b0a8 80%, #d0c8c0 100%
+                );
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.7) inset,
+                0 -1px 0 rgba(0,0,0,0.25) inset,
+                0 12px 40px rgba(0,0,0,0.5),
+                0 2px 8px rgba(0,0,0,0.3);
+        }
+        /* 마블 결 오버레이 (SVG noise) */
+        .marble-outer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 4px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='200'%3E%3Cdefs%3E%3Cfilter id='m'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.008 0.025' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.18' intercept='0.72'/%3E%3CfeFuncG type='linear' slope='0.15' intercept='0.70'/%3E%3CfeFuncB type='linear' slope='0.12' intercept='0.68'/%3E%3CfeFuncA type='linear' slope='0.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3C/defs%3E%3Crect width='900' height='200' filter='url(%23m)'/%3E%3C/svg%3E") center/cover;
+            pointer-events: none;
+        }
+        /* 안쪽 얇은 금속 테두리 */
+        .marble-outer::after {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border: 1px solid rgba(255,255,255,0.45);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+        /* 영상 화면 */
+        .marble-screen {
+            position: relative;
+            z-index: 1;
+            border-radius: 2px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.8);
+        }
+        .marble-screen video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: #000;
+        }
+        /* 하단 레이블 */
+        .marble-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 2px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .marble-number {
+            font-family: var(--font-nav, 'Instrument Sans', sans-serif);
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: rgba(80,70,60,0.7);
+        }
+        .marble-dots {
+            display: flex;
+            gap: 5px;
+        }
+        .marble-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, #aaa49e, #7a7470);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+
+        @media (max-width: 768px) {
+            .marble-grid { padding: 0 20px 60px; gap: 24px; }
+        }
+    </style>
+
+    <div class="marble-grid">
+
+        <div class="marble-frame">
+            <div class="marble-outer">
+                <div class="marble-screen">
+                    <video controls muted preload="metadata">
+                        <source src="Letter/Letter_1.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="marble-label">
+                    <span class="marble-number">#1</span>
+                    <div class="marble-dots">
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+
+        <div class="marble-frame">
+            <div class="marble-outer">
+                <div class="marble-screen">
+                    <video controls muted preload="metadata">
+                        <source src="Letter/Letter_2.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="marble-label">
+                    <span class="marble-number">#2</span>
+                    <div class="marble-dots">
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <footer class="footer">
         <div class="footer-top">
@@ -281,6 +400,8 @@
                     <li><a href="echart.html">E-Chart</a></li>
                     <li><a href="letter.html">Letter</a></li>
                     <li><a href="about.html">About</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="academy.html">Academy</a></li>
                     <li><a href="erp.html">ERP</a></li>
                 
             </div>
@@ -323,6 +444,12 @@
             });
         }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
         revealElements.forEach(el => revealObserver.observe(el));
+
+        // marble frame
+        const marbleObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.marble-frame').forEach(el => marbleObs.observe(el));
         function toggleMenu() {
             const nav = document.getElementById('nav');
             nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';

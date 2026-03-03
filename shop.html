@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | Hwasa K-Beauty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FAFAF8;
+            --color-bg-dark: #0A0A0A;
+            --color-bg-cream: #F5F0EB;
+            --color-text: #1A1A1A;
+            --color-text-light: #F5F0EB;
+            --color-accent: #B8956A;
+            --color-accent-light: #D4B896;
+            --color-muted: #8A8A8A;
+            --color-border: rgba(26,26,26,0.12);
+            --color-border-light: rgba(245,240,235,0.2);
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Noto Sans KR', sans-serif;
+            --font-nav: 'Instrument Sans', sans-serif;
+            --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg-dark);
+            color: var(--color-text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 2px; }
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 0 48px 0 20px; height: 80px;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: none; border-bottom: none;
+            background: transparent; border-color: transparent;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
+        .nav { display: flex; align-items: center; gap: 20px; }
+        .nav a {
+            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
+            text-transform: uppercase; color: #fff; transition: color 0.3s; font-weight: 700;
+            white-space: nowrap;
+        }
+        .nav a:hover, .nav a.active { color: var(--color-accent); }
+        .nav-cta {
+            padding: 10px 24px; border: 1px solid var(--color-accent);
+            color: var(--color-accent) !important; font-size: 11px !important;
+            letter-spacing: 2px; transition: all 0.3s !important;
+        }
+        .nav-cta:hover { background: var(--color-accent); color: #fff !important; }
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 1px; background: #fff; transition: all 0.3s; }
+        .page-hero {
+            padding: 96px 48px 24px; text-align: center;
+            background: transparent;
+        }
+        .page-hero-label {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 6px;
+            text-transform: uppercase; color: var(--color-accent-light); margin-bottom: 20px;
+        }
+        .page-hero-title {
+            font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px);
+            font-weight: 300; color: #fff; line-height: 1.2; margin-bottom: 16px;
+        }
+        .page-hero-title em { font-style: italic; color: var(--color-accent-light); }
+        .page-hero-desc {
+            font-size: 15px; color: #fff; font-weight: 300;
+            max-width: 500px; margin: 0 auto; line-height: 1.8;
+        }
+        .section { padding: 80px 48px; position: relative; }
+        .section-label {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
+            text-transform: uppercase; color: var(--color-accent); margin-bottom: 20px;
+        }
+        .section-title {
+            font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 48px);
+            font-weight: 300; line-height: 1.2; margin-bottom: 24px; color: #fff;
+        }
+        .section-title em { font-style: italic; }
+        .divider-line { width: 48px; height: 1px; background: var(--color-accent); margin: 28px 0; }
+        .section-header { text-align: center; margin-bottom: 56px; }
+        .section-header .divider-line { margin: 28px auto; }
+        .section-header .section-desc { margin: 0 auto; max-width: 520px; font-size: 15px; color: #fff; font-weight: 300; line-height: 1.9; }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s var(--ease-out); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── SHOP FILTER TABS ───────────────────────────── */
+        .filter-tabs {
+            display: flex; justify-content: center; gap: 12px;
+            flex-wrap: wrap; margin-bottom: 52px;
+        }
+        .filter-btn {
+            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
+            text-transform: uppercase; padding: 10px 28px;
+            border: 1px solid rgba(255,255,255,0.2); color: #fff;
+            cursor: pointer; background: transparent; transition: all 0.3s;
+        }
+        .filter-btn.active,
+        .filter-btn:hover {
+            border-color: var(--color-accent); color: var(--color-accent);
+        }
+
+        /* ── PRODUCT GRID ───────────────────────────────── */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 32px;
+            max-width: 1300px; margin: 0 auto;
+        }
+        .product-card {
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: border-color 0.3s, transform 0.3s;
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+        }
+        .product-card:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-4px);
+        }
+        .product-img {
+            width: 100%; aspect-ratio: 1/1;
+            background: rgba(184,149,106,0.06);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+        }
+        .product-img-placeholder {
+            font-size: 56px; opacity: 0.25;
+        }
+        .product-badge {
+            position: absolute; top: 14px; left: 14px;
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 2px;
+            text-transform: uppercase; padding: 4px 12px;
+            background: var(--color-accent); color: #fff;
+        }
+        .product-info { padding: 20px 22px 24px; }
+        .product-category {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--color-accent); margin-bottom: 8px;
+        }
+        .product-name {
+            font-family: var(--font-display); font-size: 20px; font-weight: 400;
+            color: #fff; margin-bottom: 8px; line-height: 1.3;
+        }
+        .product-desc {
+            font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 300;
+            line-height: 1.7; margin-bottom: 16px;
+        }
+        .product-footer {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .product-price {
+            font-family: var(--font-display); font-size: 22px; font-weight: 400;
+            color: var(--color-accent);
+        }
+        .product-price span {
+            font-family: var(--font-body); font-size: 12px; color: rgba(255,255,255,0.4);
+            margin-left: 4px;
+        }
+        .product-btn {
+            font-family: var(--font-nav); font-size: 10px; letter-spacing: 2px;
+            text-transform: uppercase; padding: 8px 18px;
+            border: 1px solid rgba(255,255,255,0.2); color: #fff;
+            background: transparent; cursor: pointer; transition: all 0.3s;
+        }
+        .product-btn:hover {
+            border-color: var(--color-accent); color: var(--color-accent);
+        }
+
+        /* ── ONLINE SHOP NOTICE ────────────────────────── */
+        .shop-notice {
+            max-width: 900px; margin: 0 auto;
+            border: 1px solid rgba(184,149,106,0.3);
+            padding: 40px 48px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+            align-items: center;
+        }
+        .shop-notice h3 {
+            font-family: var(--font-display); font-size: 28px; font-weight: 300;
+            color: #fff; margin-bottom: 16px;
+        }
+        .shop-notice h3 em { font-style: italic; color: var(--color-accent-light); }
+        .shop-notice p {
+            font-size: 14px; color: #fff; font-weight: 300; line-height: 1.9;
+        }
+        .shop-notice-links { display: flex; flex-direction: column; gap: 14px; }
+        .shop-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 16px 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: border-color 0.3s;
+            font-size: 14px; color: #fff; font-weight: 300;
+        }
+        .shop-link:hover { border-color: var(--color-accent); color: var(--color-accent); }
+        .shop-link-icon { font-size: 22px; flex-shrink: 0; }
+        .shop-link-text strong {
+            display: block; font-family: var(--font-nav); font-size: 11px;
+            letter-spacing: 2px; text-transform: uppercase; color: var(--color-accent); margin-bottom: 2px;
+        }
+
+        /* ── FOOTER ─────────────────────────────────────── */
+        .footer { background: transparent; color: #fff; border-top: none; }
+        .footer-top {
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px;
+            max-width: 1400px; margin: 0 auto; padding: 80px 48px 60px;
+        }
+        .footer-brand p { font-size: 13px; line-height: 1.8; margin-top: 16px; color: #fff; }
+        .footer-col h4 {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 3px;
+            text-transform: uppercase; color: #fff; margin-bottom: 20px;
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 12px; }
+        .footer-col a { font-size: 14px; color: #fff; transition: color 0.3s; }
+        .footer-col a:hover { color: var(--color-accent); }
+        .footer-bottom {
+            max-width: 1400px; margin: 0 auto; padding: 24px 48px;
+            border-top: none;
+            display: flex; justify-content: space-between; align-items: center; font-size: 12px;
+        }
+        .social-links { display: flex; gap: 20px; }
+        .social-links a { color: #fff; font-size: 13px; transition: color 0.3s; }
+        .social-links a:hover { color: var(--color-accent); }
+
+        /* ── BG VIDEO & SCROLL ──────────────────────────── */
+        .bg-video-wrap { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+        .bg-video-wrap video { width: 100%; height: 100%; object-fit: cover; }
+        html, body { overflow: hidden; height: 100%; margin: 0; }
+        .scroll-container {
+            position: fixed; top: 80px; left: 0; right: 0; bottom: 0;
+            overflow-y: auto; overflow-x: hidden; z-index: 1;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { scrollbar-width: none; }
+
+        /* ── RESPONSIVE ─────────────────────────────────── */
+        @media (max-width: 1024px) { .footer-top { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) {
+            .header { padding: 0 24px; height: 64px; }
+            .nav { display: none; }
+            .menu-toggle { display: flex; }
+            .section { padding: 60px 20px; }
+            .page-hero { padding: 88px 20px 16px; }
+            .footer-top { grid-template-columns: 1fr; gap: 32px; padding: 60px 24px 40px; }
+            .footer-bottom { flex-direction: column; gap: 16px; text-align: center; padding: 20px 24px; }
+            .shop-notice { grid-template-columns: 1fr; padding: 32px 24px; }
+            .product-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-video-wrap">
+        <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
+            <source src="bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <header class="header" id="header">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
+        </a>
+        <nav class="nav" id="nav">
+            <a href="index.html">Home</a>
+            <a href="diploma.html">Diploma</a>
+            <a href="program.html">Program</a>
+            <a href="selfbeauty.html">Self Beauty</a>
+            <a href="echart.html">E-Chart</a>
+            <a href="letter.html">Letter</a>
+            <a href="about.html">About</a>
+            <a href="shop.html" class="active">Shop</a>
+            <a href="academy.html">Academy</a>
+            <a href="contact.html">Contact</a>
+            <a href="erp.html">ERP</a>
+            <a href="echart.html" class="nav-cta">상담 예약</a>
+        </nav>
+        <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+    </header>
+
+    <div class="scroll-container">
+
+    <section class="page-hero">
+        <p class="page-hero-label">Online &amp; Offline</p>
+        <h1 class="page-hero-title">Hwasa <em>Shop</em></h1>
+        <p class="page-hero-desc">엄선된 한국 스킨케어 제품을 온라인 · 오프라인에서 만나보세요</p>
+    </section>
+
+    <!-- PRODUCT SECTION -->
+    <section class="section">
+        <div class="filter-tabs reveal">
+            <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
+            <button class="filter-btn" onclick="filterProducts('skincare', this)">스킨케어</button>
+            <button class="filter-btn" onclick="filterProducts('mask', this)">마스크팩</button>
+            <button class="filter-btn" onclick="filterProducts('device', this)">디바이스</button>
+            <button class="filter-btn" onclick="filterProducts('set', this)">세트</button>
+        </div>
+
+        <div class="product-grid reveal" id="productGrid">
+
+            <div class="product-card" data-cat="skincare">
+                <div class="product-img">
+                    <span class="product-img-placeholder">🧴</span>
+                    <span class="product-badge">Best</span>
+                </div>
+                <div class="product-info">
+                    <p class="product-category">Skincare</p>
+                    <h3 class="product-name">Hwasa 시그니처 세럼</h3>
+                    <p class="product-desc">원장 직접 선별한 고농축 재생 앰플. 민감·건성 피부에 최적화.</p>
+                    <div class="product-footer">
+                        <div class="product-price">₩58,000 <span>/ 30ml</span></div>
+                        <button class="product-btn" onclick="openInquiry('Hwasa 시그니처 세럼')">문의하기</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="skincare">
+                <div class="product-img">
+                    <span class="product-img-placeholder">💧</span>
+                </div>
+                <div class="product-info">
+                    <p class="product-category">Skincare</p>
+                    <h3 class="product-name">딥 모이스처 크림</h3>
+                    <p class="product-desc">세라마이드 & 히알루론산 복합체. 24시간 수분 장벽 강화.</p>
+                    <div class="product-footer">
+                        <div class="product-price">₩42,000 <span>/ 50ml</span></div>
+                        <button class="product-btn" onclick="openInquiry('딥 모이스처 크림')">문의하기</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="mask">
+                <div class="product-img">
+                    <span class="product-img-placeholder">🎭</span>
+                    <span class="product-badge">New</span>
+                </div>
+                <div class="product-info">
+                    <p class="product-category">Mask</p>
+                    <h3 class="product-name">골드 리프팅 마스크</h3>
+                    <p class="product-desc">실제 금박 성분. 탄력·광채·안티에이징 한 번에 케어.</p>
+                    <div class="product-footer">
+                        <div class="product-price">₩35,000 <span>/ 5매</span></div>
+                        <button class="product-btn" onclick="openInquiry('골드 리프팅 마스크')">문의하기</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="mask">
+                <div class="product-img">
+                    <span class="product-img-placeholder">✨</span>
+                </div>
+                <div class="product-info">
+                    <p class="product-category">Mask</p>
+                    <h3 class="product-name">진정 바이오 마스크</h3>
+                    <p class="product-desc">EGF 성장인자 함유. 홍조·자극 피부 즉각 진정.</p>
+                    <div class="product-footer">
+                        <div class="product-price">₩28,000 <span>/ 5매</span></div>
+                        <button class="product-btn" onclick="openInquiry('진정 바이오 마스크')">문의하기</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="device">
+                <div class="product-img">
+                    <span class="product-img-placeholder">🔮</span>
+                    <span class="product-badge">Hot</span>
+                </div>
+                <div class="product-info">
+                    <p class="product-category">Device</p>
+                    <h3 class="product-name">미니 RF 리프팅 디바이스</h3>
+                    <p class="product-desc">가정용 고주파 디바이스. 전문 관리의 효과를 집에서.</p>
+                    <div class="product-footer">
+                        <div class="product-price">₩180,000</div>
+                        <button class="product-btn" onclick="openInquiry('미니 RF 리프팅 디바이스')">문의하기</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="set">
+                <div class="product-img">
+                    <span class="product-img-placeholder">🎁</span>
+                    <span class="product-badge">Set</span>
+                </div>
+                <div class="product-info">
+                    <p class="product-category">Gift Set</p>
+                    <h3 class="product-name">Hwasa 스킨케어 풀 세트</h3>
+                    <p class="product-desc">세럼 + 크림 + 마스크팩(5매) 구성. 선물용 패키징.</p>
+                    <div class="product-footer">
+                        <div class="product-price">₩120,000 <span>/ set</span></div>
+                        <button class="product-btn" onclick="openInquiry('Hwasa 스킨케어 풀 세트')">문의하기</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ONLINE / OFFLINE NOTICE -->
+    <section class="section">
+        <div class="shop-notice reveal">
+            <div>
+                <p class="section-label">구매 안내</p>
+                <h3 class="section-title">온라인 &amp; <em>오프라인</em><br>모두 구매 가능</h3>
+                <div class="divider-line"></div>
+                <p style="font-size:14px; color:#fff; font-weight:300; line-height:1.9;">
+                    Hwasa K-Beauty 매장 방문 구매와<br>
+                    카카오톡 / 인스타그램 DM을 통한<br>
+                    온라인 주문 모두 가능합니다.<br><br>
+                    국제 배송 (한국 → 베트남) 가능하며<br>
+                    배송비 및 일정은 문의 주세요.
+                </p>
+            </div>
+            <div class="shop-notice-links">
+                <a href="https://open.kakao.com/o/suDPpihg" target="_blank" class="shop-link">
+                    <span class="shop-link-icon">💬</span>
+                    <span class="shop-link-text">
+                        <strong>KakaoTalk</strong>
+                        카카오톡으로 주문 · 상담
+                    </span>
+                </a>
+                <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" class="shop-link">
+                    <span class="shop-link-icon">📸</span>
+                    <span class="shop-link-text">
+                        <strong>Instagram DM</strong>
+                        @hwasa_k_beauty 다이렉트 메시지
+                    </span>
+                </a>
+                <a href="contact.html" class="shop-link">
+                    <span class="shop-link-icon">📍</span>
+                    <span class="shop-link-text">
+                        <strong>오프라인 매장</strong>
+                        A1, Five Star Mỹ Đình, Hà Nội
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- INQUIRY MODAL -->
+    <div id="inquiryModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#111; border:1px solid var(--color-accent); padding:44px; max-width:420px; width:90%; position:relative;">
+            <button onclick="closeInquiry()" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;">✕</button>
+            <p style="font-family:var(--font-nav);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--color-accent);margin-bottom:12px;">Product Inquiry</p>
+            <h3 style="font-family:var(--font-display);font-size:24px;font-weight:300;color:#fff;margin-bottom:8px;" id="modalProductName"></h3>
+            <div style="width:40px;height:1px;background:var(--color-accent);margin:16px 0 24px;"></div>
+            <p style="font-size:14px;color:#fff;font-weight:300;line-height:1.8;margin-bottom:28px;">아래 채널로 제품명을 알려주시면 재고 확인 및 주문 안내를 드리겠습니다.</p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <a id="kakaoLink" href="https://open.kakao.com/o/suDPpihg" target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 18px;border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:13px;transition:border-color 0.3s;" onmouseover="this.style.borderColor='#B8956A'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+                    <span style="font-size:20px;">💬</span> KakaoTalk으로 문의
+                </a>
+                <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 18px;border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:13px;transition:border-color 0.3s;" onmouseover="this.style.borderColor='#B8956A'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+                    <span style="font-size:20px;">📸</span> Instagram DM으로 문의
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
+                </a>
+                <p>하노이 미딩에 위치한 프리미엄<br>한국식 피부관리 전문샵</p>
+            </div>
+            <div class="footer-col">
+                <h4>Menu</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="diploma.html">Diploma</a></li>
+                    <li><a href="program.html">Program</a></li>
+                    <li><a href="selfbeauty.html">Self Beauty</a></li>
+                    <li><a href="echart.html">E-Chart</a></li>
+                    <li><a href="letter.html">Letter</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="academy.html">Academy</a></li>
+                    <li><a href="erp.html">ERP</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:+840326842002">📞 전화 상담 : +840326842002</a></li>
+                    <li><a href="https://open.kakao.com/o/suDPpihg" target="_blank">💬 카카오톡</a></li>
+                    <li><a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">📸 Instagram</a></li>
+                    <li><a href="https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3FscreenType%3DBOOKING%26dropOffAddress%3DHwasa%20K-Beauty%2C%20A1%20Five%20Star%20My%20Dinh%2C%20Hanoi%26dropoff_lat%3D21.0138%26dropoff_lng%3D105.7697&af_web_dp=https%3A%2F%2Fwww.grab.com" target="_blank">🚕 Grab</a></li>
+                    <li><a href="https://www.google.com/maps/dir/?api=1&destination=Hwasa+K+Beauty+A1+Khu+Five+Star+My+Dinh+Tu+Liem+Hanoi+Vietnam&travelmode=driving" target="_blank">📍 Google Map</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hours</h4>
+                <ul>
+                    <li><a href="#">월–일: 09:00 – 19:30</a></li>
+                    <li><a href="#">금요일: – 21:00</a></li>
+                    <li><a href="#">연중무휴(명절제외)</a></li>
+                    <li><a href="contact.html">📍 오시는 길</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Hwasa K-Beauty. All rights reserved.</span>
+            <div class="social-links">
+                <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">Instagram</a>
+                <a href="#">KakaoTalk</a>
+                <a href="#">Facebook</a>
+            </div>
+        </div>
+    </footer>
+
+    </div><!-- scroll-container -->
+    <script>
+        // Reveal animation
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // Mobile menu
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+            if (window.innerWidth <= 768 && nav.style.display === 'flex') {
+                nav.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.97);z-index:999;align-items:center;justify-content:center;gap:28px;`;
+            }
+        }
+
+        // Product filter
+        function filterProducts(cat, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+            });
+        }
+
+        // Inquiry modal
+        function openInquiry(name) {
+            document.getElementById('modalProductName').textContent = name;
+            const modal = document.getElementById('inquiryModal');
+            modal.style.display = 'flex';
+        }
+        function closeInquiry() {
+            document.getElementById('inquiryModal').style.display = 'none';
+        }
+        document.getElementById('inquiryModal').addEventListener('click', function(e) {
+            if (e.target === this) closeInquiry();
+        });
+    </script>
+</body>
+</html>

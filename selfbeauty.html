@@ -46,11 +46,11 @@
         .page-hero-label { font-family: var(--font-nav); font-size: 11px; letter-spacing: 6px; text-transform: uppercase; color: var(--color-accent-light); margin-bottom: 12px; }
         .page-hero-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px); font-weight: 300; color: #fff; line-height: 1.2; margin-bottom: 8px; }
         .page-hero-title em { font-style: italic; color: var(--color-accent-light); }
-        .page-hero-desc { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 300; max-width: 500px; margin: 0 auto; }
+        .page-hero-desc { font-size: 13px; color: #fff; font-weight: 300; max-width: 500px; margin: 0 auto; }
 
         /* TV GRID */
         .tv-section { padding: 20px 48px 80px; }
-        .tv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 56px; max-width: 840px; margin: 0 auto; }
+        .tv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 56px; max-width: 924px; margin: 0 auto; }
 
         .tv-wrap {
             display: flex; flex-direction: column; align-items: center;
@@ -102,7 +102,7 @@
         /* 베이스 */
         .tv-base { width: 66%; height: 9px; background: linear-gradient(to bottom, #d4906e, #9a4e38); border-radius: 0 0 10px 10px; box-shadow: 0 5px 16px rgba(0,0,0,0.75), 0 1px 0 rgba(255,200,170,0.35) inset; }
         /* 넘버 */
-        .tv-number { font-family: var(--font-nav); font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,0.22); margin-top: 10px; }
+        .tv-number { font-family: var(--font-nav); font-size: 10px; letter-spacing: 3px; color: #fff; margin-top: 10px; }
 
         /* reveal 공통 */
         .reveal { opacity: 0; transform: translateY(36px); transition: all 0.8s var(--ease-out); }
@@ -158,7 +158,7 @@
 </head>
 <body>
     <div class="bg-video-wrap">
-        <video autoplay muted loop playsinline>
+        <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
             <source src="bg-video.mp4" type="video/mp4">
         </video>
     </div>
@@ -174,6 +174,8 @@
             <a href="echart.html">E-Chart</a>
             <a href="letter.html">Letter</a>
             <a href="about.html">About</a>
+            <a href="shop.html">Shop</a>
+            <a href="academy.html">Academy</a>
             <a href="contact.html">Contact</a>
             <a href="erp.html">ERP</a>
             <a href="echart.html" class="nav-cta">상담 예약</a>
@@ -265,6 +267,8 @@
                     <li><a href="echart.html">E-Chart</a></li>
                     <li><a href="letter.html">Letter</a></li>
                     <li><a href="about.html">About</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="academy.html">Academy</a></li>
                     <li><a href="erp.html">ERP</a></li>
                 </ul>
             </div>

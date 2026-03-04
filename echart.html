@@ -75,7 +75,7 @@
             z-index: 3;
             display: flex;
             flex-direction: column;
-            max-width: 680px;
+            max-width: 640px;
             margin: 0 auto;
             width: 100%;
         }
@@ -104,7 +104,7 @@
 
         /* ========== PROGRESS BAR — 투명 ========== */
 
-        .progress-bar-wrapper { max-width: 100%; margin: 0; display: flex; align-items: center; }
+        .progress-bar-wrapper { max-width: 100%; margin: 0; display: flex; align-items: center; overflow: hidden; }
         .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .progress-step .dot {
             width: 32px; height: 32px; border-radius: 50%;
@@ -243,7 +243,7 @@
             border-top: 1px solid rgba(0,0,0,0.1); z-index: 200;
         }
         .bottom-nav-inner {
-            max-width: 680px; margin: 0 auto; padding: 10px 20px;
+            max-width: 640px; margin: 0 auto; padding: 10px 20px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .page-indicator { font-family: var(--font-nav); font-size: 12px; letter-spacing: 1px; color: #1a1a1a; }
@@ -257,6 +257,8 @@
         .btn-prev:hover { border-color: #1a1a1a; color: #1a1a1a; background: rgba(255,255,255,0.8); }
         .btn-next { background: var(--color-accent); color: #fff; }
         .btn-next:hover { background: #A07D56; }
+        .btn-pulse { animation: pulse-gold 0.8s ease-in-out infinite; }
+        @keyframes pulse-gold { 0%,100%{box-shadow:0 0 0 0 rgba(184,149,106,0.5)} 50%{box-shadow:0 0 0 8px rgba(184,149,106,0)} }
         .btn-submit { background: var(--color-success); color: #fff; padding: 12px 40px; }
         .btn-submit:hover { background: #43A047; }
 
@@ -302,7 +304,7 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 1;
-            width: min(700px, 92vw);
+            width: min(640px, 96vw);
             pointer-events: none;
         }
         .clipboard-img {
@@ -311,6 +313,84 @@
             display: block;
             filter: drop-shadow(0 8px 40px rgba(0,0,0,0.5));
         }
+        /* 클립보드 이미지 상단 텍스트 가리기 + 새 텍스트 오버레이 */
+        .clipboard-text-overlay {
+            position: absolute;
+            top: 5.2%;
+            left: 12%;
+            right: 12%;
+            text-align: center;
+            pointer-events: none;
+        }
+        .clipboard-text-overlay .ct-en {
+            font-family: var(--font-nav);
+            font-size: clamp(11px, 2.2vw, 16px);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #4a3728;
+            font-weight: 600;
+            display: block;
+            line-height: 1.3;
+        }
+        .clipboard-text-overlay .ct-kr {
+            font-family: var(--font-body);
+            font-size: clamp(9px, 1.6vw, 12px);
+            letter-spacing: 2px;
+            color: #7a6050;
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+        .clipboard-text-mask {
+            position: absolute;
+            top: 3.5%;
+            left: 10%;
+            right: 10%;
+            height: 8%;
+            background: #f5ede0;
+            border-radius: 2px;
+        }
+
+        /* ========== BODY MAP ========== */
+        .body-map-section {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .body-map-wrap {
+            flex-shrink: 0;
+            width: 140px;
+        }
+        .body-map-wrap svg {
+            width: 100%;
+            height: auto;
+        }
+        .body-map-wrap svg .bm-part {
+            fill: rgba(255,255,255,0.08);
+            stroke: rgba(184,149,106,0.5);
+            stroke-width: 1;
+            cursor: pointer;
+            transition: fill 0.2s;
+        }
+        .body-map-wrap svg .bm-part:hover {
+            fill: rgba(184,149,106,0.25);
+        }
+        .body-map-wrap svg .bm-part.bm-active {
+            fill: rgba(184,149,106,0.55);
+            stroke: #B8956A;
+            stroke-width: 1.5;
+        }
+        .body-map-legend {
+            font-family: var(--font-nav);
+            font-size: 9px;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            margin-top: 4px;
+        }
+        .body-map-checks { flex: 1; }
 
         /* ========== 전체 고정, 스크롤 없음 ========== */
         html, body { overflow: hidden; height: 100%; margin: 0; }
@@ -327,7 +407,14 @@
     <div class="bg-overlay"></div>
     <!-- CLIPBOARD FRAME -->
     <div class="clipboard-layer">
-        <img src="images/echart_clipboard.png" alt="" class="clipboard-img">
+        <div style="position:relative;">
+            <img src="images/echart_clipboard.png" alt="" class="clipboard-img">
+            <div class="clipboard-text-mask"></div>
+            <div class="clipboard-text-overlay">
+                <span class="ct-en">Skin Consultation Form</span>
+                <span class="ct-kr">고객 피부 상담 기록지</span>
+            </div>
+        </div>
     </div>
 
     <header class="header">
@@ -468,16 +555,83 @@
                     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="scalp"><div class="check-dot"></div><span class="check-label">두피</span></label>
                 </div></div>
                 <div class="form-divider"></div>
-                <div class="form-section-title">바디 부위</div>
-                <div class="form-group"><div class="check-grid check-square" id="bodyArea">
-                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="back"><div class="check-dot"></div><span class="check-label">등</span></label>
-                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="shoulder"><div class="check-dot"></div><span class="check-label">어깨</span></label>
-                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="arm"><div class="check-dot"></div><span class="check-label">팔</span></label>
-                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="abdomen"><div class="check-dot"></div><span class="check-label">복부</span></label>
-                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="hip"><div class="check-dot"></div><span class="check-label">힙/골반</span></label>
-                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="leg"><div class="check-dot"></div><span class="check-label">다리</span></label>
-                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="foot"><div class="check-dot"></div><span class="check-label">발</span></label>
-                </div></div>
+                <div class="form-section-title">바디 부위 — 터치로 선택</div>
+                <div class="body-map-section">
+                    <!-- SVG Body Map (Front) -->
+                    <div class="body-map-wrap">
+                        <div class="body-map-legend">FRONT / 앞면</div>
+                        <svg viewBox="0 0 100 260" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Head -->
+                            <ellipse class="bm-part" data-part="face" cx="50" cy="18" rx="13" ry="16" onclick="toggleBodyMap(this,'face','얼굴')"/>
+                            <!-- Neck -->
+                            <rect class="bm-part" data-part="neck" x="44" y="33" width="12" height="10" rx="3" onclick="toggleBodyMap(this,'neck','목')"/>
+                            <!-- Left Shoulder -->
+                            <ellipse class="bm-part" data-part="shoulder-l" cx="27" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
+                            <!-- Right Shoulder -->
+                            <ellipse class="bm-part" data-part="shoulder-r" cx="73" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
+                            <!-- Chest/Torso -->
+                            <rect class="bm-part" data-part="abdomen" x="33" y="53" width="34" height="45" rx="6" onclick="toggleBodyMap(this,'abdomen','복부')"/>
+                            <!-- Left Arm -->
+                            <rect class="bm-part" data-part="arm-l" x="14" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
+                            <!-- Right Arm -->
+                            <rect class="bm-part" data-part="arm-r" x="72" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
+                            <!-- Left Hip/Pelvis -->
+                            <rect class="bm-part" data-part="hip-l" x="33" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
+                            <!-- Right Hip/Pelvis -->
+                            <rect class="bm-part" data-part="hip-r" x="51" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
+                            <!-- Left Leg -->
+                            <rect class="bm-part" data-part="leg-l" x="33" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
+                            <!-- Right Leg -->
+                            <rect class="bm-part" data-part="leg-r" x="52" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
+                            <!-- Left Foot -->
+                            <ellipse class="bm-part" data-part="foot-l" cx="39" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
+                            <!-- Right Foot -->
+                            <ellipse class="bm-part" data-part="foot-r" cx="61" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
+                        </svg>
+                    </div>
+                    <!-- SVG Body Map (Back) -->
+                    <div class="body-map-wrap">
+                        <div class="body-map-legend">BACK / 뒷면</div>
+                        <svg viewBox="0 0 100 260" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Head back -->
+                            <ellipse class="bm-part" data-part="scalp-b" cx="50" cy="18" rx="13" ry="16" onclick="toggleBodyMap(this,'scalp','두피')"/>
+                            <!-- Neck back -->
+                            <rect class="bm-part" data-part="neck-b" x="44" y="33" width="12" height="10" rx="3" onclick="toggleBodyMap(this,'neck','목')"/>
+                            <!-- Left Shoulder back -->
+                            <ellipse class="bm-part" data-part="shoulder-lb" cx="27" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
+                            <!-- Right Shoulder back -->
+                            <ellipse class="bm-part" data-part="shoulder-rb" cx="73" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
+                            <!-- Back/Torso -->
+                            <rect class="bm-part" data-part="back" x="33" y="53" width="34" height="45" rx="6" onclick="toggleBodyMap(this,'back','등')"/>
+                            <!-- Left Arm back -->
+                            <rect class="bm-part" data-part="arm-lb" x="14" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
+                            <!-- Right Arm back -->
+                            <rect class="bm-part" data-part="arm-rb" x="72" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
+                            <!-- Hip back -->
+                            <rect class="bm-part" data-part="hip-lb" x="33" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
+                            <rect class="bm-part" data-part="hip-rb" x="51" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
+                            <!-- Left Leg back -->
+                            <rect class="bm-part" data-part="leg-lb" x="33" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
+                            <!-- Right Leg back -->
+                            <rect class="bm-part" data-part="leg-rb" x="52" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
+                            <!-- Foot back -->
+                            <ellipse class="bm-part" data-part="foot-lb" cx="39" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
+                            <ellipse class="bm-part" data-part="foot-rb" cx="61" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
+                        </svg>
+                    </div>
+                    <!-- Body check list (sync with map) -->
+                    <div class="body-map-checks">
+                        <div class="check-grid check-square" id="bodyArea">
+                            <label class="check-item" id="bmc-back" onclick="toggleCheck(this);syncBodyMap('back')"><input type="checkbox" value="back"><div class="check-dot"></div><span class="check-label">등</span></label>
+                            <label class="check-item" id="bmc-shoulder" onclick="toggleCheck(this);syncBodyMap('shoulder')"><input type="checkbox" value="shoulder"><div class="check-dot"></div><span class="check-label">어깨</span></label>
+                            <label class="check-item" id="bmc-arm" onclick="toggleCheck(this);syncBodyMap('arm')"><input type="checkbox" value="arm"><div class="check-dot"></div><span class="check-label">팔</span></label>
+                            <label class="check-item" id="bmc-abdomen" onclick="toggleCheck(this);syncBodyMap('abdomen')"><input type="checkbox" value="abdomen"><div class="check-dot"></div><span class="check-label">복부</span></label>
+                            <label class="check-item" id="bmc-hip" onclick="toggleCheck(this);syncBodyMap('hip')"><input type="checkbox" value="hip"><div class="check-dot"></div><span class="check-label">힙/골반</span></label>
+                            <label class="check-item" id="bmc-leg" onclick="toggleCheck(this);syncBodyMap('leg')"><input type="checkbox" value="leg"><div class="check-dot"></div><span class="check-label">다리</span></label>
+                            <label class="check-item" id="bmc-foot" onclick="toggleCheck(this);syncBodyMap('foot')"><input type="checkbox" value="foot"><div class="check-dot"></div><span class="check-label">발</span></label>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-divider"></div>
                 <div class="form-section-title">희망 관리 프로그램</div>
                 <div class="form-group"><div class="check-grid check-square" id="programs">
@@ -589,7 +743,42 @@
         function getVal(id){const el=document.getElementById(id);if(!el)return'';if(el.tagName==='SELECT')return el.options[el.selectedIndex]?.text||'';return el.value||''}
         function generateSummary(){const s=(t,c)=>'<div style="margin-bottom:20px"><div style="font-family:var(--font-nav);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--color-accent-light);margin-bottom:10px;font-weight:600">'+t+'</div><div style="font-size:13px;line-height:2;color:rgba(255,255,255,0.65)">'+c+'</div></div><div style="height:1px;background:rgba(255,255,255,0.1);margin:16px 0"></div>';document.getElementById('summaryContent').innerHTML=s('기본 정보','<b>이름:</b> '+getVal('nameKr')+' ('+getVal('nameEn')+')<br><b>전화:</b> '+getVal('phone')+'<br><b>성별:</b> '+getVal('gender')+' · <b>국적:</b> '+getVal('nationality')+' · <b>연령대:</b> '+getVal('ageRange')+'<br><b>방문경로:</b> '+getVal('visitSource')+' · <b>지역:</b> '+getVal('area'))+s('피부 분석','<b>피부타입:</b> '+getSelected('skinType')+'<br><b>피부고민:</b> '+getSelected('skinConcerns')+'<br><b>알레르기:</b> '+getSelected('allergyList')+'<br><b>복용약물:</b> '+getSelected('medicationList')+'<br><b>스킨케어:</b> '+getSelected('skincareBrand')+'<br><b>특이사항:</b> '+getSelected('specialCondition'))+s('관리 부위','<b>얼굴:</b> '+getSelected('faceArea')+'<br><b>바디:</b> '+getSelected('bodyArea')+'<br><b>프로그램:</b> '+getSelected('programs')+'<br><b>선호시간:</b> '+getSelected('preferTime'))+s('시술 기록','<b>날짜:</b> '+document.getElementById('todayDate').textContent+'<br><b>회차:</b> '+getVal('visitCount')+' · <b>담당:</b> '+getVal('therapist')+'<br><b>시술항목:</b> '+getSelected('treatmentItems')+'<br><b>시간:</b> '+getVal('duration')+' · <b>금액:</b> '+getVal('payment')+'<br><b>피부반응:</b> '+getSelected('skinReaction')+'<br><b>홈케어:</b> '+getSelected('homecareAdvice')+'<br><b>다음예약:</b> '+getVal('nextVisit')+' · <b>추천관리:</b> '+getVal('nextTreatment'))}
         function submitForm(){if(!document.getElementById('consentCheck').checked){alert('동의를 체크해 주세요.');return}const d={ts:new Date().toISOString(),basic:{nameKr:getVal('nameKr'),nameEn:getVal('nameEn'),phone:getVal('phone'),birth:getVal('birthdate'),gender:getVal('gender'),nation:getVal('nationality'),area:getVal('area'),age:getVal('ageRange'),firstVisit:getVal('firstVisit'),source:getVal('visitSource')},skin:{type:getSelected('skinType'),concerns:getSelected('skinConcerns'),allergy:getSelected('allergyList'),medication:getSelected('medicationList'),brand:getSelected('skincareBrand'),condition:getSelected('specialCondition')},areas:{face:getSelected('faceArea'),body:getSelected('bodyArea'),programs:getSelected('programs'),time:getSelected('preferTime')},visit:{date:new Date().toISOString().split('T')[0],count:getVal('visitCount'),therapist:getVal('therapist'),items:getSelected('treatmentItems'),duration:getVal('duration'),payment:getVal('payment'),reaction:getSelected('skinReaction'),homecare:getSelected('homecareAdvice'),nextVisit:getVal('nextVisit'),nextTreatment:getVal('nextTreatment')}};console.log('📋 E-Chart:',JSON.stringify(d,null,2));document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active'));document.getElementById('successScreen').classList.add('active');document.getElementById('bottomNav').style.display='none'}
-        function toggleMenu(){const n=document.getElementById('nav');n.style.display=n.style.display==='flex'?'none':'flex';if(window.innerWidth<=768&&n.style.display==='flex'){n.style.cssText='display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;gap:28px;';n.querySelectorAll('a').forEach(a=>{a.style.color='#fff';a.style.fontSize='18px'})}}
+        function toggleBodyMap(svgEl, partKey, label) {
+            // Toggle all SVG parts with same partKey across both maps
+            document.querySelectorAll('.bm-part[data-part^="'+partKey+'"]').forEach(p=>{
+                if(p.dataset.part===svgEl.dataset.part || p.dataset.part===partKey ||
+                   p.dataset.part===partKey+'-l'||p.dataset.part===partKey+'-r'||
+                   p.dataset.part===partKey+'-lb'||p.dataset.part===partKey+'-rb'||
+                   p.dataset.part===partKey+'-b') {
+                    p.classList.toggle('bm-active', svgEl.classList.contains('bm-active') || !svgEl.classList.contains('bm-active'));
+                }
+            });
+            // Sync all matching parts to same state
+            const isNowActive = !svgEl.classList.contains('bm-active');
+            document.querySelectorAll('[data-part^="'+partKey+'"]').forEach(p=>{ p.classList.toggle('bm-active', isNowActive); });
+            // Sync checkbox
+            const cb = document.getElementById('bmc-'+partKey);
+            if(cb) { cb.classList.toggle('selected', isNowActive); const inp=cb.querySelector('input'); if(inp) inp.checked=isNowActive; }
+        }
+        function syncBodyMap(partKey) {
+            const cb = document.getElementById('bmc-'+partKey);
+            const isActive = cb && cb.classList.contains('selected');
+            document.querySelectorAll('[data-part^="'+partKey+'"]').forEach(p=>p.classList.toggle('bm-active', isActive));
+        }
+        // 스크롤 바닥 → 다음 페이지
+        (function(){
+            const fa = document.querySelector('.form-area');
+            if(!fa) return;
+            fa.addEventListener('scroll', function(){
+                if(this.scrollHeight - this.scrollTop <= this.clientHeight + 32) {
+                    const btn = document.getElementById('btnNext');
+                    if(btn) btn.classList.add('btn-pulse');
+                } else {
+                    const btn = document.getElementById('btnNext');
+                    if(btn) btn.classList.remove('btn-pulse');
+                }
+            });
+        })();n.style.display=n.style.display==='flex'?'none':'flex';if(window.innerWidth<=768&&n.style.display==='flex'){n.style.cssText='display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;gap:28px;';n.querySelectorAll('a').forEach(a=>{a.style.color='#fff';a.style.fontSize='18px'})}}
         updateButtons();
     </script>
 </body>

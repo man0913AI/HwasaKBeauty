@@ -114,35 +114,60 @@
         }
         
         .program-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-            max-width: 1200px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
         }
         .program-card {
-            background: transparent; border: 1px solid rgba(255,255,255,0.08);
-            padding: 40px 32px; transition: all 0.4s var(--ease-smooth);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(184,149,106,0.2);
+            border-radius: 12px;
+            padding: 28px 24px 20px;
+            transition: transform 0.3s, border-color 0.3s, opacity 0.4s;
+            position: relative;
+            overflow: hidden;
         }
-        .program-card:hover {
-            border-color: var(--color-accent); transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        .program-card:hover { transform: translateY(-4px); border-color: rgba(184,149,106,0.5); }
+        .program-card.hide { display: none; }
+        .prog-badge {
+            position: absolute; top: 0; right: 0;
+            background: var(--color-accent); color: #fff;
+            font-family: var(--font-nav); font-size: 9px; letter-spacing: 2px;
+            padding: 4px 10px; border-radius: 0 12px 0 8px;
         }
-        .program-num {
-            font-family: var(--font-display); font-size: 48px; font-weight: 300;
-            color: var(--color-accent); margin-bottom: 16px;
+        .prog-cat-tag {
+            font-family: var(--font-nav); font-size: 9px; letter-spacing: 2px;
+            text-transform: uppercase; padding: 3px 8px; border-radius: 20px;
+            display: inline-block; margin-bottom: 10px; font-weight: 600;
         }
-        .program-card h3 {
-            font-family: var(--font-display); font-size: 22px; font-weight: 400;
-            color: #fff; margin-bottom: 12px;
-        }
-        .program-card p {
-            font-size: 14px; color: #fff; font-weight: 300; line-height: 1.7;
-        }
-        .program-card .tag {
-            display: inline-block; margin-top: 16px; padding: 4px 12px;
-            font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
-            border: 1px solid var(--color-accent); color: var(--color-accent);
-            font-family: var(--font-nav);
-        }
-        @media (max-width: 768px) { .program-grid { grid-template-columns: 1fr; } }
+        .acne { background: rgba(229,115,115,0.15); color: #E57373; border: 1px solid rgba(229,115,115,0.3); }
+        .whitening { background: rgba(212,184,150,0.15); color: #D4B896; border: 1px solid rgba(212,184,150,0.3); }
+        .lifting { background: rgba(100,160,200,0.15); color: #7DBADC; border: 1px solid rgba(100,160,200,0.3); }
+        .basic-tag { background: rgba(76,175,80,0.12); color: #81C784; border: 1px solid rgba(76,175,80,0.25); }
+        .device-tag { background: rgba(184,149,106,0.12); color: #B8956A; border: 1px solid rgba(184,149,106,0.3); }
+        .member-tag { background: rgba(255,215,0,0.12); color: #FFD700; border: 1px solid rgba(255,215,0,0.3); }
+        .program-card h3 { font-family: var(--font-display); font-size: 20px; font-weight: 300; color: #fff; margin-bottom: 10px; line-height: 1.3; }
+        .program-card h3 em { font-style: italic; color: var(--color-accent-light); }
+        .program-card > p { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.7; margin-bottom: 14px; }
+        .prog-price-list { margin-bottom: 16px; }
+        .prog-price-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: rgba(255,255,255,0.7); }
+        .prog-price-row .price { color: var(--color-accent); font-weight: 600; font-size: 12px; }
+        .prog-price-row .price small { color: rgba(255,255,255,0.35); font-weight: 400; font-size: 10px; margin-left: 4px; text-decoration: line-through; }
+        .prog-price-sub { font-size: 10px; color: rgba(255,255,255,0.35); padding: 3px 0 6px; line-height: 1.4; }
+        .member-tier { font-weight: 700; font-size: 13px !important; }
+        .member-tier.club .price { color: #A0A0A0; }
+        .member-tier.bronze .price { color: #CD7F32; }
+        .member-tier.vvip .price { color: #FFD700; }
+        .prog-membership { background: linear-gradient(135deg, rgba(255,215,0,0.04) 0%, rgba(0,0,0,0) 60%); }
+        .tag { display: inline-block; font-family: var(--font-nav); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border: 1px solid rgba(184,149,106,0.3); color: rgba(184,149,106,0.7); border-radius: 20px; }
+        .prog-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+        .prog-tab { font-family: var(--font-nav); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 8px 18px; border: 1px solid rgba(184,149,106,0.3); border-radius: 20px; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.25s; background: transparent; }
+        .prog-tab:hover, .prog-tab.active { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+        .prog-cta { text-align: center; margin-top: 56px; }
+        .prog-cta p { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+        .prog-cta-btn { display: inline-block; padding: 14px 36px; background: var(--color-accent); color: #fff; font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border-radius: 2px; transition: background 0.3s; }
+        .prog-cta-btn:hover { background: #A07D56; }
+        @media (max-width: 768px) { .program-grid { grid-template-columns: 1fr; } .prog-tabs { gap: 6px; } }
 
     
         .bg-video-wrap {
@@ -213,49 +238,177 @@
 
     <section class="section">
         <div class="section-header reveal">
-            <div class="section-label">Our Programs</div>
-            <h2 class="section-title">스킨케어 <em>프로그램</em></h2>
+            <div class="section-label">Hwasa K-Beauty Programs</div>
+            <h2 class="section-title">프리미엄 <em>케어 프로그램</em></h2>
             <div class="divider-line"></div>
-            <p class="section-desc">22년 경력의 전문가가 제공하는 맞춤형 프리미엄 스킨케어</p>
+            <p class="section-desc">22년 경력 원장의 맞춤 프리미엄 스킨케어 — 하노이 미딩 A1 Khu Five Star</p>
         </div>
-        <div class="program-grid">
-            <div class="program-card reveal">
-                <div class="program-num">01</div>
-                <h3>메디컬 스킨케어</h3>
-                <p>전문 피부 분석을 통한 맞춤형 메디컬 스킨케어 프로그램. 피부 타입과 고민에 따른 집중 관리를 제공합니다.</p>
-                <span class="tag">Medical</span>
-            </div>
-            <div class="program-card reveal">
-                <div class="program-num">02</div>
-                <h3>얼굴윤곽 테라피</h3>
-                <p>전문 테크닉을 활용한 얼굴윤곽 관리. V라인 케어와 리프팅 효과를 동시에 경험할 수 있습니다.</p>
-                <span class="tag">Contour</span>
-            </div>
-            <div class="program-card reveal">
-                <div class="program-num">03</div>
-                <h3>두피 트로콜로지</h3>
-                <p>과학적 두피 분석과 전문 트리트먼트를 통한 두피 건강 관리 프로그램입니다.</p>
-                <span class="tag">Scalp</span>
-            </div>
-            <div class="program-card reveal">
-                <div class="program-num">04</div>
-                <h3>슬리밍 바디 디톡스</h3>
-                <p>바디 라인 관리와 디톡스를 결합한 전신 케어 프로그램. 건강한 바디 밸런스를 찾아드립니다.</p>
-                <span class="tag">Body</span>
-            </div>
-            <div class="program-card reveal">
-                <div class="program-num">05</div>
-                <h3>안티에이징 케어</h3>
-                <p>피부 노화 방지를 위한 집중 안티에이징 프로그램. 탄력과 광채를 되찾아 드립니다.</p>
-                <span class="tag">Anti-Aging</span>
-            </div>
-            <div class="program-card reveal">
-                <div class="program-num">06</div>
-                <h3>맞춤 상담 프로그램</h3>
-                <p>1:1 전문 상담을 통해 개인의 피부 상태와 목표에 맞는 최적의 케어 플랜을 설계합니다.</p>
-                <span class="tag">Custom</span>
-            </div>
+
+        <!-- 카테고리 탭 -->
+        <div class="prog-tabs reveal">
+            <button class="prog-tab active" onclick="filterProg('all')">전체</button>
+            <button class="prog-tab" onclick="filterProg('package')">패키지</button>
+            <button class="prog-tab" onclick="filterProg('basic')">기본 관리</button>
+            <button class="prog-tab" onclick="filterProg('device')">장비 관리</button>
+            <button class="prog-tab" onclick="filterProg('membership')">회원권</button>
         </div>
+
+        <div class="program-grid" id="progGrid">
+
+            <!-- ===== 패키지 프로그램 ===== -->
+            <div class="program-card reveal" data-cat="package">
+                <div class="prog-badge">PACKAGE</div>
+                <div class="prog-cat-tag acne">여드름·흉터</div>
+                <h3>여드름 · 여드름흉터<br><em>4 Step Package</em></h3>
+                <p>염증·모공·여드름흉터 맞춤 프로그램. 필링과 화사 맞춤케어를 단계별로 집중 케어합니다.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>20회 화사K 패키지</span><span class="price">1,500만동 <small>정상 1,980만</small></span></div>
+                    <div class="prog-price-row"><span>12회 집중 패키지</span><span class="price">1,000만동</span></div>
+                    <div class="prog-price-row"><span>10회 속성 패키지</span><span class="price">800만동</span></div>
+                    <div class="prog-price-row"><span>6회 입문 패키지</span><span class="price">500만동</span></div>
+                </div>
+                <span class="tag">Acne Care</span>
+            </div>
+
+            <div class="program-card reveal" data-cat="package">
+                <div class="prog-badge">PACKAGE</div>
+                <div class="prog-cat-tag whitening">아이돌 화이트닝</div>
+                <h3>아이돌 화이트닝 관리<br><em>3 Step Package</em></h3>
+                <p>아이유 화이트닝 PP 기반. 화사 맞춤케어 + 등관리 조합으로 전신 미백 효과를 제공합니다.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>12회 집중 패키지</span><span class="price">1,000만동</span></div>
+                    <div class="prog-price-row"><span>8회 속성 패키지</span><span class="price">800만동</span></div>
+                    <div class="prog-price-row"><span>5회 입문 패키지</span><span class="price">550만동</span></div>
+                </div>
+                <span class="tag">Whitening</span>
+            </div>
+
+            <div class="program-card reveal" data-cat="package">
+                <div class="prog-badge">PACKAGE</div>
+                <div class="prog-cat-tag lifting">여배우 리프팅</div>
+                <h3>여배우 리프팅 관리<br><em>3 Step Package</em></h3>
+                <p>집중 리프팅을 원하는 분께 추천. 화사 맞춤 리프팅케어 + 등관리로 탄력 있는 피부를 만들어 드립니다.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>12회 집중 패키지</span><span class="price">1,000만동</span></div>
+                    <div class="prog-price-row"><span>8회 속성 패키지</span><span class="price">800만동</span></div>
+                    <div class="prog-price-row"><span>5회 입문 패키지</span><span class="price">550만동</span></div>
+                </div>
+                <span class="tag">Lifting</span>
+            </div>
+
+            <div class="program-card reveal" data-cat="package">
+                <div class="prog-badge">PACKAGE</div>
+                <div class="prog-cat-tag acne">뮨·탐뮨 패키지</div>
+                <h3>뮨·탐뮨<br><em>4 Gói chăm sóc</em></h3>
+                <p>여드름·색소침착 전문 4단계 패키지. 염증 및 뒤흉터까지 집중 케어합니다.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>HwasaK 20buổi</span><span class="price">15,000K <small>회원가</small></span></div>
+                    <div class="prog-price-row"><span>전문 12buổi</span><span class="price">10,000K</span></div>
+                    <div class="prog-price-row"><span>기본 치료 패키지</span><span class="price">8,000K</span></div>
+                    <div class="prog-price-row"><span>기본 6buổi</span><span class="price">5,000K</span></div>
+                </div>
+                <span class="tag">Mụn · Thâm</span>
+            </div>
+
+            <!-- ===== 기본 관리 ===== -->
+            <div class="program-card reveal" data-cat="basic">
+                <div class="prog-cat-tag basic-tag">기본 관리</div>
+                <h3>베이직 프로그램<br><em>Basic Program</em></h3>
+                <p>웰에이징·화이트닝·여드름케어 3가지 코스. 60분/90분(Plus) 선택 가능, 에이플라즈마 포함 옵션.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>웰에이징 Plus 90분</span><span class="price">69만동 <small>정상 100만</small></span></div>
+                    <div class="prog-price-row"><span>웰에이징 60분</span><span class="price">55만동 <small>정상 80만</small></span></div>
+                    <div class="prog-price-row"><span>화이트닝 Plus 90분</span><span class="price">69만동</span></div>
+                    <div class="prog-price-row"><span>화이트닝 60분</span><span class="price">55만동</span></div>
+                    <div class="prog-price-row"><span>여드름케어 Plus 90분</span><span class="price">69만동</span></div>
+                    <div class="prog-price-row"><span>여드름케어 60분</span><span class="price">55만동</span></div>
+                </div>
+                <span class="tag">Basic</span>
+            </div>
+
+            <div class="program-card reveal" data-cat="basic">
+                <div class="prog-cat-tag basic-tag">단품 관리</div>
+                <h3>Gói chăm sóc<br><em>cơ bản</em></h3>
+                <p>단품 기본 케어. 피부 상태별 맞춤 시술로 구성됩니다.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>Chống lão hóa Plus 90p</span><span class="price">690k <small>회원가</small></span></div>
+                    <div class="prog-price-row"><span>Chống lão hóa 60p</span><span class="price">550k</span></div>
+                    <div class="prog-price-row"><span>Làm trắng Plus 90p</span><span class="price">690k</span></div>
+                    <div class="prog-price-row"><span>Làm trắng 60p</span><span class="price">550k</span></div>
+                    <div class="prog-price-row"><span>Da mụn Plus 90p</span><span class="price">690k</span></div>
+                    <div class="prog-price-row"><span>Da mụn 60p</span><span class="price">550k</span></div>
+                </div>
+                <span class="tag">단품</span>
+            </div>
+
+            <!-- ===== 스케일링·필링 ===== -->
+            <div class="program-card reveal" data-cat="device">
+                <div class="prog-cat-tag device-tag">스케일링·필링</div>
+                <h3>스케일링·필링 프로그램<br><em>Skelling-Feling</em></h3>
+                <p>깐달걀 피부를 위한 각질 제거 & 피부 재생 프로그램. 비건스피큘·아쿠아필링·아이돌 플래닝 선택 가능.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>비건스피큘 3회 패키지</span><span class="price">660만동 <small>정상 800만</small></span></div>
+                    <div class="prog-price-row"><span>비건스피큘 1회</span><span class="price">230만동</span></div>
+                    <div class="prog-price-row"><span>아쿠아필링 Plus (피부과)</span><span class="price">230만동</span></div>
+                    <div class="prog-price-row"><span>아쿠아필링 일반</span><span class="price">99만동</span></div>
+                    <div class="prog-price-row"><span>아이돌 플래닝 Plus 3회</span><span class="price">500만동</span></div>
+                    <div class="prog-price-row"><span>아이돌 플래닝 1회</span><span class="price">180만동</span></div>
+                </div>
+                <span class="tag">Peeling</span>
+            </div>
+
+            <!-- ===== 장비 관리 ===== -->
+            <div class="program-card reveal" data-cat="device">
+                <div class="prog-cat-tag device-tag">장비 관리</div>
+                <h3>Plasma · HIFU · RF<br><em>장비 집중 케어</em></h3>
+                <p>에이플라즈마, HIFU 리프팅, RF 고주파, 크라이오셀 등 최신 장비를 활용한 집중 케어 프로그램입니다.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>Plasma 관리</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>HIFU 리프팅 (Nâng cơ Hifu)</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>RF 고주파 리프팅</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>Nâng cơ giọt nước</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>Cryocell 수분 진정</span><span class="price">상담 후 안내</span></div>
+                </div>
+                <span class="tag">Device</span>
+            </div>
+
+            <div class="program-card reveal" data-cat="device">
+                <div class="prog-cat-tag device-tag">바디 · 기타</div>
+                <h3>바디 · 슬리밍 · 헤어<br><em>Body &amp; Hair Spa</em></h3>
+                <p>마사지·슬리밍·Energy Therapy·Hwasa Combo ABC·Golf Combo ABC·Hair Spa·Event 프로그램.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row"><span>Mát xa thư giãn</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>Giảm béo (슬리밍)</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>Energy Therapy</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>Hwasa / Golf Combo ABC</span><span class="price">상담 후 안내</span></div>
+                    <div class="prog-price-row"><span>Hair Spa</span><span class="price">상담 후 안내</span></div>
+                </div>
+                <span class="tag">Body · Slim</span>
+            </div>
+
+            <!-- ===== 회원권 ===== -->
+            <div class="program-card reveal prog-membership" data-cat="membership">
+                <div class="prog-cat-tag member-tag">VIP MEMBERSHIP</div>
+                <h3>화사 VIP 회원권<br><em>Thẻ Hội Viên</em></h3>
+                <p>회원 전용 할인과 무료 서비스 혜택. 가족 카드 공유 가능.</p>
+                <div class="prog-price-list">
+                    <div class="prog-price-row member-tier club"><span>CLUB</span><span class="price">10,000K</span></div>
+                    <div class="prog-price-sub">기본 케어 2회 · 전 케어 할인 · 서비스 3가지 선택</div>
+                    <div class="prog-price-row member-tier bronze"><span>BRONZE</span><span class="price">19,000K</span></div>
+                    <div class="prog-price-sub">바우처 2장(2,000k) · 10% 추가 · 케어 3가지 선택</div>
+                    <div class="prog-price-row member-tier vvip"><span>VVIP</span><span class="price">35,000K</span></div>
+                    <div class="prog-price-sub">바우처 3장(6,000k) · 10% 추가 · 기본케어 5회 · 서비스 5가지</div>
+                </div>
+                <span class="tag">Membership</span>
+            </div>
+
+        </div><!-- /program-grid -->
+
+        <div class="prog-cta reveal">
+            <p>정확한 가격과 상담은 카카오톡 또는 전화로 문의해 주세요</p>
+            <a href="https://open.kakao.com/o/suDPpihg" target="_blank" class="prog-cta-btn">카카오 상담 예약</a>
+        </div>
+
     </section>
 
     <footer class="footer-slim">
@@ -275,6 +428,14 @@
 
     </div><!-- scroll-container -->
     <script>
+        function filterProg(cat) {
+            document.querySelectorAll('.prog-tab').forEach(t=>t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.program-card').forEach(c=>{
+                if(cat==='all' || c.dataset.cat===cat) c.classList.remove('hide');
+                else c.classList.add('hide');
+            });
+        }
         const revealElements = document.querySelectorAll('.reveal');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {

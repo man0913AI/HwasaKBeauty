@@ -119,7 +119,7 @@
             gap: 24px;
         }
         .program-card {
-            background: rgba(0,0,0,0.55);
+            background: rgba(0,0,0,0.7);
             border: 1px solid rgba(184,149,106,0.4);
             border-radius: 12px;
             padding: 28px 24px 20px;
@@ -150,10 +150,10 @@
         .program-card h3 em { font-style: italic; color: var(--color-accent-light); }
         .program-card > p { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.7; margin-bottom: 14px; }
         .prog-price-list { margin-bottom: 16px; }
-        .prog-price-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: rgba(255,255,255,0.7); }
+        .prog-price-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #fff; }
         .prog-price-row .price { color: var(--color-accent); font-weight: 600; font-size: 12px; }
         .prog-price-row .price small { color: rgba(255,255,255,0.35); font-weight: 400; font-size: 10px; margin-left: 4px; text-decoration: line-through; }
-        .prog-price-sub { font-size: 10px; color: rgba(255,255,255,0.35); padding: 3px 0 6px; line-height: 1.4; }
+        .prog-price-sub { font-size: 10px; color: #ddd; padding: 3px 0 6px; line-height: 1.4; }
         .member-tier { font-weight: 700; font-size: 13px !important; }
         .member-tier .price { color: #A0A0A0; }
         .member-tier.bronze .price { color: #CD7F32; }
@@ -204,6 +204,23 @@
         .footer-inner a:hover { color: #d4b58a; }
         .footer-sep { color: rgba(255,255,255,0.2); }
         .footer-qr-slots, .footer-qr-placeholder, .footer-slim-inner, .footer-slim-links, .footer-copy { display: none !important; }
+
+        
+        /* Force all card text fully opaque */
+        .program-card, .program-card h3, .program-card p, .program-card em,
+        .program-card .prog-price-row, .program-card .prog-price-row span,
+        .program-card .prog-price-sub, .program-card .prog-cat-tag,
+        .program-card small, .program-card li,
+        .member-tier span, .prog-price-list {
+            color: #fff !important;
+            opacity: 1 !important;
+        }
+        .program-card h3 em { color: #B8956A !important; }
+        .program-card .price, .program-card .prog-price-row .price { color: #B8956A !important; }
+        .program-card .prog-price-sub { color: #ccc !important; font-size: 11px; }
+        .program-card small { color: #999 !important; font-size: 10px; }
+        .program-card .prog-cat-tag { color: #fff !important; }
+        .prog-tab { color: #fff !important; opacity: 1 !important; }
 
         </style>
 </head>

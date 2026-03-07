@@ -118,7 +118,7 @@
             max-width: 1100px; margin: 0 auto;
         }
         .contact-info-card {
-            background: transparent; border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(184,149,106,0.3);
             padding: 36px; margin-bottom: 20px; transition: all 0.3s;
         }
         .contact-info-card:hover { border-color: var(--color-accent); }
@@ -134,7 +134,7 @@
         }
         .contact-info-card a:hover { opacity: 0.7; }
         .contact-map {
-            background: transparent; border: 1px solid rgba(255,255,255,0.08);
+            background: transparent; border: 1px solid rgba(184,149,106,0.3);
             height: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
@@ -171,11 +171,21 @@
         
         /* FOOTER */
         .footer-slim { background: #111; border-top: 1px solid rgba(184,149,106,0.3); padding: 16px 0; }
-        .footer-inner { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,0.5); }
+        .footer-inner { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #ccc; }
         .footer-inner a { color: #B8956A; text-decoration: none; transition: color 0.3s; }
         .footer-inner a:hover { color: #d4b58a; }
-        .footer-sep { color: rgba(255,255,255,0.2); }
+        .footer-sep { color: #888; }
         .footer-qr-slots, .footer-qr-placeholder, .footer-slim-inner, .footer-slim-links, .footer-copy { display: none !important; }
+
+        
+        .contact-info-card, .contact-info-card h4, .contact-info-card p,
+        .contact-info-card a, .contact-info-card span,
+        .section-header, .section-header h2, .section-header p,
+        .hero-content, .hero-content h1, .hero-content p {
+            opacity: 1 !important;
+        }
+        .contact-info-card p { color: #fff !important; }
+        .contact-info-card h4 { color: #fff !important; }
 
         </style>
 </head>
@@ -229,7 +239,9 @@
                 <div class="contact-info-card">
                     <h4>📞 연락처</h4>
                     <p>카카오톡: <a href="https://open.kakao.com/o/suDPpihg" target="_blank">hwasavn</a><br>
-                    인스타그램: <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">@hwasa_k_beauty</a></p>
+                    인스타그램: <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">@hwasa_k_beauty</a><br>
+                    Grab: <a href="grab://open?screenType=BOOKING&dropOffAddress=A1%20Khu%20Five%20Star%20M%E1%BB%B9%20%C4%90%C3%ACnh%20H%C3%A0%20N%E1%BB%99i&dropOffLatitude=21.018&dropOffLongitude=105.77" target="_blank">Hwasa K-Beauty로 이동</a><br>
+                    Google Map: <a href="https://www.google.com/maps/search/?api=1&query=Hwasa+K-Beauty+A1+Khu+Five+Star+My+Dinh+Ha+Noi" target="_blank">지도에서 보기</a></p>
                 </div>
                 <div class="contact-info-card">
                     <h4>💬 상담 예약</h4>

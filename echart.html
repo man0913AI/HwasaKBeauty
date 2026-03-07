@@ -298,21 +298,8 @@
     
 
         /* ========== CLIPBOARD FRAME ========== */
-        .clipboard-layer {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
-            width: min(640px, 96vw);
-            pointer-events: none;
-        }
-        .clipboard-img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: drop-shadow(0 8px 40px rgba(0,0,0,0.5));
-        }
+        
+        
 
         /* ========== BODY MAP ========== */
         .body-map-section {
@@ -377,11 +364,7 @@
     <!-- 눈부심 개선 오버레이 -->
     <div class="bg-overlay"></div>
     <!-- CLIPBOARD FRAME -->
-    <div class="clipboard-layer">
-        <div style="position:relative;">
-            <img src="images/echart_clipboard.png" alt="" class="clipboard-img">
-        </div>
-    </div>
+    
 
     <header class="header">
         <a href="index.html" class="logo"><img src="logo.png" alt="Hwasa K-Beauty" class="logo-img"></a>

@@ -251,6 +251,19 @@
             max-width: 450px;
             margin: 0 auto;
         }
+        
+        .featured-card-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 0 48px 32px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .featured-card-wrap .appointment-card {
+            max-width: 420px;
+            width: 100%;
+        }
+
         .appointment-stack {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -524,78 +537,80 @@
             <h2 class="section-title">위촉장 & <em>문화교육</em></h2>
             <div class="divider-line"></div>
         </div>
-        <div class="appointment-stack reveal">
-            <div class="appointment-card" onclick="openLightbox(this)">
-                <img src="director-award_.jpg" alt="원장 수상">
-                <div class="diploma-card-info">
-                    <h4>원장 수상 경력</h4>
-                    <p>피부관리 전문가 인증</p>
-                </div>
-            </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+        <div class="featured-card-wrap reveal">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/diploma_kcea2025.jpg" alt="대한민국 문화교육대상">
                 <div class="diploma-card-info">
                     <h4>대한민국 문화교육대상</h4>
                     <p>사단법인 한국문화교육협회 · KCEA 제25-072호 · 2025.12</p>
                 </div>
             </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+            </div>
+            <div class="appointment-stack reveal">
+                <div class="appointment-card" onclick="openLightbox(this)">
+                <img src="director-award_.jpg" alt="원장 수상">
+                <div class="diploma-card-info">
+                    <h4>원장 수상 경력</h4>
+                    <p>피부관리 전문가 인증</p>
+                </div>
+            </div>
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/diploma_kbeauty2015.jpg" alt="K뷰티 강사자격증">
                 <div class="diploma-card-info">
                     <h4>강사자격증 — 스킨케어</h4>
                     <p>(사)K뷰티전문가연합회 · 번호 22D1989KR · 2015.02</p>
                 </div>
             </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/diploma_sookmyung2021.jpg" alt="숙명여자대학교 표창장">
                 <div class="diploma-card-info">
                     <h4>표창장 — 숙명여자대학교</h4>
                     <p>뷰티최고전문가 피부강사 과정 발전 기여 · 2021.10</p>
                 </div>
             </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/diploma_goryeo2024.jpg" alt="고려전문학교 위촉장">
                 <div class="diploma-card-info">
                     <h4>위촉장 — 고려전문학교 지도교수</h4>
                     <p>뷰티최고경영자과정 · 위촉NO 제24-071109 · 2024.07</p>
                 </div>
             </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/diploma_snu2018.jpg" alt="서울대학교 위촉장">
                 <div class="diploma-card-info">
                     <h4>위촉장 — 서울대학교 초빙교수</h4>
                     <p>Beauty Chief Executive Program · 제2018-BCE-012호 · 2018.11</p>
                 </div>
             </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/diploma_appoint2021.jpg" alt="숙명여자대학교 임명장">
                 <div class="diploma-card-info">
                     <h4>임명장 — 숙명여자대학교 초빙강사</h4>
                     <p>피부 전문 강사 과정 · 숙명여자대학교 총장 · 2021.10</p>
                 </div>
             </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/diploma_nasaret2023.jpg" alt="나사렛대학교 임명장">
                 <div class="diploma-card-info">
                     <h4>임명장 — 나사렛대학교 외래교수</h4>
                     <p>피부미용 국가자격취득과정 · 제23-001호 · 2023.02</p>
                 </div>
             </div>
-            <div class="appointment-card" onclick="openLightbox(this)">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="cert-snu.jpg" alt="서울대학교 위촉장">
                 <div class="diploma-card-info">
                     <h4>서울대학교 STHIS 위촉장</h4>
                     <p>Beauty Chief Executive Program · Visiting Professor · 2018.11</p>
                 </div>
             </div>
-        
-            <div class="appointment-card" onclick="openLightbox(this)">
+                <div class="appointment-card" onclick="openLightbox(this)">
                 <img src="images/cert_beauty_festival.jpg" alt="Beauty Festival 위촉장">
                 <div class="diploma-card-info">
                     <h4>Beauty Festival 위촉장</h4>
                     <p>Ban Giám Khảo Bộ Môn Da · Bắc Ninh · 2024.06</p>
                 </div>
-            </div></div>
+            </div>
+            </div>
     </section>
 
     <!-- CERTIFICATES -->
@@ -614,13 +629,7 @@
                     <p>Professional Instructor · 2020.03</p>
                 </div>
             </div>
-            <div class="cert-card reveal" onclick="openLightbox(this)">
-                <img src="cert-medical.jpg" alt="메디컬스킨케어 인증서">
-                <div class="diploma-card-info">
-                    <h4>Medical Skin Care</h4>
-                    <p>숙명여자대학교 · 1987.12</p>
-                </div>
-            </div>
+            
             <div class="cert-card reveal" onclick="openLightbox(this)">
                 <img src="cert-slimming.jpg" alt="슬리밍바디디톡스 인증서">
                 <div class="diploma-card-info">
@@ -667,16 +676,7 @@
             <p class="section-desc">한국에서 시작해 하노이로 이어진 22년의 전문가 여정</p>
         </div>
         <div class="timeline">
-            <div class="timeline-item reveal">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="year">1987</span>
-                    <h4>Medical Skin Care 자격 취득</h4>
-                    <p>숙명여자대학교 메디컬 스킨케어 전문 교육 이수 및 자격 인증</p>
-                </div>
-            </div>
-            <div class="timeline-item reveal">
-                <div class="timeline-dot"></div>
+            
                 <div class="timeline-content">
                     <span class="year">2018</span>
                     <h4>서울대학교 STHIS Visiting Professor 위촉</h4>

@@ -197,6 +197,13 @@
         
 
         
+        
+        
+        
+        
+        
+
+        
         .footer-slim { background:#111; border-top:1px solid rgba(184,149,106,0.3); padding:16px 0; }
         .footer-inner { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; font-size:12px; color:#ccc; }
         .footer-inner a { color:#B8956A; text-decoration:none; transition:color 0.3s; }
@@ -265,7 +272,7 @@
                 </div>
             </div>
             <div class="contact-map">
-                <iframe src="https://maps.google.com/maps?q=21.018,105.770&t=m&z=17&output=embed&iwloc=near" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe id="shopMap" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
     </section>
@@ -305,6 +312,18 @@
                 `;
             }
         }
+    </script>
+
+    <script>
+    // Inject Google Maps on page load
+    window.addEventListener('DOMContentLoaded', function() {
+        var lat = 21.018;
+        var lng = 105.770;
+        var mapFrame = document.getElementById('shopMap');
+        if (mapFrame) {
+            mapFrame.src = 'https://maps.google.com/maps?q=' + lat + ',' + lng + '&t=m&z=17&output=embed&iwloc=near';
+        }
+    });
     </script>
 </body>
 </html>

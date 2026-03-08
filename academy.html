@@ -228,56 +228,19 @@
         .apply-success p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.8; }
 
         /* ── SLIM FOOTER ────────────────────────────────── */
-        .footer-slim {
-            background: transparent;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            min-height: 140px;
-        }
-        .footer-slim-inner {
-            max-width: 1400px; margin: 0 auto;
-            padding: 28px 48px;
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 32px; flex-wrap: wrap;
-        }
-        .footer-copy {
-            font-size: 12px; color: rgba(255,255,255,0.45);
-            font-family: var(--font-nav); letter-spacing: 1px;
-            flex-shrink: 0;
-        }
-        .footer-qr-slots {
-            display: flex; gap: 28px; align-items: center;
-            /* QR코드 자리 — 나중에 img 태그 삽입 */
-        }
-        .footer-qr-placeholder {
-            width: 80px; height: 80px;
-            border: 1px dashed rgba(184,149,106,0.3);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; color: rgba(184,149,106,0.35);
-            font-family: var(--font-nav); letter-spacing: 1px;
-            text-transform: uppercase; text-align: center; line-height: 1.4;
-        }
-        .footer-slim-links {
-            display: flex; align-items: center; gap: 24px; flex-shrink: 0;
-        }
-        .footer-slim-links a {
-            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
-            text-transform: uppercase; color: #fff; transition: color 0.3s;
-            white-space: nowrap;
-        }
-        .footer-slim-links a:hover { color: var(--color-accent); }
-        .footer-slim-links .footer-contact-btn {
-            padding: 8px 20px; border: 1px solid rgba(184,149,106,0.5);
-            color: var(--color-accent) !important;
-        }
-        .footer-slim-links .footer-contact-btn:hover {
-            background: var(--color-accent); color: #fff !important;
-        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         @media (max-width: 768px) {
-            .footer-slim-inner {
-                flex-direction: column; align-items: center;
-                text-align: center; padding: 28px 24px; gap: 20px;
-            }
-            .footer-slim-links { gap: 16px; flex-wrap: wrap; justify-content: center; }
+            
+            
         }
 
         /* ── BG VIDEO & SCROLL ──────────────────────────── */
@@ -311,9 +274,19 @@
         .side-nav { position:fixed; right:0; top: 80px; transform: none; z-index:100; display:flex; flex-direction:column; align-items:flex-end; gap:0; background:transparent; }
         .side-nav a { display:block; padding:12px 14px; font-family:var(--font-nav,'Montserrat',sans-serif); font-size:10px; letter-spacing:2px; color: #fff; text-decoration:none; transition:color 0.3s,background 0.3s; text-transform:uppercase; text-align:right; }
         .side-nav a:hover { color:#B8956A; background:rgba(0,0,0,0.3); }
-        .footer-erp { margin-left:auto; }
-        .footer-erp a { color:#888; text-decoration:none; font-size:11px; letter-spacing:1px; }
-        .footer-erp a:hover { color:#B8956A; }
+        
+        
+        
+
+        
+        /* FOOTER */
+        .footer-slim { background: #111; border-top: 1px solid rgba(184,149,106,0.3); padding: 16px 0; }
+        .footer-inner { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #ccc; }
+        .footer-inner a { color: #B8956A; text-decoration: none; transition: color 0.3s; }
+        .footer-inner a:hover { color: #d4b58a; }
+        .footer-sep { color: #888; }
+        .footer-erp-link { color: #888 !important; }
+        .footer-erp-link:hover { color: #B8956A !important; }
 
         </style>
 </head>
@@ -574,7 +547,8 @@
             <a href="https://open.kakao.com/o/suDPpihg" target="_blank">KakaoTalk</a>
             <span class="footer-sep">|</span>
             <a href="contact.html">Contact</a>
-            <span class="footer-erp"><a href="erp.html">ERP</a></span>
+            <span class="footer-sep">|</span>
+            <a href="erp.html" class="footer-erp-link">ERP</a>
         </div>
     </footer>
 

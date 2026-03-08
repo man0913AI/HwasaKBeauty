@@ -204,6 +204,13 @@
         
 
         
+        
+        
+        
+        
+        
+
+        
         .footer-slim { background:#111; border-top:1px solid rgba(184,149,106,0.3); padding:16px 0; }
         .footer-inner { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; font-size:12px; color:#ccc; }
         .footer-inner a { color:#B8956A; text-decoration:none; transition:color 0.3s; }
@@ -267,12 +274,12 @@
                     <p>전화: <a href="tel:0326842002">032-684-2002</a><br>
                     카카오톡: <a href="https://open.kakao.com/o/suDPpihg" target="_blank">hwasavn</a><br>
                     인스타그램: <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">@hwasa_k_beauty</a><br>
-                    Grab: <a href="grab://open?screenType=BOOKING&dropOffLatitude=21.0180&dropOffLongitude=105.7700&dropOffAddress=Hwasa%20K-Beauty%20A1%20Five%20Star%20My%20Dinh" target="_blank">Hwasa K-Beauty로 이동</a><br>
-                    Google Map: <a href="https://www.google.com/maps?q=21.0180,105.7700&z=17" target="_blank">지도에서 보기</a></p>
+                    Grab: <a href="grab://open?screenType=BOOKING&dropOffLatitude=21.017912&dropOffLongitude=105.7759452&dropOffAddress=Hwasa%20K-Beauty%20A1%20Five%20Star%20My%20Dinh" target="_blank">Hwasa K-Beauty로 이동</a><br>
+                    Google Map: <a href="https://www.google.com/maps?q=21.017912,105.7759452&z=17" target="_blank">지도에서 보기</a></p>
                 </div>
             </div>
             <div class="contact-map">
-                <iframe id="shopMap" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe id="shopMap" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
     </section>
@@ -314,14 +321,16 @@
         }
     </script>
 
+    
+
     <script>
-    // Inject Google Maps on page load
     window.addEventListener('DOMContentLoaded', function() {
-        var lat = 21.018;
-        var lng = 105.770;
+        var shopName = 'Hwasa K Beauty 화사케이뷰티';
+        var lat = 21.017912;
+        var lng = 105.7759452;
         var mapFrame = document.getElementById('shopMap');
         if (mapFrame) {
-            mapFrame.src = 'https://maps.google.com/maps?q=' + lat + ',' + lng + '&t=m&z=17&output=embed&iwloc=near';
+            mapFrame.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(shopName) + '&ll=' + lat + ',' + lng + '&z=17&output=embed&iwloc=near';
         }
     });
     </script>

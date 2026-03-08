@@ -669,6 +669,15 @@
         .footer-sep { color: rgba(255,255,255,0.2); }
         .footer-qr-slots, .footer-qr-placeholder, .footer-slim-inner, .footer-slim-links, .footer-copy { display: none !important; }
 
+        
+        /* RIGHT SIDEBAR */
+        .side-nav { position:fixed; right:0; top:50%; transform:translateY(-50%); z-index:100; display:flex; flex-direction:column; align-items:flex-end; gap:0; background:transparent; }
+        .side-nav a { display:block; padding:12px 14px; font-family:var(--font-nav,'Montserrat',sans-serif); font-size:10px; letter-spacing:2px; color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.3s,background 0.3s; text-transform:uppercase; text-align:right; }
+        .side-nav a:hover { color:#B8956A; background:rgba(0,0,0,0.3); }
+        .footer-erp { margin-left:auto; }
+        .footer-erp a { color:#888; text-decoration:none; font-size:11px; letter-spacing:1px; }
+        .footer-erp a:hover { color:#B8956A; }
+
         </style>
 </head>
 <body>
@@ -700,16 +709,17 @@
             <a href="echart.html">E-Chart</a>
             <a href="letter.html">Letter</a>
             <a href="about.html">About</a>
-            <a href="shop.html">Shop</a>
-            <a href="academy.html">Academy</a>
-            <a href="contact.html">Contact</a>
-            <a href="erp.html">ERP</a>
             <a href="echart.html" class="nav-cta">상담 예약</a>
         </nav>
         <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </div>
     </header>
+    <div class="side-nav" id="sideNav">
+        <a href="academy.html">ACADEMY</a>
+        <a href="shop.html">SHOP</a>
+        <a href="contact.html">CONTACT</a>
+    </div>
     <div class="scroll-container">
 
     <!-- HERO -->
@@ -852,6 +862,7 @@
             <a href="https://open.kakao.com/o/suDPpihg" target="_blank">KakaoTalk</a>
             <span class="footer-sep">|</span>
             <a href="contact.html">Contact</a>
+            <span class="footer-erp"><a href="erp.html">ERP</a></span>
         </div>
     </footer>
 

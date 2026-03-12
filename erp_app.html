@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HWASA K-Beauty — Clinic ERP</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body { background: #141210; }
+    #splash {
+      position: fixed; inset: 0; background: #141210;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      z-index: 9999; transition: opacity 0.5s;
+    }
+    #splash .mk { width:48px; height:48px; background:#B8956A; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:26px; color:#fff; font-weight:600; }
+    #splash .br { font-family:'Cormorant Garamond',serif; font-size:19px; color:#e8e0d8; }
+    #splash .sb { font-size:10px; color:#6B6560; letter-spacing:2.5px; text-transform:uppercase; }
+    #splash .sp { width:26px; height:26px; border:2px solid rgba(184,149,106,0.2); border-top-color:#B8956A; border-radius:50%; animation:spin .8s linear infinite; margin-top:6px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+</head>
+<body>
+  <div id="splash">
+    <div class="mk">H</div>
+    <div class="br">HWASA K-Beauty</div>
+    <div class="sb">Clinic ERP System</div>
+    <div class="sp"></div>
+  </div>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+
+// ─── ACCOUNTS (임시 고정 계정 — 추후 MERP DB 사용자 관리로 교체) ───
+const ACCOUNTS = {
+  admin:     { pw: "hwasa2023", name: "이화사 원장", role: "관리자", initial: "이", color: "linear-gradient(135deg,#B8956A,#8B6F4E)" },
+  galaxy0219:{ pw: "0716",      name: "Galaxy",     role: "원장",   initial: "G", color: "linear-gradient(135deg,#4D96FF,#2766CC)" },
+  manager:   { pw: "0716",      name: "Manager",    role: "매니저", initial: "M", color: "linear-gradient(135deg,#6BCB77,#449D51)" },
+};
+
+// ─── ICON COMPONENTS ───
+const Icon = ({ d, size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
+);
+const icons = {
+  dashboard: "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10",
+  patients: "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M9 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75",
+  calendar: "M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2 M16 2v4 M8 2v4 M3 10h18",
+  treatment: "M22 12h-4l-3 9L9 3l-3 9H2",
+  inventory: "M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0",
+  billing: "M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6",
+  staff: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8",
+  reports: "M18 20V10 M12 20V4 M6 20v-6",
+  settings: "M12 15a3 3 0 100-6 3 3 0 000 6z",
+  search: "M11 17.25a6.25 6.25 0 110-12.5 6.25 6.25 0 010 12.5z M16 16l4.5 4.5",
+  bell: "M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 01-3.46 0",
+  plus: "M12 5v14 M5 12h14",
+  check: "M20 6L9 17l-5-5",
+  clock: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2",
+  filter: "M22 3H2l8 9.46V19l4 2v-8.54L22 3z",
+  more: "M12 13a1 1 0 100-2 1 1 0 000 2z M19 13a1 1 0 100-2 1 1 0 000 2z M5 13a1 1 0 100-2 1 1 0 000 2z",
+  arrowUp: "M12 19V5 M5 12l7-7 7 7",
+  arrowDown: "M12 5v14 M19 12l-7 7-7-7",
+  star: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
+  eye: "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 15a3 3 0 100-6 3 3 0 000 6z",
+  phone: "M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z",
+  camera: "M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z M12 17a4 4 0 100-8 4 4 0 000 8z",
+  edit: "M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7 M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z",
+  trash: "M3 6h18 M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2",
+  download: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4 M7 10l5 5 5-5 M12 15V3",
+  mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
+  link: "M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71",
+  body: "M12 2a3 3 0 100 6 3 3 0 000-6z M12 8v8 M8 12h8 M9 22l3-6 3 6",
+  shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
+  x: "M18 6L6 18 M6 6l12 12",
+  chevL: "M15 18l-6-6 6-6",
+  chevR: "M9 18l6-6-6-6",
+  user: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8",
+  save: "M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z M17 21v-8H7v8 M7 3v5h8",
+  print: "M6 9V2h12v7 M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2 M6 14h12v8H6z",
+  toggle: "M16 5a4 4 0 014 4 4 4 0 01-4 4H8a4 4 0 110-8h8z M8 9a0 0 0 100 0 0 0 0 000 0z",
+  globe: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z",
+  db: "M12 2C6.48 2 2 4.02 2 6.5S6.48 11 12 11s10-2.02 10-4.5S17.52 2 12 2z M2 6.5v5c0 2.485 4.48 4.5 10 4.5s10-2.015 10-4.5v-5 M2 11.5v5c0 2.485 4.48 4.5 10 4.5s10-2.015 10-4.5v-5",
+};
+
+const avatarColors = [
+  "linear-gradient(135deg, #B8956A, #8B6F4E)", "linear-gradient(135deg, #4D96FF, #2766CC)",
+  "linear-gradient(135deg, #6BCB77, #449D51)", "linear-gradient(135deg, #FF6B6B, #CC4444)",
+  "linear-gradient(135deg, #FFB347, #CC8A2E)", "linear-gradient(135deg, #9B59B6, #7B3F9E)",
+  "linear-gradient(135deg, #1ABC9C, #148F77)", "linear-gradient(135deg, #E74C3C, #C0392B)",
+];
+
+// ─── MOCK DATA ───
+const todayAppointments = [
+  { id: 1, time: "09:00", patient: "Nguyễn Thị Mai", type: "Botox - 이마", doctor: "Dr. 이화사", status: "confirmed", avatar: "NM" },
+  { id: 2, time: "09:30", patient: "Trần Văn Hùng", type: "레이저 토닝", doctor: "Dr. 이화사", status: "in-progress", avatar: "TH" },
+  { id: 3, time: "10:00", patient: "Lê Thị Hoa", type: "피부 상담", doctor: "Dr. 이화사", status: "confirmed", avatar: "LH" },
+  { id: 4, time: "10:30", patient: "Phạm Minh Tuấn", type: "필러 - 팔자주름", doctor: "Dr. 이화사", status: "waiting", avatar: "PT" },
+  { id: 5, time: "11:00", patient: "Đỗ Thanh Lan", type: "셀프뷰티 스킨케어", doctor: "Staff Kim", status: "confirmed", avatar: "DL" },
+  { id: 6, time: "14:00", patient: "Vũ Hoàng Nam", type: "여드름 치료", doctor: "Dr. 이화사", status: "confirmed", avatar: "VN" },
+  { id: 7, time: "14:30", patient: "Hoàng Thị Yến", type: "리프팅 시술", doctor: "Dr. 이화사", status: "confirmed", avatar: "HY" },
+  { id: 8, time: "15:00", patient: "Ngô Đức Thịnh", type: "모공 축소 레이저", doctor: "Dr. 이화사", status: "completed", avatar: "NT" },
+];
+
+const recentPatients = [
+  { id: "P-2024-0891", name: "Nguyễn Thị Mai", age: 32, gender: "F", phone: "0912-xxx-456", lastVisit: "2026-03-06", nextAppt: "2026-03-11", totalSpent: "12,500,000₫", visits: 8, tags: ["VIP", "Botox"], allergy: "없음", skin: "복합성 (T존 지성)" },
+  { id: "P-2024-0756", name: "Trần Văn Hùng", age: 28, gender: "M", phone: "0987-xxx-123", lastVisit: "2026-03-05", nextAppt: "2026-03-12", totalSpent: "8,200,000₫", visits: 5, tags: ["레이저"], allergy: "리도카인", skin: "지성" },
+  { id: "P-2024-0623", name: "Lê Thị Hoa", age: 45, gender: "F", phone: "0932-xxx-789", lastVisit: "2026-03-04", nextAppt: "2026-03-15", totalSpent: "32,100,000₫", visits: 22, tags: ["VIP", "정기관리"], allergy: "없음", skin: "건성 (민감)" },
+  { id: "P-2024-0510", name: "Phạm Minh Tuấn", age: 35, gender: "M", phone: "0968-xxx-234", lastVisit: "2026-03-03", nextAppt: "2026-03-18", totalSpent: "5,600,000₫", visits: 3, tags: ["신규"], allergy: "페니실린", skin: "복합성" },
+  { id: "P-2024-0498", name: "Đỗ Thanh Lan", age: 29, gender: "F", phone: "0945-xxx-567", lastVisit: "2026-03-02", nextAppt: "2026-03-20", totalSpent: "15,800,000₫", visits: 12, tags: ["셀프뷰티"], allergy: "없음", skin: "건성" },
+];
+
+const kpiData = [
+  { label: "오늘 예약", value: "8건", sub: "+2 vs 어제", trend: "up", color: "#B8956A" },
+  { label: "오늘 매출", value: "18.5M₫", sub: "+12% vs 평균", trend: "up", color: "#6BCB77" },
+  { label: "신규 환자", value: "3명", sub: "이번 주 12명", trend: "up", color: "#4D96FF" },
+  { label: "재방문율", value: "78%", sub: "+5% vs 지난달", trend: "up", color: "#FF6B6B" },
+];
+
+const treatmentStats = [
+  { name: "Botox/필러", count: 42, revenue: "126M₫", pct: 35 },
+  { name: "레이저 시술", count: 38, revenue: "95M₫", pct: 30 },
+  { name: "스킨케어", count: 56, revenue: "84M₫", pct: 20 },
+  { name: "리프팅", count: 12, revenue: "72M₫", pct: 10 },
+  { name: "기타", count: 8, revenue: "18M₫", pct: 5 },
+];
+
+const inventoryAlerts = [
+  { item: "Botulinum Toxin Type A (100U)", stock: 3, min: 5, status: "critical" },
+  { item: "Hyaluronic Acid Filler 1ml", stock: 8, min: 10, status: "low" },
+  { item: "Numbing Cream (EMLA)", stock: 12, min: 15, status: "low" },
+  { item: "LED Mask Filter", stock: 2, min: 5, status: "critical" },
+];
+
+const weeklyRevenue = [
+  { day: "월", amount: 22.4 }, { day: "화", amount: 18.1 }, { day: "수", amount: 25.6 },
+  { day: "목", amount: 19.8 }, { day: "금", amount: 31.2 }, { day: "토", amount: 28.5 }, { day: "일", amount: 15.3 },
+];
+
+// Full inventory data
+const fullInventory = [
+  { id: "INV-001", name: "Botulinum Toxin Type A (100U)", category: "약품", stock: 3, min: 5, unit: "바이알", price: "4,500,000₫", expiry: "2026-09-15", supplier: "Allergan", status: "critical" },
+  { id: "INV-002", name: "Hyaluronic Acid Filler 1ml", category: "약품", stock: 8, min: 10, unit: "시린지", price: "3,200,000₫", expiry: "2027-01-20", supplier: "Restylane", status: "low" },
+  { id: "INV-003", name: "Numbing Cream (EMLA 5%)", category: "약품", stock: 12, min: 15, unit: "튜브", price: "180,000₫", expiry: "2026-12-01", supplier: "AstraZeneca", status: "low" },
+  { id: "INV-004", name: "LED Mask Filter", category: "소모품", stock: 2, min: 5, unit: "개", price: "850,000₫", expiry: "-", supplier: "Cellreturn", status: "critical" },
+  { id: "INV-005", name: "레이저 핸드피스 팁", category: "장비", stock: 15, min: 5, unit: "개", price: "2,100,000₫", expiry: "-", supplier: "Lutronic", status: "ok" },
+  { id: "INV-006", name: "일회용 시술 시트", category: "소모품", stock: 200, min: 50, unit: "매", price: "15,000₫", expiry: "-", supplier: "로컬", status: "ok" },
+  { id: "INV-007", name: "스킨 부스터 (리쥬란)", category: "약품", stock: 6, min: 5, unit: "시린지", price: "5,800,000₫", expiry: "2026-11-30", supplier: "Pharma Research", status: "ok" },
+  { id: "INV-008", name: "살균 소독제 (500ml)", category: "소모품", stock: 18, min: 10, unit: "병", price: "95,000₫", expiry: "2027-06-15", supplier: "로컬", status: "ok" },
+  { id: "INV-009", name: "초음파 젤 (1L)", category: "소모품", stock: 8, min: 5, unit: "병", price: "120,000₫", expiry: "2027-03-01", supplier: "로컬", status: "ok" },
+  { id: "INV-010", name: "PDO 실 (Cog)", category: "약품", stock: 20, min: 10, unit: "개", price: "450,000₫", expiry: "2027-02-28", supplier: "N-Finders", status: "ok" },
+];
+
+// Treatment/program data
+const treatments = [
+  { id: "T-001", name: "보톡스 (이마)", category: "주사", price: "3,500,000₫", duration: "20분", popular: true, active: true },
+  { id: "T-002", name: "보톡스 (미간)", category: "주사", price: "2,500,000₫", duration: "15분", popular: true, active: true },
+  { id: "T-003", name: "필러 (팔자주름)", category: "주사", price: "5,000,000₫", duration: "30분", popular: true, active: true },
+  { id: "T-004", name: "필러 (입술)", category: "주사", price: "4,000,000₫", duration: "25분", popular: false, active: true },
+  { id: "T-005", name: "레이저 토닝", category: "레이저", price: "2,000,000₫", duration: "40분", popular: true, active: true },
+  { id: "T-006", name: "IPL 광선치료", category: "레이저", price: "1,800,000₫", duration: "30분", popular: false, active: true },
+  { id: "T-007", name: "프락셀 레이저", category: "레이저", price: "3,000,000₫", duration: "45분", popular: false, active: true },
+  { id: "T-008", name: "울쎄라 리프팅", category: "리프팅", price: "15,000,000₫", duration: "90분", popular: true, active: true },
+  { id: "T-009", name: "실리프팅 (COG)", category: "리프팅", price: "8,000,000₫", duration: "60분", popular: false, active: true },
+  { id: "T-010", name: "스킨 부스터 (리쥬란)", category: "스킨케어", price: "5,800,000₫", duration: "40분", popular: true, active: true },
+  { id: "T-011", name: "아쿠아필 (기본)", category: "셀프뷰티", price: "800,000₫", duration: "60분", popular: true, active: true },
+  { id: "T-012", name: "아쿠아필 (프리미엄)", category: "셀프뷰티", price: "1,200,000₫", duration: "90분", popular: false, active: true },
+  { id: "T-013", name: "여드름 관리 프로그램", category: "스킨케어", price: "1,500,000₫", duration: "50분", popular: false, active: true },
+  { id: "T-014", name: "LED 테라피", category: "셀프뷰티", price: "500,000₫", duration: "30분", popular: false, active: false },
+];
+
+// Staff data
+const staffData = [
+  { id: "S-001", name: "이화사", role: "원장 (의사)", status: "active", phone: "010-xxxx-1234", schedule: "월~일 09:00–19:30", speciality: "피부과 전문의 · 보톡스/필러/리프팅", monthCases: 68, monthRevenue: "285M₫" },
+  { id: "S-002", name: "Kim Minji", role: "피부관리사", status: "active", phone: "0912-xxx-5678", schedule: "월~토 09:00–18:00", speciality: "셀프뷰티 · 아쿠아필 · 스킨케어", monthCases: 45, monthRevenue: "54M₫" },
+  { id: "S-003", name: "Trần Thu Hà", role: "간호조무사", status: "active", phone: "0987-xxx-9012", schedule: "월~토 09:00–18:00", speciality: "시술 보조 · 레이저 운영", monthCases: 52, monthRevenue: "-" },
+  { id: "S-004", name: "Nguyễn Văn Tùng", role: "리셉션", status: "active", phone: "0968-xxx-3456", schedule: "월~일 08:30–19:30", speciality: "예약 관리 · 고객 응대 · 결제", monthCases: "-", monthRevenue: "-" },
+  { id: "S-005", name: "Lê Thị Phương", role: "마케팅", status: "active", phone: "0945-xxx-7890", schedule: "월~금 09:00–18:00", speciality: "SNS 마케팅 · 콘텐츠 제작 · KakaoTalk", monthCases: "-", monthRevenue: "-" },
+];
+
+// Billing data
+const billingData = [
+  { id: "B-2026-0311-001", date: "2026-03-11", patient: "Nguyễn Thị Mai", items: "Botox 이마 20U", amount: "3,500,000₫", method: "현금", status: "paid" },
+  { id: "B-2026-0311-002", date: "2026-03-11", patient: "Trần Văn Hùng", items: "레이저 토닝 (5회차)", amount: "2,000,000₫", method: "카드", status: "paid" },
+  { id: "B-2026-0311-003", date: "2026-03-11", patient: "Lê Thị Hoa", items: "상담 (무료)", amount: "0₫", method: "-", status: "free" },
+  { id: "B-2026-0311-004", date: "2026-03-11", patient: "Phạm Minh Tuấn", items: "필러 팔자 1ml", amount: "5,000,000₫", method: "이체", status: "pending" },
+  { id: "B-2026-0311-005", date: "2026-03-11", patient: "Đỗ Thanh Lan", items: "아쿠아필 기본", amount: "800,000₫", method: "현금", status: "paid" },
+  { id: "B-2026-0310-001", date: "2026-03-10", patient: "Vũ Hoàng Nam", items: "여드름 관리 + LED", amount: "2,000,000₫", method: "카드", status: "paid" },
+  { id: "B-2026-0310-002", date: "2026-03-10", patient: "Hoàng Thị Yến", items: "울쎄라 전체 얼굴", amount: "15,000,000₫", method: "할부(3개월)", status: "paid" },
+  { id: "B-2026-0309-001", date: "2026-03-09", patient: "Ngô Đức Thịnh", items: "프락셀 + 재생관리", amount: "4,500,000₫", method: "카드", status: "paid" },
+];
+
+// Calendar week
+const calendarWeek = (() => {
+  const days = [];
+  const base = new Date(2026, 2, 9); // Monday March 9
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(base);
+    d.setDate(base.getDate() + i);
+    days.push(d);
+  }
+  return days;
+})();
+
+const calendarSlots = ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00"];
+
+// ─── STYLES ───
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap');
+:root {
+  --gold: #B8956A; --gold-light: #D4B896; --gold-dark: #8B6F4E;
+  --gold-glow: rgba(184,149,106,0.15);
+  --bg-primary: #0D0D0F; --bg-secondary: #141418; --bg-card: #1A1A1F;
+  --bg-card-hover: #1F1F25; --bg-elevated: #222228;
+  --border: rgba(255,255,255,0.06); --border-gold: rgba(184,149,106,0.2);
+  --text-primary: #F0ECE6; --text-secondary: #9B9B9B; --text-muted: #5E5E5E;
+  --success: #6BCB77; --warning: #FFB347; --danger: #FF6B6B; --info: #4D96FF;
+  --sidebar-w: 240px; --header-h: 56px; --radius: 10px; --radius-sm: 6px;
+  --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans KR',sans-serif; background:var(--bg-primary); color:var(--text-primary); overflow:hidden; }
+.erp { display:flex; height:100vh; width:100vw; }
+
+/* SIDEBAR */
+.sb { width:var(--sidebar-w); height:100vh; background:var(--bg-secondary); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; left:0; top:0; z-index:100; }
+.sb-logo { height:var(--header-h); display:flex; align-items:center; padding:0 20px; border-bottom:1px solid var(--border); gap:10px; }
+.sb-logo .mark { width:32px; height:32px; background:linear-gradient(135deg,var(--gold),var(--gold-dark)); border-radius:7px; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; color:#fff; }
+.sb-logo .txt { font-family:'Cormorant Garamond',serif; font-size:15px; font-weight:500; color:var(--gold-light); letter-spacing:0.5px; }
+.sb-logo .sub { font-size:9px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; }
+.sb-nav { flex:1; padding:12px 8px; overflow-y:auto; }
+.sb-nav::-webkit-scrollbar { width:4px; }
+.sb-nav::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.ns { margin-bottom:20px; }
+.ns-t { font-size:9px; font-weight:600; color:var(--text-muted); letter-spacing:2px; text-transform:uppercase; padding:0 12px; margin-bottom:6px; }
+.ni { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:var(--radius-sm); cursor:pointer; transition:var(--transition); color:var(--text-secondary); font-size:12.5px; position:relative; }
+.ni:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+.ni.a { background:var(--gold-glow); color:var(--gold-light); }
+.ni.a::before { content:''; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:18px; background:var(--gold); border-radius:0 3px 3px 0; }
+.ni .badge { margin-left:auto; background:var(--danger); color:#fff; font-size:9px; font-weight:600; padding:2px 6px; border-radius:8px; }
+.sb-ft { padding:12px 16px; border-top:1px solid var(--border); display:flex; align-items:flex-start; flex-direction:column; gap:0; }
+.sb-ft .av { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--gold-dark)); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:#fff; }
+.sb-ft .nm { font-size:12px; font-weight:500; }
+.sb-ft .rl { font-size:10px; color:var(--text-muted); }
+
+/* MAIN */
+.mn { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; height:100vh; }
+.hd { height:var(--header-h); background:var(--bg-secondary); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; gap:14px; flex-shrink:0; }
+.hd-t { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:500; }
+.hd-s { margin-left:auto; display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:7px 12px; width:260px; transition:var(--transition); }
+.hd-s:focus-within { border-color:var(--border-gold); box-shadow:0 0 0 3px var(--gold-glow); }
+.hd-s input { background:none; border:none; outline:none; color:var(--text-primary); font-size:12px; width:100%; font-family:inherit; }
+.hd-s input::placeholder { color:var(--text-muted); }
+.hd-ib { width:34px; height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:var(--transition); position:relative; background:none; border:none; }
+.hd-ib:hover { background:rgba(255,255,255,0.06); }
+.hd-ib .nd { position:absolute; top:5px; right:5px; width:7px; height:7px; background:var(--danger); border-radius:50%; border:2px solid var(--bg-secondary); }
+.ct { flex:1; overflow-y:auto; padding:24px; }
+.ct::-webkit-scrollbar { width:5px; }
+.ct::-webkit-scrollbar-track { background:transparent; }
+.ct::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* COMPONENTS */
+.pn { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.pn-h { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); }
+.pn-t { font-size:13px; font-weight:600; }
+.pn-st { font-size:10px; color:var(--text-muted); margin-top:2px; }
+.pn-b { padding:0; }
+
+.kpi { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; transition:var(--transition); position:relative; overflow:hidden; cursor:default; }
+.kpi:hover { border-color:var(--border-gold); transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+.kpi .lb { font-size:11px; color:var(--text-secondary); margin-bottom:8px; }
+.kpi .vl { font-size:24px; font-weight:700; margin-bottom:4px; letter-spacing:-0.5px; }
+.kpi .sb { font-size:10px; display:flex; align-items:center; gap:3px; }
+.kpi .sb.up { color:var(--success); }
+
+.btn { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:var(--radius-sm); font-size:11px; font-weight:500; cursor:pointer; transition:var(--transition); border:none; font-family:inherit; }
+.btn-g { background:var(--gold); color:#fff; }
+.btn-g:hover { background:var(--gold-dark); }
+.btn-og { background:none; border:1px solid var(--border-gold); color:var(--gold-light); }
+.btn-og:hover { background:var(--gold-glow); }
+.btn-gh { background:none; border:1px solid var(--border); color:var(--text-secondary); }
+.btn-gh:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+.btn-d { background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.2); color:var(--danger); }
+.btn-d:hover { background:rgba(255,107,107,0.2); }
+
+.tag { font-size:9px; padding:2px 6px; border-radius:4px; font-weight:600; display:inline-block; }
+.tag-vip { background:rgba(184,149,106,0.15); color:var(--gold-light); }
+.tag-new { background:rgba(77,150,255,0.12); color:var(--info); }
+.tag-ok { background:rgba(107,203,119,0.12); color:var(--success); }
+.tag-warn { background:rgba(255,179,71,0.12); color:var(--warning); }
+.tag-err { background:rgba(255,107,107,0.12); color:var(--danger); }
+
+.sts { font-size:10px; font-weight:600; padding:3px 9px; border-radius:10px; text-transform:uppercase; letter-spacing:0.3px; }
+.sts-c { background:rgba(107,203,119,0.12); color:var(--success); }
+.sts-ip { background:rgba(184,149,106,0.15); color:var(--gold-light); }
+.sts-w { background:rgba(255,179,71,0.12); color:var(--warning); }
+.sts-d { background:rgba(77,150,255,0.12); color:var(--info); }
+.sts-f { background:rgba(255,255,255,0.04); color:var(--text-muted); }
+
+.tbl { width:100%; border-collapse:collapse; }
+.tbl th { font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; text-align:left; padding:10px 20px; background:var(--bg-elevated); border-bottom:1px solid var(--border); }
+.tbl td { padding:12px 20px; border-bottom:1px solid var(--border); font-size:12.5px; vertical-align:middle; }
+.tbl tr:hover td { background:rgba(255,255,255,0.015); }
+.tbl tr { cursor:pointer; transition:var(--transition); }
+
+.tabs { display:flex; gap:2px; margin-bottom:16px; background:var(--bg-card); border-radius:var(--radius); padding:3px; }
+.tab { flex:1; padding:9px; text-align:center; font-size:11.5px; font-weight:500; color:var(--text-secondary); cursor:pointer; border-radius:var(--radius-sm); transition:var(--transition); }
+.tab:hover { color:var(--text-primary); }
+.tab.a { background:var(--bg-elevated); color:var(--gold-light); }
+
+.inp { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; font-size:12px; color:var(--text-primary); font-family:inherit; outline:none; transition:var(--transition); width:100%; }
+.inp:focus { border-color:var(--border-gold); box-shadow:0 0 0 3px var(--gold-glow); }
+.inp-lbl { font-size:11px; color:var(--text-secondary); margin-bottom:5px; display:block; }
+
+.grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid2-r { display:grid; grid-template-columns:1fr 360px; gap:16px; }
+
+.page { animation:pIn 0.25s ease forwards; }
+@keyframes pIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+.bar-h { display:flex; align-items:flex-end; gap:6px; height:120px; }
+.bar-c { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar { width:100%; border-radius:3px 3px 0 0; background:linear-gradient(180deg,var(--gold),var(--gold-dark)); opacity:0.7; cursor:pointer; position:relative; transition:var(--transition); }
+.bar:hover { opacity:1; }
+.bar-l { font-size:10px; color:var(--text-muted); }
+
+.cal-grid { display:grid; grid-template-columns:60px repeat(7,1fr); }
+.cal-hdr { padding:8px 4px; text-align:center; font-size:11px; font-weight:600; color:var(--text-secondary); border-bottom:1px solid var(--border); }
+.cal-hdr.today { color:var(--gold-light); }
+.cal-time { padding:4px 8px; font-size:10px; color:var(--text-muted); text-align:right; border-right:1px solid var(--border); height:32px; display:flex; align-items:center; justify-content:flex-end; }
+.cal-cell { height:32px; border-bottom:1px solid rgba(255,255,255,0.02); border-right:1px solid rgba(255,255,255,0.02); position:relative; }
+.cal-evt { position:absolute; left:2px; right:2px; top:1px; padding:2px 4px; border-radius:3px; font-size:9px; font-weight:500; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; cursor:pointer; z-index:1; }
+
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px; color:var(--text-muted); }
+.empty-state .icon-wrap { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+
+.detail-grid { display:grid; grid-template-columns:300px 1fr; gap:16px; }
+.profile-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px 20px; text-align:center; }
+.big-av { width:72px; height:72px; border-radius:50%; margin:0 auto 14px; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:600; color:#fff; }
+.meta-row { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.meta-row:last-child { border-bottom:none; }
+.meta-k { color:var(--text-muted); }
+.meta-v { color:var(--text-primary); font-weight:500; }
+
+.toggle-sw { width:36px; height:20px; border-radius:10px; background:var(--border); cursor:pointer; position:relative; transition:var(--transition); }
+.toggle-sw.on { background:var(--gold); }
+.toggle-sw::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:var(--transition); }
+.toggle-sw.on::after { left:18px; }
+
+.setting-row { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); }
+.setting-row:last-child { border-bottom:none; }
+.setting-info { flex:1; }
+.setting-name { font-size:13px; font-weight:500; }
+.setting-desc { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+@media (max-width:1200px) { .grid4{grid-template-columns:repeat(2,1fr);} .grid2-r,.detail-grid{grid-template-columns:1fr;} }
+`;
+
+// ─── MAIN APP ───
+function ClinicERP() {
+  // 로그인 정보는 erp.html에서 sessionStorage로 전달
+  const storedUser = (() => {
+    try {
+      const s = sessionStorage.getItem("hskb_erp_user");
+      return s ? JSON.parse(s) : null;
+    } catch { return null; }
+  })();
+  const [user, setUser] = useState(storedUser);
+
+  // 인증 없으면 erp.html로 리다이렉트
+  if (!user) {
+    window.location.href = "erp.html";
+    return null;
+  }
+  const [page, setPage] = useState("dashboard");
+  const [selPatient, setSelPatient] = useState(null);
+  const [searchQ, setSearchQ] = useState("");
+  const [now, setNow] = useState(new Date());
+  const [calView, setCalView] = useState("week");
+  const [invFilter, setInvFilter] = useState("all");
+  const [txFilter, setTxFilter] = useState("all");
+  const [billTab, setBillTab] = useState("today");
+  const [staffSel, setStaffSel] = useState(null);
+  const [reportTab, setReportTab] = useState("revenue");
+  const [settingTab, setSettingTab] = useState("clinic");
+  const [echartStep, setEchartStep] = useState(0);
+
+  useEffect(() => { const t = setInterval(() => setNow(new Date()), 60000); return () => clearInterval(t); }, []);
+
+  const nav = [
+    { s: "메인", items: [{ id:"dashboard", ic:icons.dashboard, l:"대시보드" }, { id:"calendar", ic:icons.calendar, l:"예약 관리", b:"8" }] },
+    { s: "환자", items: [{ id:"patients", ic:icons.patients, l:"환자 관리" }, { id:"echart", ic:icons.treatment, l:"E-Chart" }, { id:"photos", ic:icons.camera, l:"시술 사진" }] },
+    { s: "운영", items: [{ id:"treatment", ic:icons.star, l:"시술/프로그램" }, { id:"inventory", ic:icons.inventory, l:"재고 관리", b:"4" }, { id:"billing", ic:icons.billing, l:"매출/결제" }] },
+    { s: "관리", items: [{ id:"staff", ic:icons.staff, l:"직원 관리" }, { id:"reports", ic:icons.reports, l:"통계/리포트" }, { id:"settings", ic:icons.settings, l:"설정" }] },
+  ];
+
+  const titles = { dashboard:"대시보드", calendar:"예약 관리", patients:"환자 관리", echart:"E-Chart", photos:"시술 사진", treatment:"시술/프로그램", inventory:"재고 관리", billing:"매출/결제", staff:"직원 관리", reports:"통계/리포트", settings:"설정" };
+  const maxRev = Math.max(...weeklyRevenue.map(d => d.amount));
+
+  const go = (p) => { setPage(p); setSelPatient(null); setSearchQ(""); };
+
+  // ━━━ DASHBOARD ━━━
+  const Dashboard = () => (
+    <div className="page">
+      <div className="grid4" style={{ marginBottom: 16 }}>
+        {kpiData.map((k, i) => (
+          <div key={i} className="kpi">
+            <div style={{ position:"absolute",top:0,left:0,right:0,height:2,background:k.color }} />
+            <div className="lb">{k.label}</div>
+            <div className="vl">{k.value}</div>
+            <div className="sb up"><Icon d={icons.arrowUp} size={11} />{k.sub}</div>
+          </div>
+        ))}
+      </div>
+      <div className="grid2-r" style={{ marginBottom: 16 }}>
+        <div className="pn">
+          <div className="pn-h"><div><div className="pn-t">오늘 예약</div><div className="pn-st">{now.toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"long"})}</div></div><button className="btn btn-g" onClick={() => go("calendar")}><Icon d={icons.plus} size={13} color="#fff" /> 새 예약</button></div>
+          <div className="pn-b" style={{ maxHeight:360, overflowY:"auto" }}>
+            {todayAppointments.map((a, i) => (
+              <div key={a.id} style={{ display:"flex",alignItems:"center",gap:12,padding:"12px 20px",borderBottom:"1px solid var(--border)",cursor:"pointer",transition:"var(--transition)" }} onClick={() => { setSelPatient(recentPatients.find(p=>p.name===a.patient)||recentPatients[0]); setPage("patients"); }}>
+                <div style={{ fontSize:12,fontWeight:600,color:"var(--gold-light)",width:44,flexShrink:0,fontVariantNumeric:"tabular-nums" }}>{a.time}</div>
+                <div style={{ width:32,height:32,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:600,color:"#fff",background:avatarColors[i%8],flexShrink:0 }}>{a.avatar}</div>
+                <div style={{ flex:1,minWidth:0 }}><div style={{ fontSize:12.5,fontWeight:500 }}>{a.patient}</div><div style={{ fontSize:10.5,color:"var(--text-secondary)",marginTop:1 }}>{a.type}</div></div>
+                <div className={`sts sts-${a.status==="confirmed"?"c":a.status==="in-progress"?"ip":a.status==="waiting"?"w":"d"}`}>
+                  {a.status==="confirmed"?"확정":a.status==="in-progress"?"진행중":a.status==="waiting"?"대기":"완료"}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ display:"flex",flexDirection:"column",gap:16 }}>
+          <div className="pn">
+            <div className="pn-h"><div><div className="pn-t">주간 매출</div><div className="pn-st">총 161.0M₫</div></div></div>
+            <div style={{ padding:"16px 20px 8px" }}>
+              <div className="bar-h">{weeklyRevenue.map((d,i)=>(<div key={i} className="bar-c"><div className="bar" style={{ height:`${(d.amount/maxRev)*100}%` }} /><div className="bar-l">{d.day}</div></div>))}</div>
+            </div>
+          </div>
+          <div className="pn">
+            <div className="pn-h"><div><div className="pn-t">재고 알림</div><div className="pn-st">{inventoryAlerts.length}건</div></div><button className="btn btn-gh" onClick={() => go("inventory")}>전체 →</button></div>
+            <div className="pn-b">
+              {inventoryAlerts.map((it,i) => (
+                <div key={i} style={{ display:"flex",alignItems:"center",gap:12,padding:"11px 20px",borderBottom:"1px solid var(--border)" }}>
+                  <div style={{ width:7,height:7,borderRadius:"50%",background:it.status==="critical"?"var(--danger)":"var(--warning)",flexShrink:0,boxShadow:it.status==="critical"?"0 0 6px rgba(255,107,107,0.4)":"none" }} />
+                  <div style={{ flex:1 }}><div style={{ fontSize:12 }}>{it.item}</div><div style={{ fontSize:10,color:"var(--text-secondary)",marginTop:2 }}>재고 {it.stock} / 최소 {it.min}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="grid2">
+        <div className="pn">
+          <div className="pn-h"><div><div className="pn-t">시술 현황 (이번 달)</div><div className="pn-st">156건 · 395M₫</div></div></div>
+          <div className="pn-b">
+            {treatmentStats.map((s,i) => (
+              <div key={i} style={{ display:"flex",alignItems:"center",gap:12,padding:"10px 20px",borderBottom:"1px solid var(--border)" }}>
+                <div style={{ fontSize:12,width:90,flexShrink:0 }}>{s.name}</div>
+                <div style={{ flex:1,height:7,background:"rgba(255,255,255,0.04)",borderRadius:4,overflow:"hidden" }}><div style={{ height:"100%",width:`${s.pct}%`,borderRadius:4,background:`hsl(${35+i*15},${60-i*5}%,${55-i*5}%)` }} /></div>
+                <div style={{ fontSize:11,color:"var(--text-secondary)",width:35,textAlign:"right" }}>{s.count}건</div>
+                <div style={{ fontSize:11,color:"var(--gold-light)",width:60,textAlign:"right",fontWeight:500 }}>{s.revenue}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="pn">
+          <div className="pn-h"><div><div className="pn-t">최근 환자</div></div><button className="btn btn-gh" onClick={() => go("patients")}>전체 →</button></div>
+          <div className="pn-b">
+            {recentPatients.slice(0,4).map((p,i) => (
+              <div key={p.id} style={{ display:"flex",alignItems:"center",gap:12,padding:"11px 20px",borderBottom:"1px solid var(--border)",cursor:"pointer" }} onClick={() => { setSelPatient(p); setPage("patients"); }}>
+                <div style={{ width:32,height:32,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:600,color:"#fff",background:avatarColors[i%8] }}>{p.name.charAt(0)}</div>
+                <div style={{ flex:1 }}><div style={{ fontSize:12,fontWeight:500 }}>{p.name}</div><div style={{ fontSize:10,color:"var(--text-secondary)" }}>{p.id} · {p.visits}회 방문</div></div>
+                <div style={{ fontSize:11,color:"var(--gold-light)",fontWeight:500 }}>{p.totalSpent}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ━━━ CALENDAR ━━━
+  const Calendar = () => {
+    const dayNames = ["월","화","수","목","금","토","일"];
+    const apptMap = {};
+    todayAppointments.forEach(a => {
+      const key = `2-${a.time}`;
+      if (!apptMap[key]) apptMap[key] = [];
+      apptMap[key].push(a);
+    });
+    return (
+      <div className="page">
+        <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center" }}>
+          <div className="tabs" style={{ width:220,marginBottom:0 }}>
+            {["day","week","month"].map(v => (<div key={v} className={`tab ${calView===v?"a":""}`} onClick={() => setCalView(v)}>{v==="day"?"일":v==="week"?"주":"월"}</div>))}
+          </div>
+          <div style={{ flex:1 }} />
+          <button className="btn btn-g"><Icon d={icons.plus} size={13} color="#fff" /> 새 예약</button>
+        </div>
+        <div className="pn" style={{ overflow:"auto", maxHeight:"calc(100vh - 160px)" }}>
+          <div className="cal-grid">
+            <div className="cal-hdr" />
+            {calendarWeek.map((d,i) => (
+              <div key={i} className={`cal-hdr ${i===2?"today":""}`}>
+                <div>{dayNames[i]}</div>
+                <div style={{ fontSize:16,fontWeight:600,marginTop:2,color:i===2?"var(--gold-light)":"var(--text-primary)" }}>{d.getDate()}</div>
+              </div>
+            ))}
+            {calendarSlots.map((slot,si) => (
+              <React.Fragment key={slot}>
+                <div className="cal-time">{slot}</div>
+                {[0,1,2,3,4,5,6].map(di => {
+                  const key = `${di}-${slot}`;
+                  const evts = apptMap[key] || [];
+                  return (
+                    <div key={di} className="cal-cell">
+                      {evts.map((e,ei) => (
+                        <div key={ei} className="cal-evt" style={{
+                          background: e.status==="confirmed"?"rgba(107,203,119,0.2)":e.status==="in-progress"?"rgba(184,149,106,0.25)":e.status==="waiting"?"rgba(255,179,71,0.2)":"rgba(77,150,255,0.2)",
+                          color: e.status==="confirmed"?"var(--success)":e.status==="in-progress"?"var(--gold-light)":"var(--warning)",
+                          height:28
+                        }}>{e.patient.split(" ").pop()} · {e.type.split(" ")[0]}</div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ━━━ PATIENTS ━━━
+  const PatientDetail = ({ p }) => {
+    const [tab, setTab] = useState("history");
+    const history = [
+      { date:"2026-03-06", type:"Botox - 이마 20U", doctor:"Dr. 이화사", amount:"3,500,000₫", notes:"미간+이마, 3개월 후 재시술" },
+      { date:"2026-02-20", type:"레이저 토닝 (5회차)", doctor:"Dr. 이화사", amount:"2,000,000₫", notes:"색소 개선 양호" },
+      { date:"2026-02-06", type:"레이저 토닝 (4회차)", doctor:"Dr. 이화사", amount:"2,000,000₫", notes:"홍조 감소" },
+      { date:"2026-01-15", type:"스킨 부스터 (리쥬란)", doctor:"Dr. 이화사", amount:"5,800,000₫", notes:"전체 얼굴" },
+      { date:"2025-12-28", type:"울쎄라 리프팅", doctor:"Dr. 이화사", amount:"15,000,000₫", notes:"전체 얼굴+목" },
+    ];
+    return (
+      <div className="page">
+        <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:20 }}><button className="btn btn-gh" onClick={() => setSelPatient(null)}>← 목록</button><span style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:500 }}>환자 상세</span></div>
+        <div className="detail-grid">
+          <div>
+            <div className="profile-card">
+              <div className="big-av" style={{ background:avatarColors[p.name.length%8] }}>{p.name.charAt(0)}</div>
+              <div style={{ fontSize:17,fontWeight:600,marginBottom:3 }}>{p.name}</div>
+              <div style={{ fontSize:11,color:"var(--text-muted)",marginBottom:14 }}>{p.id}</div>
+              <div style={{ display:"flex",gap:6,justifyContent:"center",marginBottom:18 }}>
+                <button className="btn btn-g"><Icon d={icons.calendar} size={13} color="#fff" /> 예약</button>
+                <button className="btn btn-og"><Icon d={icons.edit} size={13} /> 수정</button>
+              </div>
+              <div>
+                {[["나이",p.age+"세"],["성별",p.gender==="F"?"여":"남"],["전화",p.phone],["피부타입",p.skin],["알레르기",p.allergy],["총 방문",p.visits+"회"],["총 결제",p.totalSpent],["최근",p.lastVisit],["다음",p.nextAppt]].map(([k,v],i)=>(
+                  <div key={i} className="meta-row"><span className="meta-k">{k}</span><span className="meta-v" style={k==="총 결제"?{color:"var(--gold-light)"}:k==="다음"?{color:"var(--success)"}:{}}>{v}</span></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className="tabs">{["history","chart","photos","billing"].map(t => (<div key={t} className={`tab ${tab===t?"a":""}`} onClick={() => setTab(t)}>{t==="history"?"진료 기록":t==="chart"?"E-Chart":t==="photos"?"시술 사진":"결제 내역"}</div>))}</div>
+            <div className="pn">
+              <div className="pn-h"><div><div className="pn-t">{tab==="history"?"진료 기록":tab==="chart"?"E-Chart":tab==="photos"?"시술 사진":"결제 내역"}</div></div><button className="btn btn-og"><Icon d={icons.plus} size={13} /> 추가</button></div>
+              <div className="pn-b">
+                {tab==="history" && history.map((h,i) => (
+                  <div key={i} style={{ display:"flex",gap:14,padding:"14px 20px",borderBottom:"1px solid var(--border)",alignItems:"flex-start" }}>
+                    <div style={{ width:80,flexShrink:0,fontSize:12,fontWeight:600,color:"var(--gold-light)" }}>{h.date}</div>
+                    <div style={{ flex:1 }}><div style={{ fontSize:12.5,fontWeight:500 }}>{h.type}</div><div style={{ fontSize:10.5,color:"var(--text-secondary)",marginTop:3 }}>{h.doctor} · {h.notes}</div></div>
+                    <div style={{ fontSize:12,fontWeight:600,color:"var(--gold-light)" }}>{h.amount}</div>
+                  </div>
+                ))}
+                {tab==="chart" && (
+                  <div className="empty-state"><div className="icon-wrap"><Icon d={icons.treatment} size={28} color="var(--text-muted)" /></div><div style={{ fontSize:13,color:"var(--text-secondary)" }}>E-Chart 기록</div><div style={{ fontSize:11,marginTop:4 }}>SOAP 노트 · 시술 부위 매핑 · 처방 기록</div><button className="btn btn-og" style={{ marginTop:12 }}><Icon d={icons.plus} size={13} /> 새 차트 작성</button></div>
+                )}
+                {tab==="photos" && (
+                  <div className="empty-state"><div className="icon-wrap"><Icon d={icons.camera} size={28} color="var(--text-muted)" /></div><div style={{ fontSize:13,color:"var(--text-secondary)" }}>Before / After 사진</div><div style={{ fontSize:11,marginTop:4 }}>시술 전후 비교 · 자동 정렬</div><button className="btn btn-og" style={{ marginTop:12 }}><Icon d={icons.camera} size={13} /> 사진 업로드</button></div>
+                )}
+                {tab==="billing" && billingData.filter(b => b.patient===p.name).map((b,i) => (
+                  <div key={i} style={{ display:"flex",gap:14,padding:"14px 20px",borderBottom:"1px solid var(--border)" }}>
+                    <div style={{ width:80,fontSize:12,color:"var(--text-muted)" }}>{b.date}</div>
+                    <div style={{ flex:1,fontSize:12.5 }}>{b.items}</div>
+                    <div style={{ fontSize:12,color:"var(--text-secondary)" }}>{b.method}</div>
+                    <div style={{ fontSize:12,fontWeight:600,color:"var(--gold-light)" }}>{b.amount}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const Patients = () => {
+    if (selPatient) return <PatientDetail p={selPatient} />;
+    const filtered = recentPatients.filter(p => !searchQ || p.name.toLowerCase().includes(searchQ.toLowerCase()) || p.id.includes(searchQ) || p.phone.includes(searchQ));
+    return (
+      <div className="page">
+        <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center" }}>
+          <div className="hd-s" style={{ marginLeft:0,width:300 }}><Icon d={icons.search} size={15} color="var(--text-muted)" /><input placeholder="이름, ID, 전화번호..." value={searchQ} onChange={e => setSearchQ(e.target.value)} /></div>
+          <button className="btn btn-gh"><Icon d={icons.filter} size={13} /> 필터</button>
+          <div style={{ flex:1 }} />
+          <button className="btn btn-g"><Icon d={icons.plus} size={13} color="#fff" /> 신규 환자</button>
+        </div>
+        <div className="pn">
+          <table className="tbl"><thead><tr><th>ID</th><th>환자명</th><th>나이</th><th>전화</th><th>최근 방문</th><th>총 결제</th><th>태그</th></tr></thead>
+          <tbody>{filtered.map((p,i) => (
+            <tr key={p.id} onClick={() => setSelPatient(p)}>
+              <td style={{ color:"var(--text-muted)",fontSize:11 }}>{p.id}</td>
+              <td><div style={{ display:"flex",alignItems:"center",gap:8 }}><div style={{ width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,color:"#fff",background:avatarColors[i%8],flexShrink:0 }}>{p.name.charAt(0)}</div><span style={{ fontWeight:500 }}>{p.name}</span></div></td>
+              <td style={{ color:"var(--text-secondary)" }}>{p.age}</td>
+              <td style={{ color:"var(--text-secondary)",fontSize:11.5 }}>{p.phone}</td>
+              <td style={{ color:"var(--text-secondary)",fontSize:11.5 }}>{p.lastVisit}</td>
+              <td style={{ color:"var(--gold-light)",fontWeight:500 }}>{p.totalSpent}</td>
+              <td><div style={{ display:"flex",gap:3 }}>{p.tags.map(t => (<span key={t} className={`tag ${t==="VIP"?"tag-vip":t==="신규"?"tag-new":"tag-ok"}`}>{t}</span>))}</div></td>
+            </tr>
+          ))}</tbody></table>
+        </div>
+      </div>
+    );
+  };
+
+  // ━━━ E-CHART ━━━
+  const EChart = () => {
+    const steps = ["환자 선택","주관적 증상 (S)","객관적 소견 (O)","시술 부위","평가/계획 (A/P)"];
+    return (
+      <div className="page">
+        <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center" }}>
+          <div className="tabs" style={{ width:600,marginBottom:0 }}>
+            {steps.map((s,i) => (<div key={i} className={`tab ${echartStep===i?"a":""}`} onClick={() => setEchartStep(i)} style={{ fontSize:10.5 }}>{i+1}. {s}</div>))}
+          </div>
+          <div style={{ flex:1 }} />
+          <button className="btn btn-g"><Icon d={icons.save} size={13} color="#fff" /> 저장</button>
+          <button className="btn btn-gh"><Icon d={icons.print} size={13} /> 출력</button>
+        </div>
+        <div className="grid2-r">
+          <div>
+            {echartStep === 0 && (
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">환자 선택</div><div className="pn-st">차트를 작성할 환자를 선택하세요</div></div></div>
+                <div className="pn-b">
+                  <div style={{ padding:"12px 20px" }}><input className="inp" placeholder="환자 이름 또는 ID 검색..." /></div>
+                  {recentPatients.map((p,i) => (
+                    <div key={p.id} style={{ display:"flex",alignItems:"center",gap:12,padding:"11px 20px",borderBottom:"1px solid var(--border)",cursor:"pointer" }} onClick={() => setEchartStep(1)}>
+                      <div style={{ width:30,height:30,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,color:"#fff",background:avatarColors[i%8] }}>{p.name.charAt(0)}</div>
+                      <div style={{ flex:1 }}><div style={{ fontSize:12,fontWeight:500 }}>{p.name}</div><div style={{ fontSize:10,color:"var(--text-secondary)" }}>{p.id}</div></div>
+                      <Icon d={icons.chevR} size={16} color="var(--text-muted)" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {echartStep === 1 && (
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">S — 주관적 증상</div><div className="pn-st">환자의 주소 및 호소 증상</div></div></div>
+                <div style={{ padding:20 }}>
+                  <label className="inp-lbl">주소 (Chief Complaint)</label>
+                  <input className="inp" placeholder="예: 이마 주름 개선 원함" style={{ marginBottom:14 }} />
+                  <label className="inp-lbl">현재 증상</label>
+                  <textarea className="inp" rows={3} placeholder="증상 상세 기술..." style={{ marginBottom:14,resize:"vertical" }} />
+                  <label className="inp-lbl">과거 시술력</label>
+                  <textarea className="inp" rows={2} placeholder="이전 시술 이력..." style={{ marginBottom:14,resize:"vertical" }} />
+                  <label className="inp-lbl">알레르기 / 복용 약물</label>
+                  <input className="inp" placeholder="없음 / 상세 기재" style={{ marginBottom:14 }} />
+                  <div style={{ display:"flex",gap:8,justifyContent:"flex-end" }}>
+                    <button className="btn btn-gh" onClick={() => setEchartStep(0)}>← 이전</button>
+                    <button className="btn btn-g" onClick={() => setEchartStep(2)}>다음 →</button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {echartStep === 2 && (
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">O — 객관적 소견</div><div className="pn-st">진찰 및 검사 소견</div></div></div>
+                <div style={{ padding:20 }}>
+                  <div className="grid2" style={{ marginBottom:14 }}>
+                    <div><label className="inp-lbl">피부 타입</label><select className="inp"><option>복합성</option><option>지성</option><option>건성</option><option>민감성</option></select></div>
+                    <div><label className="inp-lbl">피부 등급 (Fitzpatrick)</label><select className="inp"><option>Type III</option><option>Type II</option><option>Type IV</option><option>Type V</option></select></div>
+                  </div>
+                  <label className="inp-lbl">소견</label>
+                  <textarea className="inp" rows={3} placeholder="시진/촉진 소견..." style={{ marginBottom:14,resize:"vertical" }} />
+                  <label className="inp-lbl">측정 수치</label>
+                  <div className="grid3" style={{ marginBottom:14 }}>
+                    <div><label className="inp-lbl">수분도</label><input className="inp" placeholder="%" /></div>
+                    <div><label className="inp-lbl">유분도</label><input className="inp" placeholder="%" /></div>
+                    <div><label className="inp-lbl">탄력도</label><input className="inp" placeholder="점" /></div>
+                  </div>
+                  <div style={{ display:"flex",gap:8,justifyContent:"flex-end" }}>
+                    <button className="btn btn-gh" onClick={() => setEchartStep(1)}>← 이전</button>
+                    <button className="btn btn-g" onClick={() => setEchartStep(3)}>다음 →</button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {echartStep === 3 && (
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">시술 부위 매핑</div><div className="pn-st">시술 부위를 표시하세요</div></div></div>
+                <div style={{ padding:20,textAlign:"center" }}>
+                  <div style={{ width:200,height:280,margin:"0 auto 20px",background:"var(--bg-elevated)",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",border:"1px solid var(--border)" }}>
+                    <svg width="120" height="240" viewBox="0 0 120 240">
+                      <ellipse cx="60" cy="40" rx="30" ry="38" fill="none" stroke="var(--gold)" strokeWidth="1.5" />
+                      <line x1="60" y1="78" x2="60" y2="160" stroke="var(--gold)" strokeWidth="1.5" />
+                      <line x1="60" y1="95" x2="20" y2="140" stroke="var(--gold)" strokeWidth="1.5" />
+                      <line x1="60" y1="95" x2="100" y2="140" stroke="var(--gold)" strokeWidth="1.5" />
+                      <line x1="60" y1="160" x2="35" y2="230" stroke="var(--gold)" strokeWidth="1.5" />
+                      <line x1="60" y1="160" x2="85" y2="230" stroke="var(--gold)" strokeWidth="1.5" />
+                      <circle cx="45" cy="25" r="3" fill="var(--gold)" opacity="0.4" />
+                      <circle cx="75" cy="25" r="3" fill="var(--gold)" opacity="0.4" />
+                      <circle cx="60" cy="30" r="2" fill="var(--gold)" opacity="0.4" />
+                      <text x="60" y="55" textAnchor="middle" fill="var(--text-muted)" fontSize="8">입술</text>
+                    </svg>
+                  </div>
+                  <div className="grid3" style={{ gap:8 }}>
+                    {["이마","미간","눈가","볼","팔자","입술","턱","목"].map(z => (
+                      <button key={z} className="btn btn-og" style={{ justifyContent:"center",fontSize:11 }}>{z}</button>
+                    ))}
+                  </div>
+                  <div style={{ display:"flex",gap:8,justifyContent:"flex-end",marginTop:16 }}>
+                    <button className="btn btn-gh" onClick={() => setEchartStep(2)}>← 이전</button>
+                    <button className="btn btn-g" onClick={() => setEchartStep(4)}>다음 →</button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {echartStep === 4 && (
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">A/P — 평가 및 계획</div><div className="pn-st">진단 및 치료 계획</div></div></div>
+                <div style={{ padding:20 }}>
+                  <label className="inp-lbl">Assessment (진단/평가)</label>
+                  <textarea className="inp" rows={3} placeholder="진단 소견..." style={{ marginBottom:14,resize:"vertical" }} />
+                  <label className="inp-lbl">Plan (시술 계획)</label>
+                  <textarea className="inp" rows={3} placeholder="시술 내역 및 용량..." style={{ marginBottom:14,resize:"vertical" }} />
+                  <label className="inp-lbl">처방</label>
+                  <input className="inp" placeholder="약품/처방 내역" style={{ marginBottom:14 }} />
+                  <label className="inp-lbl">다음 예약</label>
+                  <input className="inp" type="date" style={{ marginBottom:14 }} />
+                  <label className="inp-lbl">특이사항/메모</label>
+                  <textarea className="inp" rows={2} placeholder="기타 메모..." style={{ marginBottom:14,resize:"vertical" }} />
+                  <div style={{ display:"flex",gap:8,justifyContent:"flex-end" }}>
+                    <button className="btn btn-gh" onClick={() => setEchartStep(3)}>← 이전</button>
+                    <button className="btn btn-g"><Icon d={icons.check} size={13} color="#fff" /> 차트 완료</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="pn">
+              <div className="pn-h"><div><div className="pn-t">선택된 환자</div></div></div>
+              <div style={{ padding:20,textAlign:"center" }}>
+                <div style={{ width:48,height:48,borderRadius:"50%",background:avatarColors[0],display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:600,color:"#fff",margin:"0 auto 10px" }}>N</div>
+                <div style={{ fontSize:14,fontWeight:600 }}>Nguyễn Thị Mai</div>
+                <div style={{ fontSize:11,color:"var(--text-muted)",marginBottom:12 }}>P-2024-0891 · 32세 · 여</div>
+                <div style={{ textAlign:"left" }}>
+                  {[["피부","복합성 (T존 지성)"],["알레르기","없음"],["방문","8회"],["총 결제","12,500,000₫"]].map(([k,v],i)=>(
+                    <div key={i} className="meta-row"><span className="meta-k">{k}</span><span className="meta-v">{v}</span></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="pn" style={{ marginTop:16 }}>
+              <div className="pn-h"><div><div className="pn-t">최근 차트</div></div></div>
+              <div className="pn-b">
+                {["2026-03-06 Botox 이마","2026-02-20 레이저 토닝","2026-01-15 스킨 부스터"].map((c,i) => (
+                  <div key={i} style={{ padding:"10px 20px",borderBottom:"1px solid var(--border)",fontSize:12,color:"var(--text-secondary)",cursor:"pointer" }}>{c}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ━━━ PHOTOS ━━━
+  const Photos = () => (
+    <div className="page">
+      <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center" }}>
+        <div className="hd-s" style={{ marginLeft:0,width:300 }}><Icon d={icons.search} size={15} color="var(--text-muted)" /><input placeholder="환자명 검색..." /></div>
+        <button className="btn btn-gh"><Icon d={icons.filter} size={13} /> 시술별</button>
+        <div style={{ flex:1 }} />
+        <button className="btn btn-g"><Icon d={icons.camera} size={13} color="#fff" /> 새 사진 촬영</button>
+      </div>
+      <div className="grid3">
+        {recentPatients.slice(0,3).map((p,i) => (
+          <div key={p.id} className="pn" style={{ cursor:"pointer" }}>
+            <div style={{ padding:20 }}>
+              <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:14 }}>
+                <div style={{ width:36,height:36,borderRadius:"50%",background:avatarColors[i%8],display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:600,color:"#fff" }}>{p.name.charAt(0)}</div>
+                <div><div style={{ fontSize:13,fontWeight:500 }}>{p.name}</div><div style={{ fontSize:10,color:"var(--text-muted)" }}>{p.id}</div></div>
+              </div>
+              <div className="grid2" style={{ gap:8 }}>
+                {["Before","After"].map(label => (
+                  <div key={label} style={{ background:"var(--bg-elevated)",borderRadius:8,height:120,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",border:"1px dashed var(--border)" }}>
+                    <Icon d={icons.camera} size={24} color="var(--text-muted)" />
+                    <div style={{ fontSize:10,color:"var(--text-muted)",marginTop:6 }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop:12,display:"flex",justifyContent:"space-between",alignItems:"center" }}>
+                <div style={{ fontSize:11,color:"var(--text-muted)" }}>{["Botox 이마","레이저 토닝","울쎄라"][i]} · {["2026-03-06","2026-03-05","2026-03-04"][i]}</div>
+                <span className="tag tag-ok">{[3,5,2][i]}장</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="pn" style={{ marginTop:16 }}>
+        <div className="pn-h"><div><div className="pn-t">최근 업로드</div><div className="pn-st">전체 사진 갤러리</div></div></div>
+        <div style={{ padding:20 }}>
+          <div className="grid4" style={{ gap:8 }}>
+            {Array.from({length:8}).map((_,i) => (
+              <div key={i} style={{ background:"var(--bg-elevated)",borderRadius:8,height:100,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid var(--border)" }}>
+                <Icon d={icons.camera} size={20} color="var(--text-muted)" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ━━━ TREATMENTS ━━━
+  const Treatments = () => {
+    const cats = ["all","주사","레이저","리프팅","스킨케어","셀프뷰티"];
+    const filtered = treatments.filter(t => txFilter==="all" || t.category===txFilter);
+    return (
+      <div className="page">
+        <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center",flexWrap:"wrap" }}>
+          {cats.map(c => (<button key={c} className={`btn ${txFilter===c?"btn-g":"btn-gh"}`} onClick={() => setTxFilter(c)}>{c==="all"?"전체":c}</button>))}
+          <div style={{ flex:1 }} />
+          <button className="btn btn-g"><Icon d={icons.plus} size={13} color="#fff" /> 시술 추가</button>
+        </div>
+        <div className="pn">
+          <table className="tbl"><thead><tr><th>코드</th><th>시술명</th><th>카테고리</th><th>가격</th><th>소요시간</th><th>인기</th><th>상태</th></tr></thead>
+          <tbody>{filtered.map(t => (
+            <tr key={t.id}>
+              <td style={{ color:"var(--text-muted)",fontSize:11 }}>{t.id}</td>
+              <td style={{ fontWeight:500 }}>{t.name}</td>
+              <td><span className="tag tag-ok">{t.category}</span></td>
+              <td style={{ color:"var(--gold-light)",fontWeight:500 }}>{t.price}</td>
+              <td style={{ color:"var(--text-secondary)" }}>{t.duration}</td>
+              <td>{t.popular && <Icon d={icons.star} size={14} color="var(--gold)" />}</td>
+              <td><span className={`tag ${t.active?"tag-ok":"tag-err"}`}>{t.active?"활성":"비활성"}</span></td>
+            </tr>
+          ))}</tbody></table>
+        </div>
+      </div>
+    );
+  };
+
+  // ━━━ INVENTORY ━━━
+  const Inventory = () => {
+    const cats = ["all","critical","low","ok"];
+    const filtered = fullInventory.filter(it => invFilter==="all" || it.status===invFilter);
+    return (
+      <div className="page">
+        <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center" }}>
+          {cats.map(c => (<button key={c} className={`btn ${invFilter===c?"btn-g":"btn-gh"}`} onClick={() => setInvFilter(c)}>{c==="all"?"전체":c==="critical"?"긴급":c==="low"?"부족":"정상"}</button>))}
+          <div style={{ flex:1 }} />
+          <button className="btn btn-og"><Icon d={icons.download} size={13} /> 엑셀</button>
+          <button className="btn btn-g"><Icon d={icons.plus} size={13} color="#fff" /> 입고 등록</button>
+        </div>
+        <div className="pn">
+          <table className="tbl"><thead><tr><th>코드</th><th>품목명</th><th>분류</th><th>재고</th><th>최소</th><th>단가</th><th>유효기한</th><th>상태</th></tr></thead>
+          <tbody>{filtered.map(it => (
+            <tr key={it.id}>
+              <td style={{ color:"var(--text-muted)",fontSize:11 }}>{it.id}</td>
+              <td style={{ fontWeight:500,maxWidth:200 }}>{it.name}</td>
+              <td><span className="tag tag-ok">{it.category}</span></td>
+              <td style={{ fontWeight:600,color:it.status==="critical"?"var(--danger)":it.status==="low"?"var(--warning)":"var(--text-primary)" }}>{it.stock} {it.unit}</td>
+              <td style={{ color:"var(--text-muted)" }}>{it.min}</td>
+              <td style={{ color:"var(--gold-light)" }}>{it.price}</td>
+              <td style={{ fontSize:11,color:"var(--text-secondary)" }}>{it.expiry}</td>
+              <td><span className={`tag ${it.status==="critical"?"tag-err":it.status==="low"?"tag-warn":"tag-ok"}`}>{it.status==="critical"?"긴급":it.status==="low"?"부족":"정상"}</span></td>
+            </tr>
+          ))}</tbody></table>
+        </div>
+      </div>
+    );
+  };
+
+  // ━━━ BILLING ━━━
+  const Billing = () => {
+    const todayBills = billingData.filter(b => b.date === "2026-03-11");
+    const allBills = billingData;
+    const bills = billTab === "today" ? todayBills : allBills;
+    const todayTotal = "11,300,000₫";
+    const monthTotal = "395,000,000₫";
+    return (
+      <div className="page">
+        <div className="grid4" style={{ marginBottom:16 }}>
+          {[["오늘 매출",todayTotal,"5건","var(--gold)"],["이번 달",monthTotal,"156건","var(--success)"],["미수금","5,000,000₫","1건","var(--warning)"],["평균 객단가","2,530,000₫","+8%","var(--info)"]].map(([l,v,s,c],i) => (
+            <div key={i} className="kpi"><div style={{ position:"absolute",top:0,left:0,right:0,height:2,background:c }} /><div className="lb">{l}</div><div className="vl" style={{ fontSize:20 }}>{v}</div><div className="sb up" style={{ color:c }}>{s}</div></div>
+          ))}
+        </div>
+        <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center" }}>
+          <div className="tabs" style={{ width:200,marginBottom:0 }}>
+            <div className={`tab ${billTab==="today"?"a":""}`} onClick={() => setBillTab("today")}>오늘</div>
+            <div className={`tab ${billTab==="all"?"a":""}`} onClick={() => setBillTab("all")}>전체</div>
+          </div>
+          <div style={{ flex:1 }} />
+          <button className="btn btn-og"><Icon d={icons.download} size={13} /> 엑셀</button>
+          <button className="btn btn-g"><Icon d={icons.plus} size={13} color="#fff" /> 결제 등록</button>
+        </div>
+        <div className="pn">
+          <table className="tbl"><thead><tr><th>번호</th><th>날짜</th><th>환자</th><th>시술내역</th><th>결제방법</th><th>금액</th><th>상태</th></tr></thead>
+          <tbody>{bills.map(b => (
+            <tr key={b.id}>
+              <td style={{ color:"var(--text-muted)",fontSize:10 }}>{b.id}</td>
+              <td style={{ fontSize:11.5 }}>{b.date}</td>
+              <td style={{ fontWeight:500 }}>{b.patient}</td>
+              <td style={{ color:"var(--text-secondary)" }}>{b.items}</td>
+              <td style={{ color:"var(--text-secondary)" }}>{b.method}</td>
+              <td style={{ fontWeight:600,color:"var(--gold-light)" }}>{b.amount}</td>
+              <td><span className={`sts ${b.status==="paid"?"sts-c":b.status==="pending"?"sts-w":"sts-f"}`}>{b.status==="paid"?"완료":b.status==="pending"?"대기":"무료"}</span></td>
+            </tr>
+          ))}</tbody></table>
+        </div>
+      </div>
+    );
+  };
+
+  // ━━━ STAFF ━━━
+  const Staff = () => {
+    if (staffSel) {
+      const s = staffSel;
+      return (
+        <div className="page">
+          <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:20 }}><button className="btn btn-gh" onClick={() => setStaffSel(null)}>← 목록</button><span style={{ fontFamily:"'Cormorant Garamond',serif",fontSize:20 }}>직원 상세</span></div>
+          <div className="detail-grid">
+            <div className="profile-card">
+              <div className="big-av" style={{ background:avatarColors[staffData.indexOf(s)%8] }}>{s.name.charAt(0)}</div>
+              <div style={{ fontSize:17,fontWeight:600,marginBottom:3 }}>{s.name}</div>
+              <div style={{ fontSize:11,color:"var(--text-muted)",marginBottom:14 }}>{s.role}</div>
+              <div>{[["ID",s.id],["전화",s.phone],["근무",s.schedule],["전문",s.speciality],["월 시술",s.monthCases],["월 매출",s.monthRevenue]].map(([k,v],i)=>(<div key={i} className="meta-row"><span className="meta-k">{k}</span><span className="meta-v">{v}</span></div>))}</div>
+            </div>
+            <div>
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">이번 달 실적</div></div></div>
+                <div style={{ padding:20 }}>
+                  <div className="grid3" style={{ marginBottom:20 }}>
+                    {[["시술 건수",s.monthCases,"var(--gold)"],["매출",s.monthRevenue,"var(--success)"],["상태",s.status==="active"?"근무중":"휴무","var(--info)"]].map(([l,v,c],i)=>(
+                      <div key={i} className="kpi"><div style={{ position:"absolute",top:0,left:0,right:0,height:2,background:c }} /><div className="lb">{l}</div><div className="vl" style={{ fontSize:18 }}>{v}</div></div>
+                    ))}
+                  </div>
+                  <div className="pn-t" style={{ marginBottom:12 }}>근태 기록</div>
+                  <table className="tbl"><thead><tr><th>날짜</th><th>출근</th><th>퇴근</th><th>상태</th></tr></thead>
+                  <tbody>
+                    {[["03-11","08:55","—","근무중"],["03-10","08:50","19:35","정상"],["03-09","09:00","19:30","정상"],["03-08","08:45","19:40","정상"],["03-07","—","—","휴무"]].map(([d,i2,o,st],idx) => (
+                      <tr key={idx}><td>{d}</td><td>{i2}</td><td>{o}</td><td><span className={`tag ${st==="정상"||st==="근무중"?"tag-ok":"tag-warn"}`}>{st}</span></td></tr>
+                    ))}
+                  </tbody></table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="page">
+        <div style={{ display:"flex",gap:8,marginBottom:16,alignItems:"center" }}>
+          <span style={{ fontSize:12,color:"var(--text-secondary)" }}>총 {staffData.length}명</span>
+          <div style={{ flex:1 }} />
+          <button className="btn btn-g"><Icon d={icons.plus} size={13} color="#fff" /> 직원 등록</button>
+        </div>
+        <div className="grid3">
+          {staffData.map((s,i) => (
+            <div key={s.id} className="pn" style={{ cursor:"pointer" }} onClick={() => setStaffSel(s)}>
+              <div style={{ padding:20,textAlign:"center" }}>
+                <div style={{ width:48,height:48,borderRadius:"50%",background:avatarColors[i%8],display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:600,color:"#fff",margin:"0 auto 12px" }}>{s.name.charAt(0)}</div>
+                <div style={{ fontSize:14,fontWeight:600,marginBottom:2 }}>{s.name}</div>
+                <div style={{ fontSize:11,color:"var(--text-muted)",marginBottom:12 }}>{s.role}</div>
+                <div style={{ display:"flex",justifyContent:"center",gap:16,fontSize:11 }}>
+                  <div><div style={{ color:"var(--text-muted)" }}>시술</div><div style={{ fontWeight:600,marginTop:2 }}>{s.monthCases}</div></div>
+                  <div style={{ width:1,background:"var(--border)" }} />
+                  <div><div style={{ color:"var(--text-muted)" }}>매출</div><div style={{ fontWeight:600,marginTop:2,color:"var(--gold-light)" }}>{s.monthRevenue}</div></div>
+                </div>
+                <div style={{ marginTop:12 }}><span className={`tag ${s.status==="active"?"tag-ok":"tag-warn"}`}>{s.status==="active"?"근무중":"휴무"}</span></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // ━━━ REPORTS ━━━
+  const Reports = () => {
+    const months = ["1월","2월","3월"];
+    const revData = [[180,210,395],[120,145,156],[68,72,78]];
+    const labels = ["매출 (M₫)","시술 건수","재방문율 (%)"];
+    return (
+      <div className="page">
+        <div className="tabs" style={{ width:400 }}>
+          {["revenue","patients","treatments"].map(t => (<div key={t} className={`tab ${reportTab===t?"a":""}`} onClick={() => setReportTab(t)}>{t==="revenue"?"매출 분석":t==="patients"?"환자 분석":"시술 분석"}</div>))}
+        </div>
+        {reportTab === "revenue" && (
+          <>
+            <div className="grid4" style={{ marginBottom:16 }}>
+              {[["이번 달 매출","395M₫","+18%","var(--gold)"],["목표 대비","88%","450M₫ 목표","var(--info)"],["일 평균","36M₫","+5M vs 전월","var(--success)"],["최고 매출일","금 (3/6)","52M₫","var(--warning)"]].map(([l,v,s,c],i) => (
+                <div key={i} className="kpi"><div style={{ position:"absolute",top:0,left:0,right:0,height:2,background:c }} /><div className="lb">{l}</div><div className="vl" style={{ fontSize:20 }}>{v}</div><div style={{ fontSize:10,color:"var(--text-muted)" }}>{s}</div></div>
+              ))}
+            </div>
+            <div className="grid2">
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">월별 추이</div></div></div>
+                <div style={{ padding:20 }}>
+                  {labels.map((lb,li) => (
+                    <div key={li} style={{ marginBottom:16 }}>
+                      <div style={{ fontSize:11,color:"var(--text-muted)",marginBottom:6 }}>{lb}</div>
+                      <div style={{ display:"flex",gap:8 }}>
+                        {months.map((m,mi) => (
+                          <div key={mi} style={{ flex:1,background:"var(--bg-elevated)",borderRadius:6,padding:"10px 14px",textAlign:"center" }}>
+                            <div style={{ fontSize:10,color:"var(--text-muted)" }}>{m}</div>
+                            <div style={{ fontSize:16,fontWeight:600,marginTop:4,color:mi===2?"var(--gold-light)":"var(--text-primary)" }}>{revData[li][mi]}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="pn">
+                <div className="pn-h"><div><div className="pn-t">시술별 매출 비중</div></div></div>
+                <div className="pn-b">
+                  {treatmentStats.map((s,i) => (
+                    <div key={i} style={{ display:"flex",alignItems:"center",gap:10,padding:"10px 20px",borderBottom:"1px solid var(--border)" }}>
+                      <div style={{ width:10,height:10,borderRadius:2,background:`hsl(${35+i*20},55%,50%)`,flexShrink:0 }} />
+                      <div style={{ flex:1,fontSize:12 }}>{s.name}</div>
+                      <div style={{ fontSize:12,color:"var(--text-secondary)" }}>{s.pct}%</div>
+                      <div style={{ width:100,height:6,background:"rgba(255,255,255,0.04)",borderRadius:3,overflow:"hidden" }}><div style={{ height:"100%",width:`${s.pct}%`,borderRadius:3,background:`hsl(${35+i*20},55%,50%)` }} /></div>
+                      <div style={{ fontSize:12,color:"var(--gold-light)",fontWeight:500,width:60,textAlign:"right" }}>{s.revenue}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        {reportTab === "patients" && (
+          <div className="grid2">
+            <div className="pn">
+              <div className="pn-h"><div><div className="pn-t">환자 통계</div></div></div>
+              <div style={{ padding:20 }}>
+                {[["전체 등록 환자","248명"],["이번 달 신규","12명"],["이번 달 재방문","45명"],["VIP 환자","18명"],["평균 방문 주기","21일"],["평균 방문 횟수","6.2회"]].map(([k,v],i) => (
+                  <div key={i} className="meta-row"><span className="meta-k">{k}</span><span className="meta-v">{v}</span></div>
+                ))}
+              </div>
+            </div>
+            <div className="pn">
+              <div className="pn-h"><div><div className="pn-t">연령대별 분포</div></div></div>
+              <div className="pn-b">
+                {[["20대",35],["30대",42],["40대",28],["50대",15],["60대+",5]].map(([age,pct],i) => (
+                  <div key={i} style={{ display:"flex",alignItems:"center",gap:12,padding:"10px 20px",borderBottom:"1px solid var(--border)" }}>
+                    <div style={{ width:40,fontSize:12 }}>{age}</div>
+                    <div style={{ flex:1,height:7,background:"rgba(255,255,255,0.04)",borderRadius:4 }}><div style={{ height:"100%",width:`${pct*2}%`,borderRadius:4,background:`hsl(${200-i*30},55%,50%)` }} /></div>
+                    <div style={{ fontSize:12,color:"var(--text-secondary)",width:30,textAlign:"right" }}>{pct}%</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {reportTab === "treatments" && (
+          <div className="grid2">
+            <div className="pn">
+              <div className="pn-h"><div><div className="pn-t">인기 시술 TOP 5</div></div></div>
+              <div className="pn-b">
+                {[["아쿠아필",56,"인기 1위"],["보톡스 이마",42,"인기 2위"],["레이저 토닝",38,"인기 3위"],["필러 팔자",22,"↑ +5"],["스킨 부스터",18,"↑ +3"]].map(([n,c,b],i) => (
+                  <div key={i} style={{ display:"flex",alignItems:"center",gap:12,padding:"12px 20px",borderBottom:"1px solid var(--border)" }}>
+                    <div style={{ width:24,height:24,borderRadius:"50%",background:i<3?"var(--gold)":"var(--bg-elevated)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:i<3?"#fff":"var(--text-secondary)" }}>{i+1}</div>
+                    <div style={{ flex:1,fontSize:13,fontWeight:500 }}>{n}</div>
+                    <div style={{ fontSize:12,color:"var(--text-secondary)" }}>{c}건</div>
+                    <span className="tag tag-ok">{b}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="pn">
+              <div className="pn-h"><div><div className="pn-t">카테고리별 건수</div></div></div>
+              <div className="pn-b">
+                {treatmentStats.map((s,i) => (
+                  <div key={i} style={{ display:"flex",alignItems:"center",gap:10,padding:"12px 20px",borderBottom:"1px solid var(--border)" }}>
+                    <div style={{ width:10,height:10,borderRadius:2,background:`hsl(${35+i*20},55%,50%)` }} />
+                    <div style={{ flex:1,fontSize:12 }}>{s.name}</div>
+                    <div style={{ fontSize:16,fontWeight:600 }}>{s.count}</div>
+                    <div style={{ fontSize:11,color:"var(--text-muted)" }}>건</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ━━━ SETTINGS ━━━
+  const Settings = () => {
+    const [toggles, setToggles] = useState({ kakao:true, sms:true, auto:false, dark:true, backup:true });
+    const tog = (k) => setToggles(p => ({...p, [k]:!p[k]}));
+    return (
+      <div className="page">
+        <div className="tabs" style={{ width:400,marginBottom:16 }}>
+          {["clinic","system","db","backup"].map(t => (<div key={t} className={`tab ${settingTab===t?"a":""}`} onClick={() => setSettingTab(t)}>{t==="clinic"?"클리닉 정보":t==="system"?"시스템":t==="db"?"DB 연결":"백업"}</div>))}
+        </div>
+        {settingTab === "clinic" && (
+          <div className="pn">
+            <div className="pn-h"><div><div className="pn-t">클리닉 기본 정보</div></div><button className="btn btn-og"><Icon d={icons.edit} size={13} /> 수정</button></div>
+            <div style={{ padding:20 }}>
+              <div className="grid2" style={{ gap:16 }}>
+                {[["클리닉명","Hwasa K-Beauty"],["주소","A1, Khu Five Star Mỹ Đình, Hà Nội"],["전화","(+84) xxx-xxx-xxxx"],["이메일","info@hwasa-kbeauty.com"],["영업시간","월~일 09:00–19:30 / 금 ~21:00"],["대표","이화사 원장"]].map(([k,v],i) => (
+                  <div key={i}><label className="inp-lbl">{k}</label><input className="inp" defaultValue={v} readOnly /></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {settingTab === "system" && (
+          <div className="pn">
+            <div className="pn-h"><div><div className="pn-t">시스템 설정</div></div></div>
+            <div className="pn-b">
+              {[["KakaoTalk 알림","예약 확인/변경 시 카카오톡 발송","kakao"],["SMS 알림","예약 전일 SMS 리마인더","sms"],["자동 리포트","매주 월요일 주간 리포트 생성","auto"],["다크 테마","UI 다크 모드","dark"],["자동 백업","매일 자동 DB 백업","backup"]].map(([n,d,k]) => (
+                <div key={k} className="setting-row">
+                  <div className="setting-info"><div className="setting-name">{n}</div><div className="setting-desc">{d}</div></div>
+                  <div className={`toggle-sw ${toggles[k]?"on":""}`} onClick={() => tog(k)} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {settingTab === "db" && (
+          <div className="pn">
+            <div className="pn-h"><div><div className="pn-t">데이터베이스 연결</div><div className="pn-st">GCP Cloud SQL MySQL 8.0</div></div><button className="btn btn-og">연결 테스트</button></div>
+            <div style={{ padding:20 }}>
+              <div className="grid2" style={{ gap:16 }}>
+                {[["호스트","asia-northeast3 (Seoul)"],["인스턴스","hskb-clinic-db"],["DB명","hskb_medical"],["스키마","MED_ (17) · EMR_ (12) · MERP_ (16)"],["상태","연결됨"],["버전","MySQL 8.0.31"]].map(([k,v],i) => (
+                  <div key={i}><label className="inp-lbl">{k}</label><input className="inp" defaultValue={v} readOnly style={k==="상태"?{color:"var(--success)",borderColor:"rgba(107,203,119,0.3)"}:{}} /></div>
+                ))}
+              </div>
+              <div style={{ marginTop:20 }}>
+                <div className="pn-t" style={{ marginBottom:10 }}>테이블 현황</div>
+                <div className="grid3" style={{ gap:8 }}>
+                  {[["MED_ (의료기반)",17,"Phase 1"],["EMR_ (전자차트)",12,"Phase 2"],["MERP_ (운영)",16,"Phase 3"]].map(([n,c,p],i) => (
+                    <div key={i} style={{ background:"var(--bg-elevated)",borderRadius:8,padding:14,textAlign:"center" }}>
+                      <Icon d={icons.db} size={20} color="var(--gold)" />
+                      <div style={{ fontSize:12,fontWeight:500,marginTop:8 }}>{n}</div>
+                      <div style={{ fontSize:20,fontWeight:700,marginTop:4,color:"var(--gold-light)" }}>{c}</div>
+                      <span className="tag tag-ok" style={{ marginTop:6 }}>{p}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {settingTab === "backup" && (
+          <div className="pn">
+            <div className="pn-h"><div><div className="pn-t">백업 관리</div></div><button className="btn btn-g"><Icon d={icons.save} size={13} color="#fff" /> 즉시 백업</button></div>
+            <div className="pn-b">
+              <table className="tbl"><thead><tr><th>날짜</th><th>유형</th><th>크기</th><th>상태</th><th>액션</th></tr></thead>
+              <tbody>
+                {[["2026-03-11 03:00","자동","24.3 MB","완료"],["2026-03-10 03:00","자동","24.1 MB","완료"],["2026-03-09 18:00","수동","23.8 MB","완료"],["2026-03-09 03:00","자동","23.8 MB","완료"],["2026-03-08 03:00","자동","23.5 MB","완료"]].map(([d,t,s,st],i) => (
+                  <tr key={i}><td>{d}</td><td><span className={`tag ${t==="자동"?"tag-ok":"tag-vip"}`}>{t}</span></td><td>{s}</td><td><span className="tag tag-ok">{st}</span></td><td><button className="btn btn-gh" style={{ padding:"4px 10px" }}><Icon d={icons.download} size={12} /></button></td></tr>
+                ))}
+              </tbody></table>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ━━━ RENDER ━━━
+  const renderPage = () => {
+    switch(page) {
+      case "dashboard": return <Dashboard />;
+      case "calendar": return <Calendar />;
+      case "patients": return <Patients />;
+      case "echart": return <EChart />;
+      case "photos": return <Photos />;
+      case "treatment": return <Treatments />;
+      case "inventory": return <Inventory />;
+      case "billing": return <Billing />;
+      case "staff": return <Staff />;
+      case "reports": return <Reports />;
+      case "settings": return <Settings />;
+      default: return <Dashboard />;
+    }
+  };
+
+  return (
+    <>
+      <style>{CSS}</style>
+      <div className="erp">
+        <aside className="sb">
+          <div className="sb-logo"><div className="mark">H</div><div><div className="txt">HWASA K-Beauty</div><div className="sub">Clinic ERP</div></div></div>
+          <nav className="sb-nav">
+            {nav.map(sec => (
+              <div key={sec.s} className="ns">
+                <div className="ns-t">{sec.s}</div>
+                {sec.items.map(it => (
+                  <div key={it.id} className={`ni ${page===it.id?"a":""}`} onClick={() => go(it.id)}>
+                    <Icon d={it.ic} size={17} /><span>{it.l}</span>{it.b && <div className="badge">{it.b}</div>}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </nav>
+          <div className="sb-ft" style={{ flexDirection:"column", gap:0, padding:"12px 16px" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, width:"100%" }}>
+              <div className="av" style={{ background: user.color, flexShrink:0 }}>{user.initial}</div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div className="nm" style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user.name}</div>
+                <div className="rl">{user.role}</div>
+              </div>
+            </div>
+            <button onClick={() => { sessionStorage.removeItem("hskb_erp_user"); window.location.href = "erp.html"; }}
+              style={{ marginTop:10, width:"100%", padding:"6px 0", background:"transparent", border:"1px solid rgba(255,255,255,0.1)", borderRadius:6, color:"var(--text-muted)", fontSize:10, letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", fontFamily:"'Noto Sans KR',sans-serif", transition:"all 0.2s" }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(255,107,107,0.4)"; e.currentTarget.style.color="#FF6B6B"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(255,255,255,0.1)"; e.currentTarget.style.color="var(--text-muted)"; }}>
+              로그아웃
+            </button>
+          </div>
+        </aside>
+        <div className="mn">
+          <header className="hd">
+            <h1 className="hd-t">{titles[page]}</h1>
+            <div className="hd-s"><Icon d={icons.search} size={15} color="var(--text-muted)" /><input placeholder="검색..." /></div>
+            <button className="hd-ib"><Icon d={icons.bell} size={17} color="var(--text-secondary)" /><div className="nd" /></button>
+            <div style={{ fontSize:11,color:"var(--text-muted)",fontVariantNumeric:"tabular-nums" }}>{now.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})}</div>
+          </header>
+          <main className="ct">{renderPage()}</main>
+        </div>
+      </div>
+    </>
+  );
+}
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ClinicERP />);
+
+    // 스플래시 제거
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const s = document.getElementById('splash');
+        if (s) { s.style.opacity = '0'; setTimeout(() => s.remove(), 500); }
+      }, 600);
+    });
+  </script>
+</body>
+</html>

@@ -1,281 +1,219 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERP | Hwasa K-Beauty</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --color-bg: #FAFAF8;
-            --color-bg-dark: #0A0A0A;
-            --color-bg-cream: #F5F0EB;
-            --color-text: #1A1A1A;
-            --color-text-light: #F5F0EB;
-            --color-accent: #B8956A;
-            --color-accent-light: #D4B896;
-            --color-muted: #8A8A8A;
-            --color-border: rgba(26,26,26,0.12);
-            --color-border-light: rgba(245,240,235,0.2);
-            --font-display: 'Cormorant Garamond', Georgia, serif;
-            --font-body: 'Noto Sans KR', sans-serif;
-            --font-nav: 'Instrument Sans', sans-serif;
-            --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; }
-        body {
-            font-family: var(--font-body);
-            background: var(--color-bg-dark);
-            color: var(--color-text-light);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        a { text-decoration: none; color: inherit; }
-        img { max-width: 100%; display: block; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 2px; }
-        .header {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            padding: 0 48px 0 20px; height: 80px;
-            display: flex; align-items: center; justify-content: space-between;
-            transition: none;
-            border-bottom: none;
-            background: transparent;
-            
-            border-color: transparent;
-        }
-        .logo { display: flex; align-items: center; gap: 12px;  flex-shrink: 0; }
-        .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
-        .nav { display: flex; align-items: center; gap: 20px; }
-        .nav a {
-            font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px;
-            text-transform: uppercase; color: #fff; transition: color 0.3s; font-weight: 700;
-         white-space: nowrap; }
-        .nav a:hover, .nav a.active { color: var(--color-accent); }
-        .nav-cta {
-            padding: 10px 24px; border: 1px solid var(--color-accent);
-            color: var(--color-accent) !important; font-size: 11px !important;
-            letter-spacing: 2px; transition: all 0.3s !important;
-        }
-        .nav-cta:hover { background: var(--color-accent); color: #fff !important; }
-        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; z-index: 1001; }
-        .menu-toggle span { display: block; width: 28px; height: 1px; background: #fff; transition: all 0.3s; }
-        .page-hero {
-            padding: 96px 48px 24px; text-align: center;
-            background: transparent;
-        }
-        .page-hero-label {
-            font-family: var(--font-nav); font-size: 11px; letter-spacing: 6px;
-            text-transform: uppercase; color: var(--color-accent-light); margin-bottom: 20px;
-        }
-        .page-hero-title {
-            font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px);
-            font-weight: 300; color: #fff; line-height: 1.2; margin-bottom: 16px;
-        }
-        .page-hero-title em { font-style: italic; color: var(--color-accent-light); }
-        .page-hero-desc {
-            font-size: 15px; color: #fff; font-weight: 300;
-            max-width: 500px; margin: 0 auto; line-height: 1.8;
-        }
-        .section { padding: 100px 48px; position: relative; }
-        .section-dark { background: transparent; }
-        .section-label {
-            font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
-            text-transform: uppercase; color: var(--color-accent); margin-bottom: 20px;
-        }
-        .section-title {
-            font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 48px);
-            font-weight: 300; line-height: 1.2; margin-bottom: 24px; color: #fff;
-        }
-        .section-title em { font-style: italic; }
-        .section-desc {
-            font-size: 15px; line-height: 1.9; font-weight: 300;
-            color: #fff; max-width: 520px;
-        }
-        .divider-line { width: 48px; height: 1px; background: var(--color-accent); margin: 28px 0; }
-        .section-header { text-align: center; margin-bottom: 64px; }
-        .section-header .divider-line { margin: 28px auto; }
-        .section-header .section-desc { margin: 0 auto; }
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s var(--ease-out); }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-        @media (max-width: 1024px) {
-        }
-        @media (max-width: 768px) {
-            .header { padding: 0 24px; height: 64px; }
-            .nav { display: none; }
-            .menu-toggle { display: flex; }
-            .section { padding: 80px 20px; }
-            .page-hero { padding: 88px 20px 16px; }
-        }
-        
-        .erp-notice {
-            max-width: 700px; margin: 0 auto; text-align: center;
-            background: transparent; border: 1px solid rgba(255,255,255,0.08);
-            padding: 60px 48px;
-        }
-        .erp-notice h3 {
-            font-family: var(--font-display); font-size: 28px; font-weight: 300;
-            color: #fff; margin-bottom: 16px;
-        }
-        .erp-notice p {
-            font-size: 15px; color: #fff; font-weight: 300;
-            line-height: 1.9; margin-bottom: 24px;
-        }
-        .erp-notice .icon {
-            font-size: 48px; margin-bottom: 24px; display: block;
-        }
-        .erp-btn {
-            display: inline-block; padding: 14px 36px; border: 1px solid var(--color-accent);
-            color: var(--color-accent); font-family: var(--font-nav); font-size: 12px;
-            letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s;
-        }
-        .erp-btn:hover { background: var(--color-accent); color: #fff; }
-
-    
-        .bg-video-wrap {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            overflow: hidden;
-        }
-        .bg-video-wrap video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        /* Scroll container: content only scrolls below header */
-        html, body { overflow: hidden; height: 100%; margin: 0; }
-        .scroll-container {
-            position: fixed;
-            top: 80px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            z-index: 1;
-        }
-        .scroll-container::-webkit-scrollbar { display: none; }
-        .scroll-container { scrollbar-width: none; }
-        
-        /* FOOTER */
-        
-        
-        
-        
-        
-        
-
-        
-        /* RIGHT SIDEBAR */
-        .side-nav { position:fixed; right:0; top: 80px; transform: none; z-index:100; display:flex; flex-direction:column; align-items:flex-end; gap:0; background:transparent; }
-        .side-nav a { display:block; padding:12px 14px; font-family:var(--font-nav,'Montserrat',sans-serif); font-size:10px; letter-spacing:2px; color: #fff; text-decoration:none; transition:color 0.3s,background 0.3s; text-transform:uppercase; text-align:right; }
-        .side-nav a:hover { color:#B8956A; background:rgba(0,0,0,0.3); }
-        
-        
-        
-
-        
-        /* FOOTER */
-        .footer-slim { background: #111; border-top: 1px solid rgba(184,149,106,0.3); padding: 16px 0; }
-        .footer-inner { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #ccc; }
-        .footer-inner a { color: #B8956A; text-decoration: none; transition: color 0.3s; }
-        .footer-inner a:hover { color: #d4b58a; }
-        .footer-sep { color: #888; }
-        .footer-erp-link { color: #888 !important; }
-        .footer-erp-link:hover { color: #B8956A !important; }
-
-        </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HWASA K-Beauty — 직원 로그인</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #B8956A; --gold-dark: #8B6F4E; --gold-light: #D4B896;
+      --bg: #141210; --surface: #1C1916; --elevated: #242018;
+      --border: rgba(255,255,255,0.07);
+      --text: #E8E0D8; --text-2: #9E9589; --text-3: #6B6560;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); font-family: 'Noto Sans KR', sans-serif;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .bg-glow {
+      position: fixed; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 55% at 72% 38%, rgba(184,149,106,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 22% 72%, rgba(184,149,106,0.04) 0%, transparent 55%);
+    }
+    .bg-line {
+      position: fixed; inset: 0; pointer-events: none;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.012) 40px);
+    }
+    .card {
+      position: relative; z-index: 10; width: 420px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 52px 44px 44px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .deco-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(184,149,106,0.1); pointer-events: none; }
+    .deco-ring-1 { width: 220px; height: 220px; top: -80px; right: -70px; }
+    .deco-ring-2 { width: 160px; height: 160px; top: -40px; right: -30px; opacity: .5; }
+    .deco-ring-3 { width: 270px; height: 270px; bottom: -90px; left: -90px; opacity: .6; }
+    .logo { display: flex; align-items: center; gap: 13px; margin-bottom: 36px; }
+    .logo-mark {
+      width: 44px; height: 44px; background: var(--gold); border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #fff; font-weight: 600; flex-shrink: 0;
+    }
+    .logo-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--text); font-weight: 400; letter-spacing: 0.5px; }
+    .logo-sub  { font-size: 9.5px; color: var(--text-3); letter-spacing: 2.5px; text-transform: uppercase; margin-top: 3px; }
+    .title    { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--text); margin-bottom: 6px; }
+    .subtitle { font-size: 11.5px; color: var(--text-3); margin-bottom: 34px; line-height: 1.6; }
+    .field { margin-bottom: 18px; }
+    .field-label { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; color: var(--text-2); margin-bottom: 8px; }
+    .inp-wrap { position: relative; }
+    .inp {
+      width: 100%; background: var(--elevated); border: 1px solid var(--border);
+      border-radius: 9px; padding: 13px 16px; font-size: 13px; color: var(--text);
+      font-family: 'Noto Sans KR', sans-serif; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .inp:focus { border-color: rgba(184,149,106,0.5); box-shadow: 0 0 0 3px rgba(184,149,106,0.08); }
+    .inp.has-btn { padding-right: 44px; }
+    .inp::placeholder { color: var(--text-3); }
+    .eye-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--text-3);
+      display: flex; align-items: center; justify-content: center;
+      padding: 4px; transition: color 0.2s;
+    }
+    .eye-btn:hover { color: var(--gold); }
+    .err-msg {
+      display: none; font-size: 11.5px; color: #FF6B6B;
+      padding: 10px 14px; margin-bottom: 14px;
+      background: rgba(255,107,107,0.07); border: 1px solid rgba(255,107,107,0.18); border-radius: 8px;
+    }
+    .err-msg.show { display: block; }
+    .btn-login {
+      width: 100%; padding: 14px; background: var(--gold); border: none; border-radius: 9px;
+      color: #fff; font-size: 13px; font-weight: 600; font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; margin-top: 6px;
+    }
+    .btn-login:hover { background: var(--gold-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(184,149,106,0.25); }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-login .spinner {
+      display: none; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto;
+    }
+    .btn-login.loading .btn-text { display: none; }
+    .btn-login.loading .spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { margin-top: 32px; padding-top: 22px; border-top: 1px solid var(--border); text-align: center; font-size: 10px; color: var(--text-3); line-height: 1.9; }
+    .footer a { color: var(--gold); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .home-link {
+      position: fixed; top: 24px; left: 28px; z-index: 20;
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-3); font-size: 11px; letter-spacing: 1px;
+      text-decoration: none; text-transform: uppercase; transition: color 0.2s;
+    }
+    .home-link:hover { color: var(--gold); }
+    .home-link:hover svg { transform: translateX(-3px); }
+    .home-link svg { transition: transform 0.2s; }
+    @media (max-width: 480px) { .card { width: 92vw; padding: 40px 28px 36px; } }
+  </style>
 </head>
 <body>
-    <div class="bg-video-wrap">
-        <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
-            <source src="bg-video.mp4" type="video/mp4">
-        </video>
+  <div class="bg-glow"></div>
+  <div class="bg-line"></div>
+
+  <a href="index.html" class="home-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    홈으로
+  </a>
+
+  <div class="card">
+    <div class="deco-ring deco-ring-1"></div>
+    <div class="deco-ring deco-ring-2"></div>
+    <div class="deco-ring deco-ring-3"></div>
+
+    <div class="logo">
+      <div class="logo-mark">H</div>
+      <div>
+        <div class="logo-name">HWASA K-Beauty</div>
+        <div class="logo-sub">Clinic ERP System</div>
+      </div>
     </div>
 
-    <header class="header" id="header">
-        <a href="index.html" class="logo">
-            <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
-        </a>
-        <nav class="nav" id="nav">
-            <a href="index.html">Home</a>
-            <a href="diploma.html">Diploma</a>
-            <a href="program.html">Program</a>
-            <a href="selfbeauty.html">Self Beauty</a>
-            <a href="echart.html">E-Chart</a>
-            <a href="letter.html">Letter</a>
-            <a href="about.html">About</a>
-            <a href="echart.html" class="nav-cta">상담 예약</a>
-        </nav>
-        <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
-            <span></span><span></span><span></span>
-        </div>
-    </header>
-    <div class="side-nav" id="sideNav">
-        <a href="academy.html">ACADEMY</a>
-        <a href="shop.html">SHOP</a>
-        <a href="contact.html">CONTACT</a>
+    <div class="title">직원 로그인</div>
+    <div class="subtitle">계정 정보를 입력하여 ERP에 접속하세요</div>
+
+    <div class="field">
+      <label class="field-label" for="uid">아이디</label>
+      <input class="inp" type="text" id="uid" placeholder="아이디 입력" autocomplete="username" autocapitalize="none" />
     </div>
-    <div class="scroll-container">
 
-    <section class="page-hero">
-        <p class="page-hero-label">Staff Only</p>
-        <h1 class="page-hero-title">Internal <em>System</em></h1>
-        <p class="page-hero-desc">직원 전용 관리 시스템</p>
-    </section>
+    <div class="field">
+      <label class="field-label" for="upw">비밀번호</label>
+      <div class="inp-wrap">
+        <input class="inp has-btn" type="password" id="upw" placeholder="비밀번호 입력" autocomplete="current-password" />
+        <button class="eye-btn" id="eyeBtn" type="button" aria-label="비밀번호 표시">
+          <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
 
+    <div class="err-msg" id="errMsg">⚠ 아이디 또는 비밀번호가 올바르지 않습니다.</div>
 
-    <section class="section">
-        <div class="erp-notice reveal">
-            <span class="icon">🔐</span>
-            <h3>ERP System</h3>
-            <p>Hwasa K-Beauty 내부 운영 관리 시스템입니다.<br>직원 전용 페이지로 별도 로그인이 필요합니다.</p>
-            <a href="#" class="erp-btn">직원 로그인</a>
-        </div>
-    </section>
+    <button class="btn-login" id="loginBtn" type="button">
+      <span class="btn-text">로그인</span>
+      <div class="spinner"></div>
+    </button>
 
-    <footer class="footer-slim">
-        <div class="footer-inner">
-            <span>© 2026 Hwasa K-Beauty</span>
-            <span class="footer-sep">|</span>
-            <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">Instagram</a>
-            <span class="footer-sep">|</span>
-            <a href="https://open.kakao.com/o/suDPpihg" target="_blank">KakaoTalk</a>
-            <span class="footer-sep">|</span>
-            <a href="contact.html">Contact</a>
-            <span class="footer-sep">|</span>
-            <a href="erp.html" class="footer-erp-link">ERP</a>
-        </div>
-    </footer>
+    <div class="footer">
+      Hwasa K-Beauty · A1 Khu Five Star, Mỹ Đình, Hà Nội<br/>
+      계정 문의: <a href="tel:0326842002">0326-842-002</a>
+    </div>
+  </div>
 
-    </div><!-- scroll-container -->
-    <script>
-        const revealElements = document.querySelectorAll('.reveal');
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('visible');
-            });
-        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-        revealElements.forEach(el => revealObserver.observe(el));
-        function toggleMenu() {
-            const nav = document.getElementById('nav');
-            nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
-            if (window.innerWidth <= 768 && nav.style.display === 'flex') {
-                nav.style.cssText = `
-                    display: flex; flex-direction: column; position: fixed;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: transparent; z-index: 999;
-                    align-items: center; justify-content: center; gap: 28px;
-                `;
-            }
-        }
-    </script>
+  <script>
+    const ACCOUNTS = {
+      "admin":      { pw: "hwasa2023", name: "이화사 원장", role: "관리자", initial: "이", color: "linear-gradient(135deg,#B8956A,#8B6F4E)" },
+      "galaxy0219": { pw: "0716",      name: "Galaxy",     role: "원장",   initial: "G", color: "linear-gradient(135deg,#4D96FF,#2766CC)" },
+      "manager":    { pw: "0716",      name: "Manager",    role: "매니저", initial: "M", color: "linear-gradient(135deg,#6BCB77,#449D51)" }
+    };
+
+    const uid    = document.getElementById("uid");
+    const upw    = document.getElementById("upw");
+    const btn    = document.getElementById("loginBtn");
+    const errMsg = document.getElementById("errMsg");
+    const eyeBtn = document.getElementById("eyeBtn");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    const eyeOpen  = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    const eyeClose = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/>`;
+    let pwVisible = false;
+
+    eyeBtn.addEventListener("click", () => {
+      pwVisible = !pwVisible;
+      upw.type = pwVisible ? "text" : "password";
+      eyeIcon.innerHTML = pwVisible ? eyeClose : eyeOpen;
+    });
+
+    function doLogin() {
+      const id  = uid.value.trim();
+      const pw  = upw.value;
+      const acc = ACCOUNTS[id];
+
+      if (!acc || acc.pw !== pw) {
+        errMsg.classList.add("show");
+        upw.value = ""; upw.focus();
+        return;
+      }
+
+      errMsg.classList.remove("show");
+      btn.disabled = true;
+      btn.classList.add("loading");
+
+      sessionStorage.setItem("hskb_erp_user", JSON.stringify({ id, ...acc }));
+
+      setTimeout(() => {
+        window.open("erp_app.html", "_blank");
+        btn.disabled = false;
+        btn.classList.remove("loading");
+      }, 700);
+    }
+
+    btn.addEventListener("click", doLogin);
+    uid.addEventListener("keydown", e => { if (e.key === "Enter") { upw.focus(); } });
+    upw.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+    uid.focus();
+  </script>
 </body>
 </html>

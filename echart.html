@@ -75,7 +75,7 @@
             position: relative;
             max-width: 680px;
             margin: 0 auto;
-            padding-top: 90px;
+            padding-top: 80px;
             padding-bottom: 40px;
             width: 100%;
             z-index: 3;
@@ -84,13 +84,13 @@
         /* ========== PROGRESS BAR — 상단 고정 ========== */
         .progress-section {
             position: fixed;
-            top: 80px; left: 0; right: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            padding: 14px 16px 10px;
+            top: 80px; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 680px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(12px);
+            padding: 12px 16px 8px;
             z-index: 50;
-            max-width: 680px;
-            margin: 0 auto;
+            border-bottom: 1px solid rgba(184,149,106,0.2);
         }
         .echart-header .label {
             font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
@@ -143,7 +143,7 @@
         .progress-line.done .fill { width: 100%; background: var(--color-success); }
 
         /* ========== FORM AREA ========== */
-        .form-area { padding: 70px 16px 40px; max-width: 100%; width: 100%; box-sizing: border-box; }
+        .form-area { padding: 80px 16px 40px; max-width: 100%; width: 100%; box-sizing: border-box; }
         .form-page {
             display: block; opacity: 1; transform: none;
             margin-bottom: 32px;
@@ -297,45 +297,7 @@
         
         
 
-        /* ========== BODY MAP ========== */
-        .body-map-section {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-        .body-map-wrap {
-            flex-shrink: 0;
-            width: 140px;
-        }
-        .body-map-wrap svg {
-            width: 100%;
-            height: auto;
-        }
-        .body-map-wrap svg .bm-part {
-            fill: rgba(255,255,255,0.08);
-            stroke: rgba(184,149,106,0.5);
-            stroke-width: 1;
-            cursor: pointer;
-            transition: fill 0.2s;
-        }
-        .body-map-wrap svg .bm-part:hover {
-            fill: rgba(184,149,106,0.25);
-        }
-        .body-map-wrap svg .bm-part.bm-active {
-            fill: rgba(184,149,106,0.55);
-            stroke: #B8956A;
-            stroke-width: 1.5;
-        }
-        .body-map-legend {
-            font-family: var(--font-nav);
-            font-size: 9px;
-            letter-spacing: 1px;
-            color: #fff;
-            text-align: center;
-            margin-top: 4px;
-        }
-        .body-map-checks { flex: 1; }
+        /* (body map removed) */
 
         /* ========== 스크롤 허용 ========== */
         html { scroll-behavior: smooth; }
@@ -521,83 +483,18 @@
                     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="scalp"><div class="check-dot"></div><span class="check-label">두피</span></label>
                 </div></div>
                 <div class="form-divider"></div>
-                <div class="form-section-title">바디 부위 — 터치로 선택</div>
-                <div class="body-map-section">
-                    <!-- SVG Body Map (Front) -->
-                    <div class="body-map-wrap">
-                        <div class="body-map-legend">FRONT / 앞면</div>
-                        <svg viewBox="0 0 100 260" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Head -->
-                            <ellipse class="bm-part" data-part="face" cx="50" cy="18" rx="13" ry="16" onclick="toggleBodyMap(this,'face','얼굴')"/>
-                            <!-- Neck -->
-                            <rect class="bm-part" data-part="neck" x="44" y="33" width="12" height="10" rx="3" onclick="toggleBodyMap(this,'neck','목')"/>
-                            <!-- Left Shoulder -->
-                            <ellipse class="bm-part" data-part="shoulder-l" cx="27" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
-                            <!-- Right Shoulder -->
-                            <ellipse class="bm-part" data-part="shoulder-r" cx="73" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
-                            <!-- Chest/Torso -->
-                            <rect class="bm-part" data-part="abdomen" x="33" y="53" width="34" height="45" rx="6" onclick="toggleBodyMap(this,'abdomen','복부')"/>
-                            <!-- Left Arm -->
-                            <rect class="bm-part" data-part="arm-l" x="14" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
-                            <!-- Right Arm -->
-                            <rect class="bm-part" data-part="arm-r" x="72" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
-                            <!-- Left Hip/Pelvis -->
-                            <rect class="bm-part" data-part="hip-l" x="33" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
-                            <!-- Right Hip/Pelvis -->
-                            <rect class="bm-part" data-part="hip-r" x="51" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
-                            <!-- Left Leg -->
-                            <rect class="bm-part" data-part="leg-l" x="33" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
-                            <!-- Right Leg -->
-                            <rect class="bm-part" data-part="leg-r" x="52" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
-                            <!-- Left Foot -->
-                            <ellipse class="bm-part" data-part="foot-l" cx="39" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
-                            <!-- Right Foot -->
-                            <ellipse class="bm-part" data-part="foot-r" cx="61" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
-                        </svg>
-                    </div>
-                    <!-- SVG Body Map (Back) -->
-                    <div class="body-map-wrap">
-                        <div class="body-map-legend">BACK / 뒷면</div>
-                        <svg viewBox="0 0 100 260" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Head back -->
-                            <ellipse class="bm-part" data-part="scalp-b" cx="50" cy="18" rx="13" ry="16" onclick="toggleBodyMap(this,'scalp','두피')"/>
-                            <!-- Neck back -->
-                            <rect class="bm-part" data-part="neck-b" x="44" y="33" width="12" height="10" rx="3" onclick="toggleBodyMap(this,'neck','목')"/>
-                            <!-- Left Shoulder back -->
-                            <ellipse class="bm-part" data-part="shoulder-lb" cx="27" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
-                            <!-- Right Shoulder back -->
-                            <ellipse class="bm-part" data-part="shoulder-rb" cx="73" cy="47" rx="10" ry="7" onclick="toggleBodyMap(this,'shoulder','어깨')"/>
-                            <!-- Back/Torso -->
-                            <rect class="bm-part" data-part="back" x="33" y="53" width="34" height="45" rx="6" onclick="toggleBodyMap(this,'back','등')"/>
-                            <!-- Left Arm back -->
-                            <rect class="bm-part" data-part="arm-lb" x="14" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
-                            <!-- Right Arm back -->
-                            <rect class="bm-part" data-part="arm-rb" x="72" y="52" width="14" height="50" rx="6" onclick="toggleBodyMap(this,'arm','팔')"/>
-                            <!-- Hip back -->
-                            <rect class="bm-part" data-part="hip-lb" x="33" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
-                            <rect class="bm-part" data-part="hip-rb" x="51" y="97" width="16" height="22" rx="4" onclick="toggleBodyMap(this,'hip','힙/골반')"/>
-                            <!-- Left Leg back -->
-                            <rect class="bm-part" data-part="leg-lb" x="33" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
-                            <!-- Right Leg back -->
-                            <rect class="bm-part" data-part="leg-rb" x="52" y="118" width="15" height="90" rx="6" onclick="toggleBodyMap(this,'leg','다리')"/>
-                            <!-- Foot back -->
-                            <ellipse class="bm-part" data-part="foot-lb" cx="39" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
-                            <ellipse class="bm-part" data-part="foot-rb" cx="61" cy="215" rx="9" ry="5" onclick="toggleBodyMap(this,'foot','발')"/>
-                        </svg>
-                    </div>
-                    <!-- Body check list (sync with map) -->
-                    <div class="body-map-checks">
-                        <div class="check-grid check-square" id="bodyArea">
-                            <label class="check-item" id="bmc-back" onclick="toggleCheck(this);syncBodyMap('back')"><input type="checkbox" value="back"><div class="check-dot"></div><span class="check-label">등</span></label>
-                            <label class="check-item" id="bmc-shoulder" onclick="toggleCheck(this);syncBodyMap('shoulder')"><input type="checkbox" value="shoulder"><div class="check-dot"></div><span class="check-label">어깨</span></label>
-                            <label class="check-item" id="bmc-arm" onclick="toggleCheck(this);syncBodyMap('arm')"><input type="checkbox" value="arm"><div class="check-dot"></div><span class="check-label">팔</span></label>
-                            <label class="check-item" id="bmc-abdomen" onclick="toggleCheck(this);syncBodyMap('abdomen')"><input type="checkbox" value="abdomen"><div class="check-dot"></div><span class="check-label">복부</span></label>
-                            <label class="check-item" id="bmc-hip" onclick="toggleCheck(this);syncBodyMap('hip')"><input type="checkbox" value="hip"><div class="check-dot"></div><span class="check-label">힙/골반</span></label>
-                            <label class="check-item" id="bmc-leg" onclick="toggleCheck(this);syncBodyMap('leg')"><input type="checkbox" value="leg"><div class="check-dot"></div><span class="check-label">다리</span></label>
-                            <label class="check-item" id="bmc-foot" onclick="toggleCheck(this);syncBodyMap('foot')"><input type="checkbox" value="foot"><div class="check-dot"></div><span class="check-label">발</span></label>
-                        </div>
-                    </div>
-                </div>
+                <div class="form-section-title">바디 부위 (복수 선택)</div>
+                <div class="form-group"><div class="check-grid check-square" id="bodyArea">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="scalp"><div class="check-dot"></div><span class="check-label">두피</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="neck"><div class="check-dot"></div><span class="check-label">목</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="shoulder"><div class="check-dot"></div><span class="check-label">어깨</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="back"><div class="check-dot"></div><span class="check-label">등</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="arm"><div class="check-dot"></div><span class="check-label">팔</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="abdomen"><div class="check-dot"></div><span class="check-label">복부</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="hip"><div class="check-dot"></div><span class="check-label">힙/골반</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="leg"><div class="check-dot"></div><span class="check-label">다리</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="foot"><div class="check-dot"></div><span class="check-label">발</span></label>
+                </div></div>
                 <div class="form-divider"></div>
                 <div class="form-section-title">희망 관리 프로그램</div>
                 <div class="form-group"><div class="check-grid check-square" id="programs">
@@ -765,19 +662,6 @@
             document.getElementById('saveArea').style.display='none';
             document.getElementById('successScreen').classList.add('active');
             window.scrollTo({top:0,behavior:'smooth'});
-        }
-
-        // 바디맵
-        function toggleBodyMap(svgEl, partKey, label) {
-            const isNowActive = !svgEl.classList.contains('bm-active');
-            document.querySelectorAll('[data-part^="'+partKey+'"]').forEach(p=>{ p.classList.toggle('bm-active', isNowActive); });
-            const cb = document.getElementById('bmc-'+partKey);
-            if(cb) { cb.classList.toggle('selected', isNowActive); const inp=cb.querySelector('input'); if(inp) inp.checked=isNowActive; }
-        }
-        function syncBodyMap(partKey) {
-            const cb = document.getElementById('bmc-'+partKey);
-            const isActive = cb && cb.classList.contains('selected');
-            document.querySelectorAll('[data-part^="'+partKey+'"]').forEach(p=>p.classList.toggle('bm-active', isActive));
         }
 
         // 모바일 메뉴

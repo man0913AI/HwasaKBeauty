@@ -36,56 +36,63 @@
   <div id="root"></div>
 
   <script type="text/babel">
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
+const { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } = React;
 
 /* ════════════════════════════════════════
-   AUTH CHECK
+   THEME CONTEXT
+   ════════════════════════════════════════ */
+const ThemeCtx = createContext();
+const useTheme = () => useContext(ThemeCtx);
+
+/* ════════════════════════════════════════
+   AUTH
    ════════════════════════════════════════ */
 const getUser = () => {
-  try {
-    const s = sessionStorage.getItem("hskb_erp_user");
-    return s ? JSON.parse(s) : null;
-  } catch { return null; }
+  try { const s = sessionStorage.getItem("hskb_erp_user"); return s ? JSON.parse(s) : null; } catch { return null; }
 };
 
 /* ════════════════════════════════════════
    CONSTANTS
    ════════════════════════════════════════ */
 const EMPLOYEES = [
-  { id: 1, name: 'hong', nameKr: '홍', position: '수석 관리사', base: 8000000, hourly: 35000 },
-  { id: 2, name: 'thuy', nameKr: '투이', position: '데스크 매니저', base: 6500000, hourly: 29000 },
-  { id: 3, name: 'yen',  nameKr: '옌', position: '관리사', base: 7500000, hourly: 33000 },
+  { id:1, name:'hong', nameKr:'홍', position:'수석 관리사', base:8000000, hourly:35000 },
+  { id:2, name:'thuy', nameKr:'투이', position:'데스크 매니저', base:6500000, hourly:29000 },
+  { id:3, name:'yen',  nameKr:'옌', position:'관리사', base:7500000, hourly:33000 },
 ];
-
-const MEMBER_GRADES = ['', 'CLUB', 'BRONZE', 'SILVER', 'GOLD', 'VIP', 'VVIP', '이밴트', '무제한'];
+const MEMBER_GRADES = ['','CLUB','BRONZE','SILVER','GOLD','VIP','VVIP','이밴트','무제한'];
 const EXPENSE_ITEMS = ['빨래','택배','직원팁','쿠폰','마트','청소','소모품','기타'];
+const PURCHASE_CATS = ['원재료','소모품','장비','기타'];
 
 const MENUS = [
-  { id: 'sales',      label: '매출',   icon: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
-  { id: 'purchase',   label: '매입',   icon: 'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0' },
-  { id: 'settlement', label: '결산',   icon: 'M18 20V10 M12 20V4 M6 20v-6' },
-  { id: 'contracts',  label: '계약서', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' },
-  { id: 'attendance', label: '출퇴근', icon: 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2' },
-  { id: 'salary',     label: '월급여', icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87' },
+  { id:'sales', label:'매출', icon:'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
+  { id:'purchase', label:'매입', icon:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0' },
+  { id:'settlement', label:'결산', icon:'M18 20V10 M12 20V4 M6 20v-6' },
+  { id:'contracts', label:'계약서', icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' },
+  { id:'attendance', label:'출퇴근', icon:'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2' },
+  { id:'salary', label:'월급여', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87' },
 ];
-
 const SUB_TABS = {
-  sales:      ['일일 입력', '매출 내역', '월별 요약'],
-  purchase:   ['매입 입력', '매입 내역', '통계'],
-  settlement: ['월말', '분기', '반기', '년간'],
-  contracts:  ['계약서 목록', '추가', '만료 내역'],
-  attendance: ['월별 현황', '직원별', '근태 요약'],
-  salary:     ['급여 계산', '지급 이력', '명세서'],
+  sales:['일일 입력','매출 내역','월별 요약'],
+  purchase:['매입 입력','매입 내역','통계'],
+  settlement:['월말','분기','반기','년간'],
+  contracts:['계약서 목록','추가','만료 내역'],
+  attendance:['월별 현황','직원별','근태 요약'],
+  salary:['급여 계산','지급 이력','명세서'],
 };
 
 /* ════════════════════════════════════════
-   DATA SERVICE (DB 연동 시 교체)
+   DATA SERVICE
    ════════════════════════════════════════ */
 const DataService = {
   _store: {
     sales: {},
-    purchase: [],
-    attendance: { '2026-03': { hong: { '1': {in:'09:18',out:'19:37'}, '2': {in:'08:53',out:'19:33'}, '3': {in:'09:05',out:'19:45'}, '4': {in:'09:10',out:'19:30'}, '5': {in:'09:00',out:'19:40'} }, thuy: { '1': {in:'08:50',out:'18:05'}, '2': {in:'09:02',out:'18:10'}, '3': {in:'08:55',out:'18:00'}, '4': {in:'09:15',out:'18:20'} }, yen: { '1': {in:'09:00',out:'19:30'}, '2': {in:'08:58',out:'19:35'}, '3': {in:'09:10',out:'19:25'} } } },
+    purchase: [
+      { id:'p001', date:'2026-03-05', supplier:'화장품 도매', item:'앰플 세트', category:'원재료', qty:5, unitPrice:4000000, total:20000000, note:'' },
+      { id:'p002', date:'2026-03-08', supplier:'포장재 업체', item:'포장박스', category:'소모품', qty:100, unitPrice:50000, total:5000000, note:'' },
+      { id:'p003', date:'2026-03-10', supplier:'의료기기', item:'LED 필터', category:'장비', qty:3, unitPrice:850000, total:2550000, note:'' },
+      { id:'p004', date:'2026-03-12', supplier:'약품 도매', item:'두피 세럼', category:'원재료', qty:20, unitPrice:250000, total:5000000, note:'' },
+    ],
+    attendance: { '2026-03': { hong:{1:{in:'09:18',out:'19:37'},2:{in:'08:53',out:'19:33'},3:{in:'09:05',out:'19:45'},4:{in:'09:10',out:'19:30'},5:{in:'09:00',out:'19:40'}}, thuy:{1:{in:'08:50',out:'18:05'},2:{in:'09:02',out:'18:10'},3:{in:'08:55',out:'18:00'},4:{in:'09:15',out:'18:20'}}, yen:{1:{in:'09:00',out:'19:30'},2:{in:'08:58',out:'19:35'},3:{in:'09:10',out:'19:25'}} } },
     contracts: [
       { id:'c001', employee:'hong', type:'정규직', position:'수석 관리사', start:'2025-01-01', end:'2025-12-31', baseSalary:8000000, hourlyRate:35000, note:'', status:'유효' },
       { id:'c002', employee:'thuy', type:'정규직', position:'데스크 매니저', start:'2025-03-01', end:'2026-02-28', baseSalary:6500000, hourlyRate:29000, note:'', status:'유효' },
@@ -97,245 +104,216 @@ const DataService = {
       { id:'s003', employee:'yen', year:2026, month:2, workDays:22, workHours:228, baseSalary:7500000, overtime:150000, tip:1500000, deduction:260000, netSalary:8890000, paid:true, paidDate:'2026-03-05' },
     ],
   },
-  async read(table) { return JSON.parse(JSON.stringify(this._store[table] || {})); },
-  async write(table, data) { this._store[table] = JSON.parse(JSON.stringify(data)); },
+  async read(t) { return JSON.parse(JSON.stringify(this._store[t] || (Array.isArray(this._store[t]) ? [] : {}))); },
+  async write(t, d) { this._store[t] = JSON.parse(JSON.stringify(d)); },
 };
 
-// 매출 목업 데이터 생성
+// Mock sales
 (() => {
-  const names = ['김민준','Nguyễn Mai','박서연','Trần Hùng','이수진','Lê Hoa','Phạm Tuấn','정하늘','Đỗ Lan','최예린'];
-  const programs = ['화사케어 A','화사케어 B','화사케어 C','골프케어 A','골프케어 B','탈모케어','VIP케어','기본관리'];
-  const sales = {};
-  for (let d = 2; d <= 15; d++) {
-    const date = `2026-03-${String(d).padStart(2,'0')}`;
-    const rows = [];
-    const cnt = 5 + Math.floor(Math.random() * 8);
-    for (let i = 0; i < cnt; i++) {
-      const cash = Math.round((Math.random() * 800000 + 200000) / 10000) * 10000;
-      const card = Math.random() > 0.6 ? Math.round((Math.random() * 500000) / 10000) * 10000 : 0;
-      const tipD = Math.random() > 0.5 ? Math.round((Math.random() * 200000) / 10000) * 10000 : 0;
-      rows.push({
-        no: i+1, date, name: names[i % names.length],
-        grade: MEMBER_GRADES[Math.floor(Math.random()*MEMBER_GRADES.length)],
-        service: programs[Math.floor(Math.random()*programs.length)],
-        hair: Math.random()>0.8, event: Math.random()>0.85, vip: Math.random()>0.9,
-        deductAmt: 0, deduct: 0, tipDeduct: tipD,
-        cash, deposit: 0, card, krw: Math.random()>0.8 ? 50000 : 0, unpaid: 0,
-        male: Math.random()>0.5 ? 'M' : '', female: Math.random()>0.5 ? 'F' : '', ticket: '',
-      });
+  const names=['김민준','Nguyễn Mai','박서연','Trần Hùng','이수진','Lê Hoa','Phạm Tuấn','정하늘','Đỗ Lan','최예린'];
+  const progs=['화사케어 A','화사케어 B','화사케어 C','골프케어 A','골프케어 B','탈모케어','VIP케어','기본관리'];
+  const s={};
+  for(let d=2;d<=15;d++){
+    const dt=`2026-03-${String(d).padStart(2,'0')}`;
+    const rows=[];const cnt=5+Math.floor(Math.random()*8);
+    for(let i=0;i<cnt;i++){
+      const cash=Math.round((Math.random()*800000+200000)/10000)*10000;
+      const card=Math.random()>0.6?Math.round(Math.random()*500000/10000)*10000:0;
+      const tipD=Math.random()>0.5?Math.round(Math.random()*200000/10000)*10000:0;
+      rows.push({no:i+1,date:dt,name:names[i%names.length],grade:MEMBER_GRADES[Math.floor(Math.random()*MEMBER_GRADES.length)],service:progs[Math.floor(Math.random()*progs.length)],hair:Math.random()>0.8,event:Math.random()>0.85,vip:Math.random()>0.9,deductAmt:0,deduct:0,tipDeduct:tipD,cash,deposit:0,card,krw:Math.random()>0.8?50000:0,unpaid:0,male:Math.random()>0.5?'M':'',female:Math.random()>0.5?'F':'',ticket:''});
     }
-    const expenses = [];
-    if (Math.random() > 0.3) expenses.push({ item: '빨래', amount: 150000, note: '' });
-    if (Math.random() > 0.5) expenses.push({ item: '마트', amount: Math.round(Math.random()*300000/10000)*10000, note: '' });
-    if (Math.random() > 0.7) expenses.push({ item: '소모품', amount: Math.round(Math.random()*200000/10000)*10000, note: '' });
-    sales[date] = { rows, expenses };
+    const exps=[];
+    if(Math.random()>0.3) exps.push({item:'빨래',amount:150000,note:''});
+    if(Math.random()>0.5) exps.push({item:'마트',amount:Math.round(Math.random()*300000/10000)*10000,note:''});
+    s[dt]={rows,expenses:exps};
   }
-  DataService._store.sales = sales;
-
-  // 매입 목업
-  DataService._store.purchase = [
-    { id:'p001', date:'2026-03-05', supplier:'화장품 도매', item:'앰플 세트', category:'원재료', qty:5, unitPrice:4000000, total:20000000, note:'' },
-    { id:'p002', date:'2026-03-08', supplier:'포장재 업체', item:'포장박스', category:'소모품', qty:100, unitPrice:50000, total:5000000, note:'' },
-    { id:'p003', date:'2026-03-10', supplier:'의료기기 대리점', item:'LED 마스크 필터', category:'장비', qty:3, unitPrice:850000, total:2550000, note:'' },
-    { id:'p004', date:'2026-03-12', supplier:'약품 도매', item:'두피 세럼', category:'원재료', qty:20, unitPrice:250000, total:5000000, note:'' },
-  ];
+  DataService._store.sales=s;
 })();
 
 /* ════════════════════════════════════════
-   FORMAT HELPERS
+   HELPERS
    ════════════════════════════════════════ */
-const pad2 = (n) => String(n).padStart(2,'0');
-const fmt = (n) => n == null || n === '' ? '' : Number(n).toLocaleString('ko-KR');
-const fmtVND = (n) => n == null || n === '' || n === 0 ? '' : Number(n).toLocaleString('ko-KR') + '₫';
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+const pad2=(n)=>String(n).padStart(2,'0');
+const fmt=(n)=>n==null||n===''?'':Number(n).toLocaleString('ko-KR');
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;};
+const Ic=({d,size=18,color='currentColor'})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>);
 
 /* ════════════════════════════════════════
-   SVG ICON
+   CSS — DUAL THEME
    ════════════════════════════════════════ */
-const Ic = ({ d, size=18, color='currentColor' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>
-);
+const darkVars = `
+  --gold:#B8956A;--gold-light:#D4B896;--gold-dark:#8B6F4E;--gold-glow:rgba(184,149,106,0.15);
+  --bg:#0D0D0F;--bg2:#141418;--bg-card:#1A1A1F;--bg-el:#222228;
+  --border:rgba(255,255,255,0.06);--border-gold:rgba(184,149,106,0.2);
+  --text:#F0ECE6;--text2:#9B9B9B;--text3:#5E5E5E;
+  --ok:#6BCB77;--warn:#FFB347;--err:#FF6B6B;--info:#4D96FF;
+  --ss-focus:rgba(184,149,106,0.08);--ss-hover:rgba(255,255,255,0.015);
+`;
+const lightVars = `
+  --gold:#9E7B55;--gold-light:#7A5F3E;--gold-dark:#5C4530;--gold-glow:rgba(158,123,85,0.1);
+  --bg:#F4F2EF;--bg2:#FFFFFF;--bg-card:#FFFFFF;--bg-el:#F0EDE8;
+  --border:rgba(0,0,0,0.08);--border-gold:rgba(158,123,85,0.2);
+  --text:#1A1816;--text2:#6B6560;--text3:#9E9589;
+  --ok:#2E8B3E;--warn:#C87D1A;--err:#D04040;--info:#2766CC;
+  --ss-focus:rgba(158,123,85,0.08);--ss-hover:rgba(0,0,0,0.015);
+`;
 
-/* ════════════════════════════════════════
-   CSS
-   ════════════════════════════════════════ */
 const CSS = `
-:root {
-  --gold:#B8956A; --gold-light:#D4B896; --gold-dark:#8B6F4E;
-  --gold-glow:rgba(184,149,106,0.15);
-  --bg:#0D0D0F; --bg2:#141418; --bg-card:#1A1A1F; --bg-el:#222228;
-  --border:rgba(255,255,255,0.06); --border-gold:rgba(184,149,106,0.2);
-  --text:#F0ECE6; --text2:#9B9B9B; --text3:#5E5E5E;
-  --ok:#6BCB77; --warn:#FFB347; --err:#FF6B6B; --info:#4D96FF;
-  --hdr-h:52px; --radius:10px; --rs:6px;
-}
+:root { ${darkVars} --hdr-h:52px;--radius:10px;--rs:6px; }
+body.light { ${lightVars} }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s;}
 .app{display:flex;flex-direction:column;height:100vh;width:100vw;}
 
 /* HEADER */
-.hdr{height:var(--hdr-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:0;flex-shrink:0;z-index:100;}
-.hdr-logo{display:flex;align-items:center;gap:8px;margin-right:24px;cursor:default;}
-.hdr-logo .mk{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#fff;}
-.hdr-logo .nm{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold-light);letter-spacing:0.5px;}
-.hdr-nav{display:flex;gap:2px;flex:1;}
-.hdr-tab{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);cursor:pointer;transition:all .2s;color:var(--text2);font-size:12.5px;font-weight:500;position:relative;}
-.hdr-tab:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.hdr{height:var(--hdr-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:0;flex-shrink:0;z-index:100;transition:background .3s;}
+.hdr-logo{display:flex;align-items:center;gap:8px;margin-right:20px;cursor:default;}
+.hdr-logo .mk{width:28px;height:28px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:#fff;}
+.hdr-logo .nm{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold-light);letter-spacing:0.5px;}
+.hdr-nav{display:flex;gap:1px;flex:1;}
+.hdr-tab{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--rs);cursor:pointer;transition:all .2s;color:var(--text2);font-size:12px;font-weight:500;position:relative;}
+.hdr-tab:hover{color:var(--text);background:var(--ss-hover);}
 .hdr-tab.active{color:var(--gold-light);background:var(--gold-glow);}
-.hdr-tab.active::after{content:'';position:absolute;bottom:-1px;left:16px;right:16px;height:2px;background:var(--gold);border-radius:1px;}
-.hdr-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
-.hdr-date{font-size:11px;color:var(--text3);}
-.hdr-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:var(--rs);cursor:pointer;transition:all .2s;}
-.hdr-user:hover{background:rgba(255,255,255,0.04);}
-.hdr-user .av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;}
-.hdr-user .info{font-size:11px;}
-.hdr-user .nm{font-weight:500;}
-.hdr-user .rl{color:var(--text3);font-size:10px;}
-.btn-logout{background:none;border:1px solid var(--border);color:var(--text2);padding:5px 10px;border-radius:var(--rs);font-size:10px;cursor:pointer;font-family:inherit;transition:all .2s;}
+.hdr-tab.active::after{content:'';position:absolute;bottom:-1px;left:13px;right:13px;height:2px;background:var(--gold);border-radius:1px;}
+.hdr-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.hdr-date{font-size:10px;color:var(--text3);}
+.hdr-user{display:flex;align-items:center;gap:7px;padding:3px 8px;border-radius:var(--rs);cursor:default;}
+.hdr-user .av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#fff;}
+.hdr-user .nm{font-size:11px;font-weight:500;}
+.hdr-user .rl{font-size:9px;color:var(--text3);}
+.btn-logout{background:none;border:1px solid var(--border);color:var(--text2);padding:4px 9px;border-radius:var(--rs);font-size:10px;cursor:pointer;font-family:inherit;transition:all .2s;}
 .btn-logout:hover{border-color:var(--err);color:var(--err);}
+
+/* THEME TOGGLE */
+.theme-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text2);}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
 
 /* CONTENT */
 .content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-.sub-tabs{display:flex;gap:2px;padding:10px 20px 0;background:var(--bg2);border-bottom:1px solid var(--border);}
-.sub-tab{padding:8px 16px;font-size:11.5px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-weight:500;}
+.sub-tabs{display:flex;gap:1px;padding:8px 16px 0;background:var(--bg2);border-bottom:1px solid var(--border);transition:background .3s;}
+.sub-tab{padding:7px 14px;font-size:11px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-weight:500;}
 .sub-tab:hover{color:var(--text);}
 .sub-tab.active{color:var(--gold-light);border-bottom-color:var(--gold);}
-.page{flex:1;overflow-y:auto;padding:20px;}
+.page{flex:1;overflow-y:auto;padding:16px;}
 .page::-webkit-scrollbar{width:5px;}
 .page::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
 /* PANEL */
-.pn{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
-.pn-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+.pn{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;transition:background .3s,border-color .3s;}
+.pn-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);}
 .pn-t{font-size:13px;font-weight:600;}
-.pn-st{font-size:10px;color:var(--text3);margin-top:2px;}
-.pn-b{padding:0;}
+.pn-st{font-size:10px;color:var(--text3);margin-top:1px;}
 
 /* TABLE */
 .tbl{width:100%;border-collapse:collapse;}
-.tbl th{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;text-align:left;padding:8px 10px;background:var(--bg-el);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:5;}
-.tbl td{padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;white-space:nowrap;}
-.tbl tr:hover td{background:rgba(255,255,255,0.015);}
+.tbl th{font-size:9.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;text-align:left;padding:7px 10px;background:var(--bg-el);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:5;}
+.tbl td{padding:6px 10px;border-bottom:1px solid var(--border);font-size:11.5px;vertical-align:middle;white-space:nowrap;}
+.tbl tr:hover td{background:var(--ss-hover);}
 .tbl .num{text-align:right;font-variant-numeric:tabular-nums;}
-.tbl .chk{text-align:center;width:40px;}
 
 /* SPREADSHEET */
-.ss-wrap{overflow:auto;max-height:calc(100vh - 200px);border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);}
-.ss{border-collapse:collapse;font-size:11px;min-width:1600px;}
-.ss th{background:var(--bg-el);color:var(--text2);font-size:9.5px;font-weight:600;letter-spacing:0.3px;padding:6px 8px;border:1px solid var(--border);position:sticky;top:0;z-index:10;white-space:nowrap;text-align:center;}
-.ss td{padding:0;border:1px solid var(--border);height:30px;}
-.ss input{width:100%;height:100%;background:transparent;border:none;outline:none;color:var(--text);font-size:11px;padding:4px 6px;font-family:inherit;}
-.ss input:focus{background:rgba(184,149,106,0.08);box-shadow:inset 0 0 0 1px var(--gold);}
-.ss input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;}
-.ss .row-num{background:var(--bg-el);color:var(--text3);text-align:center;font-size:10px;width:35px;padding:4px;}
-.ss .num-cell input{text-align:right;}
-.ss-total{background:rgba(184,149,106,0.06);}
-.ss-total td{font-weight:600;padding:6px 8px;font-size:11px;color:var(--gold-light);}
+.ss-wrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);transition:background .3s;}
+.ss{border-collapse:collapse;font-size:11px;}
+.ss th{background:var(--bg-el);color:var(--text2);font-size:9px;font-weight:600;letter-spacing:0.3px;padding:5px 6px;border:1px solid var(--border);position:sticky;top:0;z-index:10;white-space:nowrap;text-align:center;transition:background .3s;}
+.ss td{padding:0;border:1px solid var(--border);height:28px;}
+.ss input,.ss select{width:100%;height:100%;background:transparent;border:none;outline:none;color:var(--text);font-size:10.5px;padding:3px 5px;font-family:inherit;}
+.ss input:focus,.ss select:focus{background:var(--ss-focus);box-shadow:inset 0 0 0 1.5px var(--gold);}
+.ss input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:pointer;}
+.ss select{cursor:pointer;}
+.ss select option{background:var(--bg-card);color:var(--text);}
+.ss .rn{background:var(--bg-el);color:var(--text3);text-align:center;font-size:9px;width:30px;padding:3px;user-select:none;}
+.ss .nc input{text-align:right;}
+.ss-total{background:var(--gold-glow);}
+.ss-total td{font-weight:600;padding:5px 6px;font-size:10.5px;color:var(--gold-light);}
+.ss .del-btn{background:none;border:none;color:var(--err);cursor:pointer;font-size:13px;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.ss .del-btn:hover{background:rgba(255,107,107,0.08);}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--rs);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;border:none;font-family:inherit;}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--rs);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;border:none;font-family:inherit;}
 .btn-g{background:var(--gold);color:#fff;}.btn-g:hover{background:var(--gold-dark);}
 .btn-o{background:none;border:1px solid var(--border-gold);color:var(--gold-light);}.btn-o:hover{background:var(--gold-glow);}
-.btn-s{background:none;border:1px solid var(--border);color:var(--text2);}.btn-s:hover{background:rgba(255,255,255,0.04);color:var(--text);}
-.btn-d{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:var(--err);}.btn-d:hover{background:rgba(255,107,107,0.2);}
+.btn-s{background:none;border:1px solid var(--border);color:var(--text2);}.btn-s:hover{background:var(--ss-hover);color:var(--text);}
 
 /* FORM */
-.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px;}
-.form-g{display:flex;flex-direction:column;gap:4px;}
-.form-l{font-size:10px;color:var(--text2);font-weight:600;letter-spacing:0.5px;}
-.form-inp{background:var(--bg-el);border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none;transition:all .2s;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:14px;}
+.form-g{display:flex;flex-direction:column;gap:3px;}
+.form-l{font-size:9.5px;color:var(--text2);font-weight:600;letter-spacing:0.5px;}
+.form-inp{background:var(--bg-el);border:1px solid var(--border);border-radius:var(--rs);padding:7px 9px;font-size:11.5px;color:var(--text);font-family:inherit;outline:none;transition:all .2s;}
 .form-inp:focus{border-color:var(--border-gold);box-shadow:0 0 0 3px var(--gold-glow);}
-select.form-inp{cursor:pointer;}
 
-/* SUMMARY CARDS */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:16px;}
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .2s;position:relative;overflow:hidden;}
-.card:hover{border-color:var(--border-gold);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px;}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:all .2s;position:relative;overflow:hidden;}
+.card:hover{border-color:var(--border-gold);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}
 .card-bar{position:absolute;top:0;left:0;right:0;height:2px;}
-.card-lb{font-size:10px;color:var(--text2);margin-bottom:6px;}
-.card-vl{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
-.card-sub{font-size:10px;color:var(--text3);margin-top:4px;}
+.card-lb{font-size:9.5px;color:var(--text2);margin-bottom:5px;}
+.card-vl{font-size:20px;font-weight:700;letter-spacing:-0.5px;}
+.card-sub{font-size:9.5px;color:var(--text3);margin-top:3px;}
 
 /* STATUS */
-.sts{font-size:9px;font-weight:600;padding:2px 8px;border-radius:8px;}
+.sts{font-size:9px;font-weight:600;padding:2px 7px;border-radius:8px;}
 .sts-ok{background:rgba(107,203,119,0.12);color:var(--ok);}
 .sts-warn{background:rgba(255,179,71,0.12);color:var(--warn);}
 .sts-err{background:rgba(255,107,107,0.12);color:var(--err);}
 .sts-info{background:rgba(77,150,255,0.12);color:var(--info);}
 
-/* EXPENSE PANEL */
-.exp-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-top:12px;}
-.exp-panel h4{font-size:12px;color:var(--gold-light);margin-bottom:10px;}
-.exp-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
-.exp-row select,.exp-row input{background:var(--bg-el);border:1px solid var(--border);border-radius:var(--rs);padding:5px 8px;font-size:11px;color:var(--text);font-family:inherit;outline:none;}
-.exp-row select{width:100px;} .exp-row input{flex:1;}
-.exp-row .del{background:none;border:none;color:var(--err);cursor:pointer;padding:4px;font-size:14px;}
+/* EXPENSE */
+.exp-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:10px;transition:background .3s;}
+.exp-panel h4{font-size:11px;color:var(--gold-light);margin-bottom:8px;}
+.exp-row{display:flex;gap:6px;align-items:center;margin-bottom:5px;}
+.exp-row select,.exp-row input{background:var(--bg-el);border:1px solid var(--border);border-radius:var(--rs);padding:4px 7px;font-size:10.5px;color:var(--text);font-family:inherit;outline:none;}
+.exp-row select{width:90px;}.exp-row input{flex:1;}
 
-/* DAILY CLOSE */
-.close-panel{background:rgba(184,149,106,0.04);border:1px solid var(--border-gold);border-radius:var(--radius);padding:16px;margin-top:12px;}
-.close-panel h4{font-size:12px;color:var(--gold-light);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-.close-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;}
-.close-item{display:flex;justify-content:space-between;padding:6px 10px;background:var(--bg-card);border-radius:var(--rs);border:1px solid var(--border);}
-.close-item .k{font-size:10px;color:var(--text2);}
-.close-item .v{font-size:12px;font-weight:600;color:var(--gold-light);font-variant-numeric:tabular-nums;}
+/* CLOSE */
+.close-panel{background:var(--gold-glow);border:1px solid var(--border-gold);border-radius:var(--radius);padding:14px;margin-top:10px;}
+.close-panel h4{font-size:11px;color:var(--gold-light);margin-bottom:10px;}
+.close-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;}
+.close-item{display:flex;justify-content:space-between;padding:5px 8px;background:var(--bg-card);border-radius:var(--rs);border:1px solid var(--border);}
+.close-item .k{font-size:9.5px;color:var(--text2);}
+.close-item .v{font-size:11px;font-weight:600;color:var(--gold-light);font-variant-numeric:tabular-nums;}
 
-/* ATTENDANCE CALENDAR */
-.att-cal{border-collapse:collapse;font-size:10px;width:100%;}
-.att-cal th{background:var(--bg-el);padding:6px 4px;border:1px solid var(--border);text-align:center;color:var(--text2);font-weight:600;position:sticky;top:0;z-index:5;}
-.att-cal td{padding:3px 2px;border:1px solid var(--border);text-align:center;font-variant-numeric:tabular-nums;height:28px;}
-.att-cal .emp-name{background:var(--bg-el);font-weight:600;color:var(--gold-light);text-align:left;padding-left:8px;white-space:nowrap;position:sticky;left:0;z-index:3;}
-.att-cal .in-time{color:var(--ok);font-size:9px;}
-.att-cal .out-time{color:var(--info);font-size:9px;}
-.att-cal .absent{color:var(--err);font-size:10px;}
-.att-cal .holiday{background:rgba(255,255,255,0.02);}
+/* ATTENDANCE */
+.att-cal{border-collapse:collapse;font-size:9.5px;width:100%;}
+.att-cal th{background:var(--bg-el);padding:5px 3px;border:1px solid var(--border);text-align:center;color:var(--text2);font-weight:600;position:sticky;top:0;z-index:5;}
+.att-cal td{padding:2px;border:1px solid var(--border);text-align:center;font-variant-numeric:tabular-nums;height:26px;}
+.att-cal .emp-name{background:var(--bg-el);font-weight:600;color:var(--gold-light);text-align:left;padding-left:6px;white-space:nowrap;position:sticky;left:0;z-index:3;}
+.att-cal .in-t{color:var(--ok);font-size:8.5px;}
+.att-cal .out-t{color:var(--info);font-size:8.5px;}
 
 /* PAYSLIP */
-.payslip{background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--radius);padding:24px;max-width:500px;}
-.payslip h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold-light);margin-bottom:4px;}
-.payslip .period{font-size:11px;color:var(--text3);margin-bottom:16px;}
-.payslip .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.payslip{background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--radius);padding:20px;max-width:480px;transition:background .3s;}
+.payslip h3{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold-light);margin-bottom:3px;}
+.payslip .period{font-size:10px;color:var(--text3);margin-bottom:14px;}
+.payslip .row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:11.5px;}
 .payslip .row:last-child{border-bottom:none;}
 .payslip .row .k{color:var(--text2);}
 .payslip .row .v{font-weight:500;font-variant-numeric:tabular-nums;}
-.payslip .total{border-top:2px solid var(--gold);margin-top:8px;padding-top:10px;}
-.payslip .total .v{font-size:16px;font-weight:700;color:var(--gold-light);}
+.payslip .total{border-top:2px solid var(--gold);margin-top:6px;padding-top:8px;}
+.payslip .total .v{font-size:15px;font-weight:700;color:var(--gold-light);}
 
-/* ANIMATIONS */
-.fade-in{animation:fadeIn .25s ease;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-/* TOOLBAR */
-.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.fade-in{animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
 .toolbar .spacer{flex:1;}
-
-/* EMPTY */
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;color:var(--text3);}
-.empty .ic-wrap{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:12px;}
 `;
 
 /* ════════════════════════════════════════
-   SALES - DAILY INPUT (SPREADSHEET)
+   SALES DAILY INPUT — SPREADSHEET
    ════════════════════════════════════════ */
 function SalesDailyInput() {
   const [selDate, setSelDate] = useState(today());
   const [data, setData] = useState({ rows: [], expenses: [] });
-  const [loading, setLoading] = useState(false);
 
   const loadData = useCallback(async (date) => {
-    setLoading(true);
     const all = await DataService.read('sales');
     const d = all[date] || { rows: [], expenses: [] };
-    if (d.rows.length === 0) {
-      d.rows = [makeRow(1, date)];
-    }
+    if (d.rows.length === 0) d.rows = [mkSaleRow(1, date)];
     setData(d);
-    setLoading(false);
   }, []);
-
   useEffect(() => { loadData(selDate); }, [selDate, loadData]);
 
-  const makeRow = (no, date) => ({
+  const mkSaleRow = (no, date) => ({
     no, date, name:'', grade:'', service:'',
     hair:false, event:false, vip:false,
     deductAmt:0, deduct:0, tipDeduct:0,
@@ -343,198 +321,102 @@ function SalesDailyInput() {
     male:'', female:'', ticket:'',
   });
 
-  const updateRow = (idx, field, value) => {
-    setData(prev => {
-      const rows = [...prev.rows];
-      rows[idx] = { ...rows[idx], [field]: value };
-      return { ...prev, rows };
-    });
-  };
+  const upRow = (i, f, v) => setData(p => {
+    const rows = [...p.rows]; rows[i] = { ...rows[i], [f]: v }; return { ...p, rows };
+  });
+  const addRow = () => setData(p => ({ ...p, rows: [...p.rows, mkSaleRow(p.rows.length+1, selDate)] }));
+  const delRow = (i) => setData(p => ({ ...p, rows: p.rows.filter((_,j)=>j!==i).map((r,j)=>({...r,no:j+1})) }));
+  const addExp = () => setData(p => ({ ...p, expenses: [...p.expenses, {item:'기타',amount:0,note:''}] }));
+  const upExp = (i,f,v) => setData(p => { const e=[...p.expenses]; e[i]={...e[i],[f]:v}; return {...p,expenses:e}; });
+  const delExp = (i) => setData(p => ({ ...p, expenses: p.expenses.filter((_,j)=>j!==i) }));
+  const save = async () => { const all=await DataService.read('sales'); all[selDate]=data; await DataService.write('sales',all); alert('저장 완료'); };
 
-  const addRow = () => {
-    setData(prev => ({
-      ...prev,
-      rows: [...prev.rows, makeRow(prev.rows.length + 1, selDate)]
-    }));
-  };
-
-  const deleteRow = (idx) => {
-    setData(prev => ({
-      ...prev,
-      rows: prev.rows.filter((_,i) => i !== idx).map((r,i) => ({...r, no: i+1}))
-    }));
-  };
-
-  const addExpense = () => {
-    setData(prev => ({
-      ...prev,
-      expenses: [...prev.expenses, { item: '기타', amount: 0, note: '' }]
-    }));
-  };
-
-  const updateExpense = (idx, field, value) => {
-    setData(prev => {
-      const expenses = [...prev.expenses];
-      expenses[idx] = { ...expenses[idx], [field]: value };
-      return { ...prev, expenses };
-    });
-  };
-
-  const deleteExpense = (idx) => {
-    setData(prev => ({ ...prev, expenses: prev.expenses.filter((_,i) => i !== idx) }));
-  };
-
-  const saveData = async () => {
-    const all = await DataService.read('sales');
-    all[selDate] = data;
-    await DataService.write('sales', all);
-    alert('저장되었습니다.');
-  };
-
-  // 집계
   const totals = useMemo(() => {
-    const r = data.rows;
-    const sum = (f) => r.reduce((a,x) => a + (Number(x[f]) || 0), 0);
-    const expTotal = data.expenses.reduce((a,x) => a + (Number(x.amount) || 0), 0);
-    const income = sum('cash') + sum('deposit') + sum('card') + sum('krw');
-    return {
-      deductCnt: r.filter(x => Number(x.deduct) > 0).length,
-      deductAmt: sum('deductAmt'), tipDeduct: sum('tipDeduct'),
-      cash: sum('cash'), deposit: sum('deposit'), card: sum('card'),
-      krw: sum('krw'), unpaid: sum('unpaid'),
-      male: r.filter(x => x.male).length, female: r.filter(x => x.female).length,
-      expTotal, income, net: income - expTotal,
-    };
+    const r=data.rows; const sm=(f)=>r.reduce((a,x)=>a+(Number(x[f])||0),0);
+    const expT=data.expenses.reduce((a,x)=>a+(Number(x.amount)||0),0);
+    const inc=sm('cash')+sm('deposit')+sm('card')+sm('krw');
+    return { dCnt:r.filter(x=>Number(x.deduct)>0).length, dAmt:sm('deductAmt'), tip:sm('tipDeduct'),
+      cash:sm('cash'), dep:sm('deposit'), card:sm('card'), krw:sm('krw'), unpaid:sm('unpaid'),
+      male:r.filter(x=>x.male).length, female:r.filter(x=>x.female).length, expT, inc, net:inc-expT };
   }, [data]);
 
   const cols = [
-    { key:'no', label:'No', w:35, type:'readonly' },
-    { key:'name', label:'고객명', w:90, type:'text' },
-    { key:'grade', label:'멤버등급', w:80, type:'select', options: MEMBER_GRADES },
-    { key:'service', label:'서비스/프로그램', w:130, type:'text' },
-    { key:'hair', label:'탈모', w:40, type:'check' },
-    { key:'event', label:'이벤트', w:45, type:'check' },
-    { key:'vip', label:'VIP', w:40, type:'check' },
-    { key:'deductAmt', label:'차감금액', w:85, type:'number' },
-    { key:'deduct', label:'차감', w:65, type:'number' },
-    { key:'tipDeduct', label:'팁차감', w:80, type:'number' },
-    { key:'cash', label:'현금', w:90, type:'number' },
-    { key:'deposit', label:'입금+10%', w:85, type:'number' },
-    { key:'card', label:'카드', w:85, type:'number' },
-    { key:'krw', label:'한국돈', w:80, type:'number' },
-    { key:'unpaid', label:'미수', w:70, type:'number' },
-    { key:'male', label:'남', w:35, type:'text' },
-    { key:'female', label:'여', w:35, type:'text' },
-    { key:'ticket', label:'TICKET', w:60, type:'text' },
+    {k:'no',l:'No',w:30,t:'ro'},{k:'name',l:'고객명',w:80,t:'tx'},{k:'grade',l:'멤버등급',w:75,t:'sel',opts:MEMBER_GRADES},
+    {k:'service',l:'서비스/프로그램',w:120,t:'tx'},{k:'hair',l:'탈모',w:35,t:'chk'},{k:'event',l:'이벤트',w:40,t:'chk'},
+    {k:'vip',l:'VIP',w:35,t:'chk'},{k:'deductAmt',l:'차감금액',w:80,t:'num'},{k:'deduct',l:'차감',w:55,t:'num'},
+    {k:'tipDeduct',l:'팁차감',w:75,t:'num'},{k:'cash',l:'현금',w:85,t:'num'},{k:'deposit',l:'입금+10%',w:80,t:'num'},
+    {k:'card',l:'카드',w:80,t:'num'},{k:'krw',l:'한국돈',w:75,t:'num'},{k:'unpaid',l:'미수',w:65,t:'num'},
+    {k:'male',l:'남',w:30,t:'tx'},{k:'female',l:'여',w:30,t:'tx'},{k:'ticket',l:'TICKET',w:55,t:'tx'},
   ];
 
   return (
     <div className="fade-in">
       <div className="toolbar">
-        <input type="date" className="form-inp" value={selDate} onChange={e => setSelDate(e.target.value)} style={{width:160}} />
-        <span style={{fontSize:12,color:'var(--text2)'}}>
-          {new Date(selDate+'T00:00').toLocaleDateString('ko-KR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
-        </span>
+        <input type="date" className="form-inp" value={selDate} onChange={e=>setSelDate(e.target.value)} style={{width:150}} />
+        <span style={{fontSize:11,color:'var(--text2)'}}>{new Date(selDate+'T00:00').toLocaleDateString('ko-KR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
         <div className="spacer" />
         <button className="btn btn-s" onClick={addRow}>+ 행 추가</button>
-        <button className="btn btn-g" onClick={saveData}>저장</button>
+        <button className="btn btn-g" onClick={save}>저장</button>
       </div>
-
       <div className="ss-wrap">
-        <table className="ss">
-          <thead>
-            <tr>
-              {cols.map(c => <th key={c.key} style={{minWidth:c.w}}>{c.label}</th>)}
-              <th style={{width:35}}>삭제</th>
-            </tr>
-          </thead>
+        <table className="ss" style={{minWidth:1500}}>
+          <thead><tr>{cols.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
           <tbody>
-            {data.rows.map((row, ri) => (
-              <tr key={ri}>
-                {cols.map(c => (
-                  <td key={c.key} className={c.type==='number'?'num-cell':''}>
-                    {c.type === 'readonly' ? (
-                      <div className="row-num">{row.no}</div>
-                    ) : c.type === 'check' ? (
-                      <div style={{textAlign:'center'}}>
-                        <input type="checkbox" checked={!!row[c.key]} onChange={e => updateRow(ri, c.key, e.target.checked)} />
-                      </div>
-                    ) : c.type === 'select' ? (
-                      <select value={row[c.key]} onChange={e => updateRow(ri, c.key, e.target.value)}
-                        style={{width:'100%',height:'100%',background:'transparent',border:'none',color:'var(--text)',fontSize:11,outline:'none',fontFamily:'inherit',padding:'4px 4px'}}>
-                        {c.options.map(o => <option key={o} value={o} style={{background:'#1A1A1F'}}>{o || '-'}</option>)}
-                      </select>
-                    ) : (
-                      <input
-                        type={c.type==='number'?'text':'text'}
-                        value={c.type==='number' ? (row[c.key] || '') : (row[c.key] || '')}
-                        onChange={e => updateRow(ri, c.key, c.type==='number' ? (e.target.value==='' ? 0 : Number(e.target.value.replace(/,/g,''))) : e.target.value)}
-                        placeholder={c.type==='number'?'0':''}
-                      />
-                    )}
-                  </td>
-                ))}
-                <td style={{textAlign:'center'}}>
-                  <button onClick={() => deleteRow(ri)} style={{background:'none',border:'none',color:'var(--err)',cursor:'pointer',fontSize:14}}>×</button>
+            {data.rows.map((row,ri)=>(
+              <tr key={ri}>{cols.map(c=>(
+                <td key={c.k} className={c.t==='num'?'nc':''}>
+                  {c.t==='ro'?<div className="rn">{row.no}</div>
+                  :c.t==='chk'?<div style={{textAlign:'center'}}><input type="checkbox" checked={!!row[c.k]} onChange={e=>upRow(ri,c.k,e.target.checked)}/></div>
+                  :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o||'-'}</option>)}</select>
+                  :c.t==='num'?<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
+                  :<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>}
                 </td>
-              </tr>
+              ))}<td><button className="del-btn" onClick={()=>delRow(ri)}>×</button></td></tr>
             ))}
             <tr className="ss-total">
-              <td colSpan={7} style={{textAlign:'right',paddingRight:10}}>합계</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{fmt(totals.deductAmt)}</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{totals.deductCnt}</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{fmt(totals.tipDeduct)}</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{fmt(totals.cash)}</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{fmt(totals.deposit)}</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{fmt(totals.card)}</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{fmt(totals.krw)}</td>
-              <td className="num-cell" style={{padding:'6px 8px'}}>{fmt(totals.unpaid)}</td>
-              <td style={{padding:'6px 8px',textAlign:'center'}}>{totals.male}</td>
-              <td style={{padding:'6px 8px',textAlign:'center'}}>{totals.female}</td>
+              <td colSpan={7} style={{textAlign:'right',paddingRight:8}}>합계</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.dAmt)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{totals.dCnt}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.tip)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.cash)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.dep)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.card)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.krw)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.unpaid)}</td>
+              <td style={{textAlign:'center'}}>{totals.male}</td>
+              <td style={{textAlign:'center'}}>{totals.female}</td>
               <td></td><td></td>
             </tr>
           </tbody>
         </table>
       </div>
-
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:12}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:10}}>
         <div className="exp-panel">
           <h4>지출 항목</h4>
-          {data.expenses.map((exp, i) => (
+          {data.expenses.map((exp,i)=>(
             <div key={i} className="exp-row">
-              <select value={exp.item} onChange={e => updateExpense(i,'item',e.target.value)}>
-                {EXPENSE_ITEMS.map(it => <option key={it} value={it} style={{background:'#1A1A1F'}}>{it}</option>)}
-              </select>
-              <input type="text" value={exp.amount||''} placeholder="금액"
-                onChange={e => updateExpense(i,'amount',Number(e.target.value.replace(/,/g,''))||0)}
-                style={{width:100}} />
-              <input type="text" value={exp.note||''} placeholder="비고"
-                onChange={e => updateExpense(i,'note',e.target.value)} />
-              <button className="del" onClick={() => deleteExpense(i)}>×</button>
+              <select value={exp.item} onChange={e=>upExp(i,'item',e.target.value)}>{EXPENSE_ITEMS.map(it=><option key={it} value={it}>{it}</option>)}</select>
+              <input value={exp.amount||''} placeholder="금액" onChange={e=>upExp(i,'amount',Number(e.target.value.replace(/,/g,''))||0)} style={{width:90}}/>
+              <input value={exp.note||''} placeholder="비고" onChange={e=>upExp(i,'note',e.target.value)}/>
+              <button onClick={()=>delExp(i)} style={{background:'none',border:'none',color:'var(--err)',cursor:'pointer',fontSize:13}}>×</button>
             </div>
           ))}
-          <button className="btn btn-s" onClick={addExpense} style={{marginTop:6}}>+ 지출 추가</button>
+          <button className="btn btn-s" onClick={addExp} style={{marginTop:5}}>+ 지출 추가</button>
         </div>
-
         <div className="close-panel">
           <h4>일일 마감 집계</h4>
           <div className="close-grid">
-            <div className="close-item"><span className="k">차감횟수</span><span className="v">{totals.deductCnt}건</span></div>
-            <div className="close-item"><span className="k">차감금액</span><span className="v">{fmt(totals.deductAmt)}</span></div>
-            <div className="close-item"><span className="k">팁차감</span><span className="v">{fmt(totals.tipDeduct)}</span></div>
-            <div className="close-item"><span className="k">현금</span><span className="v">{fmt(totals.cash)}</span></div>
-            <div className="close-item"><span className="k">입금+10%</span><span className="v">{fmt(totals.deposit)}</span></div>
-            <div className="close-item"><span className="k">카드</span><span className="v">{fmt(totals.card)}</span></div>
-            <div className="close-item"><span className="k">한국돈</span><span className="v">{fmt(totals.krw)}</span></div>
-            <div className="close-item"><span className="k">미수금</span><span className="v">{fmt(totals.unpaid)}</span></div>
-            <div className="close-item"><span className="k">총지출</span><span className="v" style={{color:'var(--err)'}}>{fmt(totals.expTotal)}</span></div>
-            <div className="close-item"><span className="k">총수입</span><span className="v" style={{color:'var(--ok)'}}>{fmt(totals.income)}</span></div>
+            {[['차감횟수',totals.dCnt+'건'],['차감금액',fmt(totals.dAmt)],['팁차감',fmt(totals.tip)],
+              ['현금',fmt(totals.cash)],['입금+10%',fmt(totals.dep)],['카드',fmt(totals.card)],
+              ['한국돈',fmt(totals.krw)],['미수금',fmt(totals.unpaid)],
+              ['총지출',fmt(totals.expT),'var(--err)'],['총수입',fmt(totals.inc),'var(--ok)'],
+              ['남',totals.male+'명'],['여',totals.female+'명'],
+            ].map(([k,v,c],i)=>(
+              <div key={i} className="close-item"><span className="k">{k}</span><span className="v" style={c?{color:c}:{}}>{v}</span></div>
+            ))}
             <div className="close-item" style={{gridColumn:'span 2',borderColor:'var(--border-gold)'}}>
-              <span className="k">남은돈 (수입-지출)</span>
-              <span className="v" style={{fontSize:14}}>{fmt(totals.net)}</span>
+              <span className="k">남은돈 (수입-지출)</span><span className="v" style={{fontSize:13}}>{fmt(totals.net)}</span>
             </div>
-            <div className="close-item"><span className="k">남</span><span className="v">{totals.male}명</span></div>
-            <div className="close-item"><span className="k">여</span><span className="v">{totals.female}명</span></div>
           </div>
         </div>
       </div>
@@ -543,784 +425,402 @@ function SalesDailyInput() {
 }
 
 /* ════════════════════════════════════════
-   SALES - LIST
+   SALES LIST / MONTHLY
    ════════════════════════════════════════ */
 function SalesList() {
   const [data, setData] = useState({});
-  const [selDate, setSelDate] = useState('');
-  useEffect(() => { DataService.read('sales').then(setData); }, []);
+  const [sel, setSel] = useState('');
+  useEffect(()=>{DataService.read('sales').then(setData);},[]);
   const dates = Object.keys(data).sort().reverse();
 
-  if (selDate && data[selDate]) {
-    const d = data[selDate];
-    return (
-      <div className="fade-in">
-        <div className="toolbar">
-          <button className="btn btn-s" onClick={() => setSelDate('')}>← 목록</button>
-          <span style={{fontSize:13,fontWeight:600}}>{selDate} 매출 상세</span>
-        </div>
-        <div className="ss-wrap">
-          <table className="ss">
-            <thead><tr>
-              <th>No</th><th>고객명</th><th>등급</th><th>서비스</th>
-              <th>차감금액</th><th>차감</th><th>팁차감</th><th>현금</th><th>입금</th><th>카드</th><th>한국돈</th><th>미수</th><th>남</th><th>여</th>
-            </tr></thead>
-            <tbody>
-              {d.rows.map((r,i) => (
-                <tr key={i}>
-                  <td className="row-num">{r.no}</td>
-                  <td style={{padding:'4px 8px'}}>{r.name}</td><td style={{padding:'4px 8px'}}>{r.grade}</td><td style={{padding:'4px 8px'}}>{r.service}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.deductAmt)}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.deduct)}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.tipDeduct)}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.cash)}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.deposit)}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.card)}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.krw)}</td>
-                  <td className="num-cell" style={{padding:'4px 8px'}}>{fmt(r.unpaid)}</td>
-                  <td style={{textAlign:'center',padding:'4px'}}>{r.male}</td>
-                  <td style={{textAlign:'center',padding:'4px'}}>{r.female}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
+  if (sel && data[sel]) {
+    const d = data[sel];
+    return (<div className="fade-in">
+      <div className="toolbar"><button className="btn btn-s" onClick={()=>setSel('')}>← 목록</button><span style={{fontSize:12,fontWeight:600}}>{sel} 매출 상세</span></div>
+      <div className="ss-wrap"><table className="ss" style={{minWidth:1200}}>
+        <thead><tr><th>No</th><th>고객명</th><th>등급</th><th>서비스</th><th>차감금액</th><th>차감</th><th>팁차감</th><th>현금</th><th>입금</th><th>카드</th><th>한국돈</th><th>미수</th><th>남</th><th>여</th></tr></thead>
+        <tbody>{d.rows.map((r,i)=>(<tr key={i}><td className="rn">{r.no}</td><td style={{padding:'3px 6px'}}>{r.name}</td><td style={{padding:'3px 6px'}}>{r.grade}</td><td style={{padding:'3px 6px'}}>{r.service}</td>
+          <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deductAmt)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deduct)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.tipDeduct)}</td>
+          <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.cash)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deposit)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.card)}</td>
+          <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.krw)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.unpaid)}</td>
+          <td style={{textAlign:'center',padding:'3px'}}>{r.male}</td><td style={{textAlign:'center',padding:'3px'}}>{r.female}</td></tr>))}</tbody>
+      </table></div></div>);
   }
 
-  return (
-    <div className="fade-in">
-      <div className="pn">
-        <div className="pn-h"><div className="pn-t">매출 내역</div></div>
-        <table className="tbl">
-          <thead><tr><th>날짜</th><th>건수</th><th className="num">현금</th><th className="num">입금</th><th className="num">카드</th><th className="num">한국돈</th><th className="num">미수</th><th className="num">합계</th></tr></thead>
-          <tbody>
-            {dates.map(date => {
-              const d = data[date];
-              const sum = (f) => d.rows.reduce((a,x) => a + (Number(x[f])||0), 0);
-              const total = sum('cash')+sum('deposit')+sum('card')+sum('krw');
-              return (
-                <tr key={date} onClick={() => setSelDate(date)} style={{cursor:'pointer'}}>
-                  <td style={{fontWeight:500,color:'var(--gold-light)'}}>{date}</td>
-                  <td>{d.rows.length}건</td>
-                  <td className="num">{fmt(sum('cash'))}</td>
-                  <td className="num">{fmt(sum('deposit'))}</td>
-                  <td className="num">{fmt(sum('card'))}</td>
-                  <td className="num">{fmt(sum('krw'))}</td>
-                  <td className="num">{fmt(sum('unpaid'))}</td>
-                  <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(total)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">매출 내역</div></div></div>
+    <table className="tbl"><thead><tr><th>날짜</th><th>건수</th><th className="num">현금</th><th className="num">입금</th><th className="num">카드</th><th className="num">한국돈</th><th className="num">미수</th><th className="num">합계</th></tr></thead>
+    <tbody>{dates.map(dt=>{const d=data[dt];const sm=(f)=>d.rows.reduce((a,x)=>a+(Number(x[f])||0),0);const tot=sm('cash')+sm('deposit')+sm('card')+sm('krw');
+      return (<tr key={dt} onClick={()=>setSel(dt)} style={{cursor:'pointer'}}><td style={{fontWeight:500,color:'var(--gold-light)'}}>{dt}</td><td>{d.rows.length}건</td>
+        <td className="num">{fmt(sm('cash'))}</td><td className="num">{fmt(sm('deposit'))}</td><td className="num">{fmt(sm('card'))}</td><td className="num">{fmt(sm('krw'))}</td><td className="num">{fmt(sm('unpaid'))}</td>
+        <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(tot)}</td></tr>);
+    })}</tbody></table></div></div>);
 }
 
-/* ════════════════════════════════════════
-   SALES - MONTHLY SUMMARY
-   ════════════════════════════════════════ */
 function SalesMonthlySummary() {
   const [data, setData] = useState({});
-  const [selMonth, setSelMonth] = useState('2026-03');
-  useEffect(() => { DataService.read('sales').then(setData); }, []);
+  const [mo, setMo] = useState('2026-03');
+  useEffect(()=>{DataService.read('sales').then(setData);},[]);
+  const mDates=Object.keys(data).filter(d=>d.startsWith(mo)).sort();
+  const mData=mDates.map(dt=>{const d=data[dt];const sm=(f)=>d.rows.reduce((a,x)=>a+(Number(x[f])||0),0);const expT=(d.expenses||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+    return {date:dt,cnt:d.rows.length,cash:sm('cash'),dep:sm('deposit'),card:sm('card'),krw:sm('krw'),unpaid:sm('unpaid'),exp:expT};});
+  const gt=(f)=>mData.reduce((a,x)=>a+x[f],0);
+  const totInc=gt('cash')+gt('dep')+gt('card')+gt('krw');
 
-  const monthDates = Object.keys(data).filter(d => d.startsWith(selMonth)).sort();
-  const monthData = monthDates.map(date => {
-    const d = data[date];
-    const sum = (f) => d.rows.reduce((a,x) => a + (Number(x[f])||0), 0);
-    const expTotal = (d.expenses||[]).reduce((a,x) => a + (Number(x.amount)||0), 0);
-    return { date, count: d.rows.length, cash: sum('cash'), deposit: sum('deposit'), card: sum('card'), krw: sum('krw'), unpaid: sum('unpaid'), exp: expTotal };
-  });
-  const grandTotal = (f) => monthData.reduce((a,x) => a + x[f], 0);
-  const totalIncome = grandTotal('cash') + grandTotal('deposit') + grandTotal('card') + grandTotal('krw');
-
-  return (
-    <div className="fade-in">
-      <div className="toolbar">
-        <input type="month" className="form-inp" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{width:160}} />
-      </div>
-      <div className="cards">
-        <div className="card"><div className="card-bar" style={{background:'var(--gold)'}} /><div className="card-lb">총 매출</div><div className="card-vl">{fmt(totalIncome)}</div><div className="card-sub">VND</div></div>
-        <div className="card"><div className="card-bar" style={{background:'var(--ok)'}} /><div className="card-lb">현금</div><div className="card-vl">{fmt(grandTotal('cash'))}</div></div>
-        <div className="card"><div className="card-bar" style={{background:'var(--info)'}} /><div className="card-lb">카드</div><div className="card-vl">{fmt(grandTotal('card'))}</div></div>
-        <div className="card"><div className="card-bar" style={{background:'var(--warn)'}} /><div className="card-lb">총 지출</div><div className="card-vl">{fmt(grandTotal('exp'))}</div></div>
-        <div className="card"><div className="card-bar" style={{background:'var(--err)'}} /><div className="card-lb">미수금</div><div className="card-vl">{fmt(grandTotal('unpaid'))}</div></div>
-        <div className="card"><div className="card-bar" style={{background:'#9B59B6'}} /><div className="card-lb">총 건수</div><div className="card-vl">{grandTotal('count')}</div><div className="card-sub">{monthDates.length}일 영업</div></div>
-      </div>
-      <div className="pn">
-        <table className="tbl">
-          <thead><tr><th>날짜</th><th>건수</th><th className="num">현금</th><th className="num">입금</th><th className="num">카드</th><th className="num">한국돈</th><th className="num">미수</th><th className="num">지출</th><th className="num">순수입</th></tr></thead>
-          <tbody>
-            {monthData.map(d => {
-              const income = d.cash+d.deposit+d.card+d.krw;
-              return (
-                <tr key={d.date}>
-                  <td>{d.date}</td><td>{d.count}건</td>
-                  <td className="num">{fmt(d.cash)}</td><td className="num">{fmt(d.deposit)}</td>
-                  <td className="num">{fmt(d.card)}</td><td className="num">{fmt(d.krw)}</td>
-                  <td className="num">{fmt(d.unpaid)}</td>
-                  <td className="num" style={{color:'var(--err)'}}>{fmt(d.exp)}</td>
-                  <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(income - d.exp)}</td>
-                </tr>
-              );
-            })}
-            <tr style={{background:'rgba(184,149,106,0.06)'}}>
-              <td style={{fontWeight:600}}>합계</td><td>{grandTotal('count')}건</td>
-              <td className="num" style={{fontWeight:600}}>{fmt(grandTotal('cash'))}</td>
-              <td className="num" style={{fontWeight:600}}>{fmt(grandTotal('deposit'))}</td>
-              <td className="num" style={{fontWeight:600}}>{fmt(grandTotal('card'))}</td>
-              <td className="num" style={{fontWeight:600}}>{fmt(grandTotal('krw'))}</td>
-              <td className="num" style={{fontWeight:600}}>{fmt(grandTotal('unpaid'))}</td>
-              <td className="num" style={{fontWeight:600,color:'var(--err)'}}>{fmt(grandTotal('exp'))}</td>
-              <td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:13}}>{fmt(totalIncome - grandTotal('exp'))}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/></div>
+    <div className="cards">
+      {[['총 매출',fmt(totInc),'var(--gold)'],['현금',fmt(gt('cash')),'var(--ok)'],['카드',fmt(gt('card')),'var(--info)'],['총 지출',fmt(gt('exp')),'var(--warn)'],['미수금',fmt(gt('unpaid')),'var(--err)'],['총 건수',gt('cnt'),'#9B59B6',mDates.length+'일 영업']].map(([lb,vl,c,sub],i)=>(
+        <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl">{vl}</div>{sub&&<div className="card-sub">{sub}</div>}</div>
+      ))}
     </div>
-  );
+    <div className="pn"><table className="tbl">
+      <thead><tr><th>날짜</th><th>건수</th><th className="num">현금</th><th className="num">입금</th><th className="num">카드</th><th className="num">한국돈</th><th className="num">미수</th><th className="num">지출</th><th className="num">순수입</th></tr></thead>
+      <tbody>{mData.map(d=>{const inc=d.cash+d.dep+d.card+d.krw;return (<tr key={d.date}><td>{d.date}</td><td>{d.cnt}건</td><td className="num">{fmt(d.cash)}</td><td className="num">{fmt(d.dep)}</td><td className="num">{fmt(d.card)}</td><td className="num">{fmt(d.krw)}</td><td className="num">{fmt(d.unpaid)}</td><td className="num" style={{color:'var(--err)'}}>{fmt(d.exp)}</td><td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(inc-d.exp)}</td></tr>);})}
+        <tr style={{background:'var(--gold-glow)'}}><td style={{fontWeight:600}}>합계</td><td>{gt('cnt')}건</td><td className="num" style={{fontWeight:600}}>{fmt(gt('cash'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('dep'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('card'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('krw'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('unpaid'))}</td><td className="num" style={{fontWeight:600,color:'var(--err)'}}>{fmt(gt('exp'))}</td><td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:12}}>{fmt(totInc-gt('exp'))}</td></tr>
+      </tbody></table></div></div>);
 }
 
 /* ════════════════════════════════════════
-   PURCHASE
+   PURCHASE — SPREADSHEET
    ════════════════════════════════════════ */
 function PurchaseInput() {
-  const [form, setForm] = useState({ date: today(), supplier:'', item:'', category:'원재료', qty:1, unitPrice:0, note:'' });
-  const [list, setList] = useState([]);
-  useEffect(() => { DataService.read('purchase').then(setList); }, []);
+  const [rows, setRows] = useState([]);
+  useEffect(()=>{DataService.read('purchase').then(setRows);},[]);
 
-  const save = async () => {
-    if (!form.supplier || !form.item) { alert('공급처와 품목을 입력하세요.'); return; }
-    const newItem = { ...form, id: 'p'+String(list.length+1).padStart(3,'0'), total: form.qty * form.unitPrice };
-    const updated = [...list, newItem];
-    await DataService.write('purchase', updated);
-    setList(updated);
-    setForm({ date: today(), supplier:'', item:'', category:'원재료', qty:1, unitPrice:0, note:'' });
-    alert('저장되었습니다.');
-  };
+  const mkRow = () => ({id:'p'+String(rows.length+1).padStart(3,'0'),date:today(),supplier:'',item:'',category:'원재료',qty:1,unitPrice:0,total:0,note:''});
 
-  return (
-    <div className="fade-in">
-      <div className="pn" style={{padding:18}}>
-        <div style={{fontSize:13,fontWeight:600,marginBottom:14}}>매입 등록</div>
-        <div className="form-grid">
-          <div className="form-g"><label className="form-l">날짜</label><input type="date" className="form-inp" value={form.date} onChange={e => setForm({...form,date:e.target.value})} /></div>
-          <div className="form-g"><label className="form-l">공급처</label><input className="form-inp" value={form.supplier} onChange={e => setForm({...form,supplier:e.target.value})} /></div>
-          <div className="form-g"><label className="form-l">품목</label><input className="form-inp" value={form.item} onChange={e => setForm({...form,item:e.target.value})} /></div>
-          <div className="form-g"><label className="form-l">분류</label>
-            <select className="form-inp" value={form.category} onChange={e => setForm({...form,category:e.target.value})}>
-              {['원재료','소모품','장비','기타'].map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div className="form-g"><label className="form-l">수량</label><input type="number" className="form-inp" value={form.qty} onChange={e => setForm({...form,qty:Number(e.target.value)})} /></div>
-          <div className="form-g"><label className="form-l">단가 (VND)</label><input type="number" className="form-inp" value={form.unitPrice} onChange={e => setForm({...form,unitPrice:Number(e.target.value)})} /></div>
-          <div className="form-g"><label className="form-l">합계</label><input className="form-inp" value={fmt(form.qty * form.unitPrice)} readOnly style={{color:'var(--gold-light)'}} /></div>
-          <div className="form-g"><label className="form-l">비고</label><input className="form-inp" value={form.note} onChange={e => setForm({...form,note:e.target.value})} /></div>
-        </div>
-        <button className="btn btn-g" onClick={save}>등록</button>
-      </div>
+  const upRow = (i,f,v) => setRows(p=>{
+    const r=[...p]; r[i]={...r[i],[f]:v};
+    if(f==='qty'||f==='unitPrice') r[i].total = (Number(r[i].qty)||0) * (Number(r[i].unitPrice)||0);
+    return r;
+  });
+  const addRow = () => setRows(p=>[...p, mkRow()]);
+  const delRow = (i) => setRows(p=>p.filter((_,j)=>j!==i));
+  const save = async () => { await DataService.write('purchase', rows); alert('저장 완료'); };
+
+  const pCols = [
+    {k:'date',l:'날짜',w:95,t:'date'},{k:'supplier',l:'공급처',w:110,t:'tx'},{k:'item',l:'품목',w:120,t:'tx'},
+    {k:'category',l:'분류',w:80,t:'sel',opts:PURCHASE_CATS},{k:'qty',l:'수량',w:55,t:'num'},
+    {k:'unitPrice',l:'단가(VND)',w:95,t:'num'},{k:'total',l:'합계',w:100,t:'ro_num'},{k:'note',l:'비고',w:100,t:'tx'},
+  ];
+
+  const grandTotal = rows.reduce((a,x)=>a+(x.total||0),0);
+
+  return (<div className="fade-in">
+    <div className="toolbar">
+      <span style={{fontSize:12,fontWeight:600}}>매입 입력</span>
+      <div className="spacer"/>
+      <button className="btn btn-s" onClick={addRow}>+ 행 추가</button>
+      <button className="btn btn-g" onClick={save}>저장</button>
     </div>
-  );
+    <div className="ss-wrap">
+      <table className="ss" style={{minWidth:900}}>
+        <thead><tr><th style={{width:30}}>No</th>{pCols.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
+        <tbody>
+          {rows.map((row,ri)=>(
+            <tr key={ri}>
+              <td className="rn">{ri+1}</td>
+              {pCols.map(c=>(
+                <td key={c.k} className={c.t==='num'||c.t==='ro_num'?'nc':''}>
+                  {c.t==='ro_num'?<div style={{padding:'3px 5px',textAlign:'right',color:'var(--gold-light)',fontWeight:600,fontSize:10.5}}>{fmt(row[c.k])}</div>
+                  :c.t==='date'?<input type="date" value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>
+                  :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o}</option>)}</select>
+                  :c.t==='num'?<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
+                  :<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>}
+                </td>
+              ))}
+              <td><button className="del-btn" onClick={()=>delRow(ri)}>×</button></td>
+            </tr>
+          ))}
+          {rows.length>0 && <tr className="ss-total">
+            <td colSpan={6} style={{textAlign:'right',paddingRight:8}}>합계</td>
+            <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(grandTotal)}</td>
+            <td></td><td></td>
+          </tr>}
+        </tbody>
+      </table>
+    </div>
+  </div>);
 }
 
 function PurchaseList() {
-  const [list, setList] = useState([]);
-  useEffect(() => { DataService.read('purchase').then(setList); }, []);
-  return (
-    <div className="fade-in">
-      <div className="pn">
-        <div className="pn-h"><div className="pn-t">매입 내역</div><div className="pn-st">총 {list.length}건 · {fmt(list.reduce((a,x)=>a+x.total,0))}₫</div></div>
-        <table className="tbl">
-          <thead><tr><th>날짜</th><th>공급처</th><th>품목</th><th>분류</th><th className="num">수량</th><th className="num">단가</th><th className="num">합계</th><th>비고</th></tr></thead>
-          <tbody>
-            {[...list].reverse().map((p,i) => (
-              <tr key={i}>
-                <td>{p.date}</td><td>{p.supplier}</td><td>{p.item}</td>
-                <td><span className={`sts ${p.category==='원재료'?'sts-info':p.category==='소모품'?'sts-warn':'sts-ok'}`}>{p.category}</span></td>
-                <td className="num">{p.qty}</td><td className="num">{fmt(p.unitPrice)}</td>
-                <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.total)}</td>
-                <td style={{color:'var(--text2)'}}>{p.note}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const [list,setList]=useState([]);
+  useEffect(()=>{DataService.read('purchase').then(setList);},[]);
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">매입 내역</div><div className="pn-st">총 {list.length}건 · {fmt(list.reduce((a,x)=>a+(x.total||0),0))}₫</div></div></div>
+    <table className="tbl"><thead><tr><th>날짜</th><th>공급처</th><th>품목</th><th>분류</th><th className="num">수량</th><th className="num">단가</th><th className="num">합계</th><th>비고</th></tr></thead>
+    <tbody>{[...list].reverse().map((p,i)=>(<tr key={i}><td>{p.date}</td><td>{p.supplier}</td><td>{p.item}</td>
+      <td><span className={`sts ${p.category==='원재료'?'sts-info':p.category==='소모품'?'sts-warn':'sts-ok'}`}>{p.category}</span></td>
+      <td className="num">{p.qty}</td><td className="num">{fmt(p.unitPrice)}</td><td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.total)}</td><td style={{color:'var(--text2)'}}>{p.note}</td></tr>))}</tbody>
+  </table></div></div>);
 }
 
 function PurchaseStats() {
-  const [list, setList] = useState([]);
-  useEffect(() => { DataService.read('purchase').then(setList); }, []);
-  const byCat = {};
-  list.forEach(p => { byCat[p.category] = (byCat[p.category]||0) + p.total; });
-  const total = list.reduce((a,x) => a+x.total, 0);
-  return (
-    <div className="fade-in">
-      <div className="cards">
-        {Object.entries(byCat).map(([cat,amt]) => (
-          <div className="card" key={cat}>
-            <div className="card-lb">{cat}</div>
-            <div className="card-vl">{fmt(amt)}</div>
-            <div className="card-sub">{total>0 ? Math.round(amt/total*100) : 0}%</div>
-          </div>
-        ))}
-        <div className="card"><div className="card-bar" style={{background:'var(--gold)'}} /><div className="card-lb">총 매입</div><div className="card-vl">{fmt(total)}</div></div>
-      </div>
-    </div>
-  );
+  const [list,setList]=useState([]);
+  useEffect(()=>{DataService.read('purchase').then(setList);},[]);
+  const byCat={};list.forEach(p=>{byCat[p.category]=(byCat[p.category]||0)+(p.total||0);});
+  const total=list.reduce((a,x)=>a+(x.total||0),0);
+  return (<div className="fade-in"><div className="cards">
+    {Object.entries(byCat).map(([cat,amt])=>(<div className="card" key={cat}><div className="card-lb">{cat}</div><div className="card-vl">{fmt(amt)}</div><div className="card-sub">{total>0?Math.round(amt/total*100):0}%</div></div>))}
+    <div className="card"><div className="card-bar" style={{background:'var(--gold)'}}/><div className="card-lb">총 매입</div><div className="card-vl">{fmt(total)}</div></div>
+  </div></div>);
 }
 
 /* ════════════════════════════════════════
-   SETTLEMENT (결산)
+   SETTLEMENT
    ════════════════════════════════════════ */
-function Settlement({ period }) {
-  const [sales, setSales] = useState({});
-  const [purchase, setPurchase] = useState([]);
-  useEffect(() => { DataService.read('sales').then(setSales); DataService.read('purchase').then(setPurchase); }, []);
-
-  const getPeriodDates = () => {
-    const dates = Object.keys(sales).sort();
-    if (dates.length === 0) return [];
-    // 간단히 전체 데이터 사용 (추후 기간 필터 추가)
-    return dates;
-  };
-
-  const dates = getPeriodDates();
-  const salesTotal = dates.reduce((a, d) => {
-    const rows = sales[d]?.rows || [];
-    return a + rows.reduce((b,r) => b + (Number(r.cash)||0) + (Number(r.deposit)||0) + (Number(r.card)||0) + (Number(r.krw)||0), 0);
-  }, 0);
-  const expTotal = dates.reduce((a, d) => {
-    return a + (sales[d]?.expenses || []).reduce((b,e) => b + (Number(e.amount)||0), 0);
-  }, 0);
-  const purchaseTotal = purchase.reduce((a,p) => a+p.total, 0);
-  const net = salesTotal - expTotal - purchaseTotal;
-
-  const labels = { monthly:'월말 결산', quarterly:'분기 결산', semi:'반기 결산', annual:'년간 결산' };
-
-  return (
-    <div className="fade-in">
-      <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,marginBottom:16,color:'var(--gold-light)'}}>{labels[period]}</h3>
-      <div className="cards">
-        <div className="card"><div className="card-bar" style={{background:'var(--ok)'}} /><div className="card-lb">총 매출</div><div className="card-vl" style={{color:'var(--ok)'}}>{fmt(salesTotal)}</div><div className="card-sub">VND</div></div>
-        <div className="card"><div className="card-bar" style={{background:'var(--warn)'}} /><div className="card-lb">영업 지출</div><div className="card-vl">{fmt(expTotal)}</div></div>
-        <div className="card"><div className="card-bar" style={{background:'var(--err)'}} /><div className="card-lb">매입 비용</div><div className="card-vl">{fmt(purchaseTotal)}</div></div>
-        <div className="card"><div className="card-bar" style={{background:'var(--gold)'}} /><div className="card-lb">순이익</div><div className="card-vl" style={{color: net>=0?'var(--ok)':'var(--err)'}}>{fmt(net)}</div></div>
-      </div>
-      <div className="pn" style={{padding:18}}>
-        <div style={{fontSize:12,color:'var(--text2)',marginBottom:12}}>기간: {dates[0] || '-'} ~ {dates[dates.length-1] || '-'} ({dates.length}일)</div>
-        <table className="tbl">
-          <thead><tr><th>항목</th><th className="num">금액 (VND)</th><th className="num">비율</th></tr></thead>
-          <tbody>
-            <tr><td>매출 (현금+입금+카드+한국돈)</td><td className="num" style={{color:'var(--ok)'}}>{fmt(salesTotal)}</td><td className="num">100%</td></tr>
-            <tr><td>(-) 영업 지출</td><td className="num" style={{color:'var(--err)'}}>-{fmt(expTotal)}</td><td className="num">{salesTotal>0?Math.round(expTotal/salesTotal*100):0}%</td></tr>
-            <tr><td>(-) 매입 비용</td><td className="num" style={{color:'var(--err)'}}>-{fmt(purchaseTotal)}</td><td className="num">{salesTotal>0?Math.round(purchaseTotal/salesTotal*100):0}%</td></tr>
-            <tr style={{background:'rgba(184,149,106,0.06)'}}><td style={{fontWeight:600}}>순이익</td><td className="num" style={{fontWeight:700,fontSize:14,color:net>=0?'var(--ok)':'var(--err)'}}>{fmt(net)}</td><td className="num" style={{fontWeight:600}}>{salesTotal>0?Math.round(net/salesTotal*100):0}%</td></tr>
-          </tbody>
-        </table>
-      </div>
+function Settlement({period}) {
+  const [sales,setSales]=useState({});const [purchase,setPurchase]=useState([]);
+  useEffect(()=>{DataService.read('sales').then(setSales);DataService.read('purchase').then(setPurchase);},[]);
+  const dates=Object.keys(sales).sort();
+  const salesT=dates.reduce((a,d)=>{const rows=sales[d]?.rows||[];return a+rows.reduce((b,r)=>b+(Number(r.cash)||0)+(Number(r.deposit)||0)+(Number(r.card)||0)+(Number(r.krw)||0),0);},0);
+  const expT=dates.reduce((a,d)=>a+(sales[d]?.expenses||[]).reduce((b,e)=>b+(Number(e.amount)||0),0),0);
+  const purT=purchase.reduce((a,p)=>a+(p.total||0),0);const net=salesT-expT-purT;
+  const labels={monthly:'월말 결산',quarterly:'분기 결산',semi:'반기 결산',annual:'년간 결산'};
+  return (<div className="fade-in">
+    <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,marginBottom:14,color:'var(--gold-light)'}}>{labels[period]}</h3>
+    <div className="cards">
+      {[['총 매출',fmt(salesT),'var(--ok)'],['영업 지출',fmt(expT),'var(--warn)'],['매입 비용',fmt(purT),'var(--err)'],['순이익',fmt(net),net>=0?'var(--ok)':'var(--err)']].map(([lb,vl,c],i)=>(
+        <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl" style={{color:c}}>{vl}</div></div>
+      ))}
     </div>
-  );
+    <div className="pn" style={{padding:16}}>
+      <div style={{fontSize:11,color:'var(--text2)',marginBottom:10}}>기간: {dates[0]||'-'} ~ {dates[dates.length-1]||'-'} ({dates.length}일)</div>
+      <table className="tbl"><thead><tr><th>항목</th><th className="num">금액 (VND)</th><th className="num">비율</th></tr></thead>
+      <tbody>
+        <tr><td>매출 합계</td><td className="num" style={{color:'var(--ok)'}}>{fmt(salesT)}</td><td className="num">100%</td></tr>
+        <tr><td>(-) 영업 지출</td><td className="num" style={{color:'var(--err)'}}>-{fmt(expT)}</td><td className="num">{salesT>0?Math.round(expT/salesT*100):0}%</td></tr>
+        <tr><td>(-) 매입 비용</td><td className="num" style={{color:'var(--err)'}}>-{fmt(purT)}</td><td className="num">{salesT>0?Math.round(purT/salesT*100):0}%</td></tr>
+        <tr style={{background:'var(--gold-glow)'}}><td style={{fontWeight:600}}>순이익</td><td className="num" style={{fontWeight:700,fontSize:13,color:net>=0?'var(--ok)':'var(--err)'}}>{fmt(net)}</td><td className="num" style={{fontWeight:600}}>{salesT>0?Math.round(net/salesT*100):0}%</td></tr>
+      </tbody></table>
+    </div></div>);
 }
 
 /* ════════════════════════════════════════
    CONTRACTS
    ════════════════════════════════════════ */
 function ContractList() {
-  const [list, setList] = useState([]);
-  useEffect(() => { DataService.read('contracts').then(setList); }, []);
-  return (
-    <div className="fade-in">
-      <div className="pn">
-        <div className="pn-h"><div className="pn-t">계약서 목록</div><div className="pn-st">{list.length}건</div></div>
-        <table className="tbl">
-          <thead><tr><th>ID</th><th>직원</th><th>유형</th><th>직위</th><th>시작일</th><th>종료일</th><th className="num">기본급</th><th className="num">시급</th><th>상태</th></tr></thead>
-          <tbody>
-            {list.map((c,i) => {
-              const emp = EMPLOYEES.find(e => e.name === c.employee);
-              const isExpiring = new Date(c.end) < new Date(Date.now() + 90*86400000);
-              return (
-                <tr key={i}>
-                  <td style={{color:'var(--text3)'}}>{c.id}</td>
-                  <td style={{fontWeight:500}}>{emp?.nameKr || c.employee}</td>
-                  <td>{c.type}</td><td>{c.position}</td>
-                  <td>{c.start}</td><td>{c.end}</td>
-                  <td className="num">{fmt(c.baseSalary)}</td>
-                  <td className="num">{fmt(c.hourlyRate)}</td>
-                  <td><span className={`sts ${c.status==='유효'?(isExpiring?'sts-warn':'sts-ok'):'sts-err'}`}>{c.status}{isExpiring && c.status==='유효' ? ' (만료임박)' : ''}</span></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const [list,setList]=useState([]);useEffect(()=>{DataService.read('contracts').then(setList);},[]);
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">계약서 목록</div><div className="pn-st">{list.length}건</div></div></div>
+    <table className="tbl"><thead><tr><th>ID</th><th>직원</th><th>유형</th><th>직위</th><th>시작일</th><th>종료일</th><th className="num">기본급</th><th className="num">시급</th><th>상태</th></tr></thead>
+    <tbody>{list.map((c,i)=>{const emp=EMPLOYEES.find(e=>e.name===c.employee);const isExp=new Date(c.end)<new Date(Date.now()+90*86400000);
+      return (<tr key={i}><td style={{color:'var(--text3)'}}>{c.id}</td><td style={{fontWeight:500}}>{emp?.nameKr||c.employee}</td><td>{c.type}</td><td>{c.position}</td><td>{c.start}</td><td>{c.end}</td>
+        <td className="num">{fmt(c.baseSalary)}</td><td className="num">{fmt(c.hourlyRate)}</td>
+        <td><span className={`sts ${c.status==='유효'?(isExp?'sts-warn':'sts-ok'):'sts-err'}`}>{c.status}{isExp&&c.status==='유효'?' (만료임박)':''}</span></td></tr>);
+    })}</tbody></table></div></div>);
 }
 
 function ContractAdd() {
-  const [form, setForm] = useState({ employee:'hong', type:'정규직', position:'', start:today(), end:'', baseSalary:0, hourlyRate:0, note:'' });
-  const save = async () => {
-    const list = await DataService.read('contracts');
-    const newC = { ...form, id:'c'+String(list.length+1).padStart(3,'0'), status:'유효' };
-    list.push(newC);
-    await DataService.write('contracts', list);
-    alert('계약서가 등록되었습니다.');
-  };
-  return (
-    <div className="fade-in">
-      <div className="pn" style={{padding:18}}>
-        <div style={{fontSize:13,fontWeight:600,marginBottom:14}}>계약서 추가</div>
-        <div className="form-grid">
-          <div className="form-g"><label className="form-l">직원</label>
-            <select className="form-inp" value={form.employee} onChange={e => setForm({...form,employee:e.target.value})}>
-              {EMPLOYEES.map(e => <option key={e.name} value={e.name}>{e.nameKr} ({e.name})</option>)}
-            </select>
-          </div>
-          <div className="form-g"><label className="form-l">유형</label>
-            <select className="form-inp" value={form.type} onChange={e => setForm({...form,type:e.target.value})}>
-              {['정규직','계약직','파트타임'].map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div className="form-g"><label className="form-l">직위</label><input className="form-inp" value={form.position} onChange={e => setForm({...form,position:e.target.value})} /></div>
-          <div className="form-g"><label className="form-l">시작일</label><input type="date" className="form-inp" value={form.start} onChange={e => setForm({...form,start:e.target.value})} /></div>
-          <div className="form-g"><label className="form-l">종료일</label><input type="date" className="form-inp" value={form.end} onChange={e => setForm({...form,end:e.target.value})} /></div>
-          <div className="form-g"><label className="form-l">기본급 (VND)</label><input type="number" className="form-inp" value={form.baseSalary} onChange={e => setForm({...form,baseSalary:Number(e.target.value)})} /></div>
-          <div className="form-g"><label className="form-l">시급 (VND)</label><input type="number" className="form-inp" value={form.hourlyRate} onChange={e => setForm({...form,hourlyRate:Number(e.target.value)})} /></div>
-          <div className="form-g"><label className="form-l">비고</label><input className="form-inp" value={form.note} onChange={e => setForm({...form,note:e.target.value})} /></div>
-        </div>
-        <button className="btn btn-g" onClick={save}>등록</button>
-      </div>
+  const [form,setForm]=useState({employee:'hong',type:'정규직',position:'',start:today(),end:'',baseSalary:0,hourlyRate:0,note:''});
+  const save=async()=>{const list=await DataService.read('contracts');list.push({...form,id:'c'+String(list.length+1).padStart(3,'0'),status:'유효'});await DataService.write('contracts',list);alert('등록 완료');};
+  return (<div className="fade-in"><div className="pn" style={{padding:16}}>
+    <div style={{fontSize:12,fontWeight:600,marginBottom:12}}>계약서 추가</div>
+    <div className="form-grid">
+      <div className="form-g"><label className="form-l">직원</label><select className="form-inp" value={form.employee} onChange={e=>setForm({...form,employee:e.target.value})}>{EMPLOYEES.map(e=><option key={e.name} value={e.name}>{e.nameKr} ({e.name})</option>)}</select></div>
+      <div className="form-g"><label className="form-l">유형</label><select className="form-inp" value={form.type} onChange={e=>setForm({...form,type:e.target.value})}>{['정규직','계약직','파트타임'].map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+      <div className="form-g"><label className="form-l">직위</label><input className="form-inp" value={form.position} onChange={e=>setForm({...form,position:e.target.value})}/></div>
+      <div className="form-g"><label className="form-l">시작일</label><input type="date" className="form-inp" value={form.start} onChange={e=>setForm({...form,start:e.target.value})}/></div>
+      <div className="form-g"><label className="form-l">종료일</label><input type="date" className="form-inp" value={form.end} onChange={e=>setForm({...form,end:e.target.value})}/></div>
+      <div className="form-g"><label className="form-l">기본급</label><input type="number" className="form-inp" value={form.baseSalary} onChange={e=>setForm({...form,baseSalary:Number(e.target.value)})}/></div>
+      <div className="form-g"><label className="form-l">시급</label><input type="number" className="form-inp" value={form.hourlyRate} onChange={e=>setForm({...form,hourlyRate:Number(e.target.value)})}/></div>
+      <div className="form-g"><label className="form-l">비고</label><input className="form-inp" value={form.note} onChange={e=>setForm({...form,note:e.target.value})}/></div>
     </div>
-  );
+    <button className="btn btn-g" onClick={save}>등록</button>
+  </div></div>);
 }
 
 function ContractExpiry() {
-  const [list, setList] = useState([]);
-  useEffect(() => { DataService.read('contracts').then(setList); }, []);
-  const now = Date.now();
-  const expiring = list.filter(c => {
-    const end = new Date(c.end).getTime();
-    return end < now + 180*86400000;
-  }).sort((a,b) => new Date(a.end) - new Date(b.end));
-
-  return (
-    <div className="fade-in">
-      <div className="pn">
-        <div className="pn-h"><div className="pn-t">만료 예정 계약서</div><div className="pn-st">6개월 이내</div></div>
-        {expiring.length === 0 ? (
-          <div className="empty"><div className="ic-wrap"><Ic d={MENUS[3].icon} size={24} color="var(--text3)" /></div><div>만료 예정 계약서가 없습니다</div></div>
-        ) : (
-          <table className="tbl">
-            <thead><tr><th>직원</th><th>종료일</th><th>D-Day</th><th>상태</th></tr></thead>
-            <tbody>
-              {expiring.map((c,i) => {
-                const emp = EMPLOYEES.find(e => e.name === c.employee);
-                const dday = Math.ceil((new Date(c.end).getTime() - now) / 86400000);
-                return (
-                  <tr key={i}>
-                    <td style={{fontWeight:500}}>{emp?.nameKr || c.employee}</td>
-                    <td>{c.end}</td>
-                    <td style={{fontWeight:600,color: dday<30?'var(--err)':dday<90?'var(--warn)':'var(--ok)'}}>D{dday>0?'-'+dday:'+'+Math.abs(dday)}</td>
-                    <td><span className={`sts ${dday<0?'sts-err':dday<30?'sts-warn':'sts-ok'}`}>{dday<0?'만료':'유효'}</span></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
-  );
+  const [list,setList]=useState([]);useEffect(()=>{DataService.read('contracts').then(setList);},[]);
+  const now=Date.now();const exp=list.filter(c=>new Date(c.end).getTime()<now+180*86400000).sort((a,b)=>new Date(a.end)-new Date(b.end));
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">만료 예정 계약서</div><div className="pn-st">6개월 이내</div></div></div>
+    {exp.length===0?<div className="empty">만료 예정 계약서가 없습니다</div>:
+    <table className="tbl"><thead><tr><th>직원</th><th>종료일</th><th>D-Day</th><th>상태</th></tr></thead>
+    <tbody>{exp.map((c,i)=>{const emp=EMPLOYEES.find(e=>e.name===c.employee);const dd=Math.ceil((new Date(c.end).getTime()-now)/86400000);
+      return (<tr key={i}><td style={{fontWeight:500}}>{emp?.nameKr||c.employee}</td><td>{c.end}</td>
+        <td style={{fontWeight:600,color:dd<30?'var(--err)':dd<90?'var(--warn)':'var(--ok)'}}>D{dd>0?'-'+dd:'+'+Math.abs(dd)}</td>
+        <td><span className={`sts ${dd<0?'sts-err':dd<30?'sts-warn':'sts-ok'}`}>{dd<0?'만료':'유효'}</span></td></tr>);
+    })}</tbody></table>}
+  </div></div>);
 }
 
 /* ════════════════════════════════════════
    ATTENDANCE
    ════════════════════════════════════════ */
 function AttendanceMonthly() {
-  const [data, setData] = useState({});
-  const [selMonth, setSelMonth] = useState('2026-03');
-  useEffect(() => { DataService.read('attendance').then(setData); }, []);
-
-  const monthData = data[selMonth] || {};
-  const daysInMonth = new Date(Number(selMonth.split('-')[0]), Number(selMonth.split('-')[1]), 0).getDate();
-  const days = Array.from({length: daysInMonth}, (_,i) => i+1);
-
-  return (
-    <div className="fade-in">
-      <div className="toolbar">
-        <input type="month" className="form-inp" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{width:160}} />
-      </div>
-      <div style={{overflow:'auto',maxHeight:'calc(100vh - 200px)'}}>
-        <table className="att-cal">
-          <thead>
-            <tr>
-              <th style={{position:'sticky',left:0,zIndex:10,minWidth:70}}>직원</th>
-              {days.map(d => {
-                const dow = new Date(Number(selMonth.split('-')[0]), Number(selMonth.split('-')[1])-1, d).getDay();
-                return <th key={d} className={dow===0?'holiday':''}>{d}<br/><span style={{fontSize:8,fontWeight:400}}>{['일','월','화','수','목','금','토'][dow]}</span></th>;
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {EMPLOYEES.map(emp => {
-              const empData = monthData[emp.name] || {};
-              return (
-                <React.Fragment key={emp.name}>
-                  <tr>
-                    <td className="emp-name" rowSpan={2}>{emp.nameKr}<br/><span style={{fontSize:8,color:'var(--text3)',fontWeight:400}}>{emp.position}</span></td>
-                    {days.map(d => {
-                      const rec = empData[String(d)];
-                      return <td key={d}>{rec ? <span className="in-time">{rec.in}</span> : <span className="absent">-</span>}</td>;
-                    })}
-                  </tr>
-                  <tr>
-                    {days.map(d => {
-                      const rec = empData[String(d)];
-                      return <td key={d}>{rec ? <span className="out-time">{rec.out}</span> : ''}</td>;
-                    })}
-                  </tr>
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const [data,setData]=useState({});const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setData);},[]);
+  const md=data[mo]||{};const yr=Number(mo.split('-')[0]);const mn=Number(mo.split('-')[1]);
+  const dim=new Date(yr,mn,0).getDate();const days=Array.from({length:dim},(_,i)=>i+1);
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/></div>
+    <div style={{overflow:'auto',maxHeight:'calc(100vh - 190px)'}}>
+      <table className="att-cal"><thead><tr><th style={{position:'sticky',left:0,zIndex:10,minWidth:65}}>직원</th>
+        {days.map(d=>{const dow=new Date(yr,mn-1,d).getDay();return <th key={d} style={dow===0?{color:'var(--err)'}:dow===6?{color:'var(--info)'}:{}}>{d}<br/><span style={{fontSize:7,fontWeight:400}}>{['일','월','화','수','목','금','토'][dow]}</span></th>;})}
+      </tr></thead>
+      <tbody>{EMPLOYEES.map(emp=>{const ed=md[emp.name]||{};return (<React.Fragment key={emp.name}>
+        <tr><td className="emp-name" rowSpan={2}>{emp.nameKr}<br/><span style={{fontSize:7,color:'var(--text3)',fontWeight:400}}>{emp.position}</span></td>
+          {days.map(d=>{const rec=ed[String(d)];return <td key={d}>{rec?<span className="in-t">{rec.in}</span>:<span style={{color:'var(--text3)',fontSize:8}}>-</span>}</td>;})}</tr>
+        <tr>{days.map(d=>{const rec=ed[String(d)];return <td key={d}>{rec?<span className="out-t">{rec.out}</span>:''}</td>;})}</tr>
+      </React.Fragment>);})}</tbody></table></div></div>);
 }
 
 function AttendanceByEmployee() {
-  const [data, setData] = useState({});
-  const [selEmp, setSelEmp] = useState('hong');
-  const [selMonth, setSelMonth] = useState('2026-03');
-  useEffect(() => { DataService.read('attendance').then(setData); }, []);
-
-  const empData = (data[selMonth] || {})[selEmp] || {};
-  const days = Object.keys(empData).sort((a,b) => Number(a)-Number(b));
-  const emp = EMPLOYEES.find(e => e.name === selEmp);
-
-  const totalHours = days.reduce((a, d) => {
-    const rec = empData[d];
-    if (!rec) return a;
-    const [ih,im] = rec.in.split(':').map(Number);
-    const [oh,om] = rec.out.split(':').map(Number);
-    return a + (oh + om/60) - (ih + im/60);
-  }, 0);
-
-  return (
-    <div className="fade-in">
-      <div className="toolbar">
-        <select className="form-inp" value={selEmp} onChange={e => setSelEmp(e.target.value)} style={{width:140}}>
-          {EMPLOYEES.map(e => <option key={e.name} value={e.name}>{e.nameKr} ({e.name})</option>)}
-        </select>
-        <input type="month" className="form-inp" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{width:160}} />
-      </div>
-      <div className="cards">
-        <div className="card"><div className="card-lb">출근일</div><div className="card-vl">{days.length}일</div></div>
-        <div className="card"><div className="card-lb">총 근무시간</div><div className="card-vl">{totalHours.toFixed(1)}h</div></div>
-        <div className="card"><div className="card-lb">일평균</div><div className="card-vl">{days.length>0?(totalHours/days.length).toFixed(1):'0'}h</div></div>
-      </div>
-      <div className="pn">
-        <table className="tbl">
-          <thead><tr><th>일</th><th>출근</th><th>퇴근</th><th className="num">근무시간</th></tr></thead>
-          <tbody>
-            {days.map(d => {
-              const rec = empData[d];
-              const [ih,im] = rec.in.split(':').map(Number);
-              const [oh,om] = rec.out.split(':').map(Number);
-              const hrs = ((oh+om/60)-(ih+im/60)).toFixed(1);
-              return (
-                <tr key={d}>
-                  <td>{selMonth}-{pad2(d)}</td>
-                  <td style={{color:'var(--ok)'}}>{rec.in}</td>
-                  <td style={{color:'var(--info)'}}>{rec.out}</td>
-                  <td className="num" style={{fontWeight:500}}>{hrs}h</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+  const [data,setData]=useState({});const [emp,setEmp]=useState('hong');const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setData);},[]);
+  const ed=(data[mo]||{})[emp]||{};const days=Object.keys(ed).sort((a,b)=>Number(a)-Number(b));
+  const totH=days.reduce((a,d)=>{const r=ed[d];if(!r)return a;const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);return a+(oh+om/60)-(ih+im/60);},0);
+  return (<div className="fade-in">
+    <div className="toolbar">
+      <select className="form-inp" value={emp} onChange={e=>setEmp(e.target.value)} style={{width:130}}>{EMPLOYEES.map(e=><option key={e.name} value={e.name}>{e.nameKr} ({e.name})</option>)}</select>
+      <input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/>
     </div>
-  );
+    <div className="cards">
+      <div className="card"><div className="card-lb">출근일</div><div className="card-vl">{days.length}일</div></div>
+      <div className="card"><div className="card-lb">총 근무시간</div><div className="card-vl">{totH.toFixed(1)}h</div></div>
+      <div className="card"><div className="card-lb">일평균</div><div className="card-vl">{days.length>0?(totH/days.length).toFixed(1):'0'}h</div></div>
+    </div>
+    <div className="pn"><table className="tbl"><thead><tr><th>일</th><th>출근</th><th>퇴근</th><th className="num">근무시간</th></tr></thead>
+    <tbody>{days.map(d=>{const r=ed[d];const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);const hrs=((oh+om/60)-(ih+im/60)).toFixed(1);
+      return (<tr key={d}><td>{mo}-{pad2(d)}</td><td style={{color:'var(--ok)'}}>{r.in}</td><td style={{color:'var(--info)'}}>{r.out}</td><td className="num" style={{fontWeight:500}}>{hrs}h</td></tr>);})}</tbody></table></div></div>);
 }
 
 function AttendanceSummary() {
-  const [data, setData] = useState({});
-  const [selMonth, setSelMonth] = useState('2026-03');
-  useEffect(() => { DataService.read('attendance').then(setData); }, []);
-
-  const monthData = data[selMonth] || {};
-
-  return (
-    <div className="fade-in">
-      <div className="toolbar">
-        <input type="month" className="form-inp" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{width:160}} />
-      </div>
-      <div className="pn">
-        <div className="pn-h"><div className="pn-t">근태 요약</div></div>
-        <table className="tbl">
-          <thead><tr><th>직원</th><th>직위</th><th className="num">출근일</th><th className="num">총 근무시간</th><th className="num">일평균</th><th className="num">시급</th><th className="num">예상 급여</th></tr></thead>
-          <tbody>
-            {EMPLOYEES.map(emp => {
-              const empData = monthData[emp.name] || {};
-              const days = Object.keys(empData);
-              const totalHours = days.reduce((a,d) => {
-                const rec = empData[d];
-                if (!rec) return a;
-                const [ih,im] = rec.in.split(':').map(Number);
-                const [oh,om] = rec.out.split(':').map(Number);
-                return a + (oh+om/60)-(ih+im/60);
-              }, 0);
-              return (
-                <tr key={emp.name}>
-                  <td style={{fontWeight:500}}>{emp.nameKr}</td>
-                  <td>{emp.position}</td>
-                  <td className="num">{days.length}일</td>
-                  <td className="num">{totalHours.toFixed(1)}h</td>
-                  <td className="num">{days.length>0?(totalHours/days.length).toFixed(1):'0'}h</td>
-                  <td className="num">{fmt(emp.hourly)}</td>
-                  <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(Math.round(totalHours * emp.hourly))}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const [data,setData]=useState({});const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setData);},[]);
+  const md=data[mo]||{};
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/></div>
+    <div className="pn"><div className="pn-h"><div className="pn-t">근태 요약</div></div>
+    <table className="tbl"><thead><tr><th>직원</th><th>직위</th><th className="num">출근일</th><th className="num">총 근무시간</th><th className="num">일평균</th><th className="num">시급</th><th className="num">예상 급여</th></tr></thead>
+    <tbody>{EMPLOYEES.map(emp=>{const ed=md[emp.name]||{};const days=Object.keys(ed);
+      const totH=days.reduce((a,d)=>{const r=ed[d];if(!r)return a;const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);return a+(oh+om/60)-(ih+im/60);},0);
+      return (<tr key={emp.name}><td style={{fontWeight:500}}>{emp.nameKr}</td><td>{emp.position}</td><td className="num">{days.length}일</td><td className="num">{totH.toFixed(1)}h</td>
+        <td className="num">{days.length>0?(totH/days.length).toFixed(1):'0'}h</td><td className="num">{fmt(emp.hourly)}</td><td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(Math.round(totH*emp.hourly))}</td></tr>);
+    })}</tbody></table></div></div>);
 }
 
 /* ════════════════════════════════════════
    SALARY
    ════════════════════════════════════════ */
 function SalaryCalc() {
-  const [attendance, setAttendance] = useState({});
-  const [contracts, setContracts] = useState([]);
-  const [selMonth, setSelMonth] = useState('2026-03');
-  useEffect(() => { DataService.read('attendance').then(setAttendance); DataService.read('contracts').then(setContracts); }, []);
-
-  const monthData = attendance[selMonth] || {};
-
-  return (
-    <div className="fade-in">
-      <div className="toolbar">
-        <input type="month" className="form-inp" value={selMonth} onChange={e => setSelMonth(e.target.value)} style={{width:160}} />
-        <div className="spacer" />
-        <button className="btn btn-g">급여 확정</button>
-      </div>
-      <div className="pn">
-        <div className="pn-h"><div className="pn-t">급여 계산</div><div className="pn-st">{selMonth}</div></div>
-        <table className="tbl">
-          <thead><tr><th>직원</th><th className="num">출근일</th><th className="num">근무시간</th><th className="num">기본급</th><th className="num">시간급</th><th className="num">팁</th><th className="num">공제</th><th className="num">지급액</th></tr></thead>
-          <tbody>
-            {EMPLOYEES.map(emp => {
-              const empAtt = monthData[emp.name] || {};
-              const days = Object.keys(empAtt);
-              const totalHours = days.reduce((a,d) => {
-                const rec = empAtt[d];
-                if (!rec) return a;
-                const [ih,im] = rec.in.split(':').map(Number);
-                const [oh,om] = rec.out.split(':').map(Number);
-                return a + (oh+om/60)-(ih+im/60);
-              }, 0);
-              const contract = contracts.find(c => c.employee === emp.name);
-              const base = contract?.baseSalary || emp.base;
-              const hourlyPay = Math.round(totalHours * emp.hourly);
-              const tip = 0; // DB 연동 시 실제 팁 데이터 로드
-              const deduction = Math.round(base * 0.035);
-              const net = base + tip - deduction;
-              return (
-                <tr key={emp.name}>
-                  <td style={{fontWeight:500}}>{emp.nameKr} <span style={{color:'var(--text3)',fontSize:10}}>({emp.name})</span></td>
-                  <td className="num">{days.length}일</td>
-                  <td className="num">{totalHours.toFixed(1)}h</td>
-                  <td className="num">{fmt(base)}</td>
-                  <td className="num">{fmt(hourlyPay)}</td>
-                  <td className="num" style={{color:'var(--ok)'}}>{fmt(tip)}</td>
-                  <td className="num" style={{color:'var(--err)'}}>-{fmt(deduction)}</td>
-                  <td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:13}}>{fmt(net)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const [att,setAtt]=useState({});const [con,setCon]=useState([]);const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setAtt);DataService.read('contracts').then(setCon);},[]);
+  const md=att[mo]||{};
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/><div className="spacer"/><button className="btn btn-g">급여 확정</button></div>
+    <div className="pn"><div className="pn-h"><div><div className="pn-t">급여 계산</div><div className="pn-st">{mo}</div></div></div>
+    <table className="tbl"><thead><tr><th>직원</th><th className="num">출근일</th><th className="num">근무시간</th><th className="num">기본급</th><th className="num">시간급</th><th className="num">공제</th><th className="num">지급액</th></tr></thead>
+    <tbody>{EMPLOYEES.map(emp=>{const ed=md[emp.name]||{};const days=Object.keys(ed);
+      const totH=days.reduce((a,d)=>{const r=ed[d];if(!r)return a;const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);return a+(oh+om/60)-(ih+im/60);},0);
+      const ct=con.find(c=>c.employee===emp.name);const base=ct?.baseSalary||emp.base;const hPay=Math.round(totH*emp.hourly);const ded=Math.round(base*0.035);const net=base-ded;
+      return (<tr key={emp.name}><td style={{fontWeight:500}}>{emp.nameKr} <span style={{color:'var(--text3)',fontSize:9}}>({emp.name})</span></td>
+        <td className="num">{days.length}일</td><td className="num">{totH.toFixed(1)}h</td><td className="num">{fmt(base)}</td><td className="num">{fmt(hPay)}</td>
+        <td className="num" style={{color:'var(--err)'}}>-{fmt(ded)}</td><td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:12}}>{fmt(net)}</td></tr>);
+    })}</tbody></table></div></div>);
 }
 
 function SalaryHistory() {
-  const [list, setList] = useState([]);
-  useEffect(() => { DataService.read('salary').then(setList); }, []);
-  return (
-    <div className="fade-in">
-      <div className="pn">
-        <div className="pn-h"><div className="pn-t">지급 이력</div></div>
-        <table className="tbl">
-          <thead><tr><th>직원</th><th>기간</th><th className="num">출근일</th><th className="num">기본급</th><th className="num">추가수당</th><th className="num">팁</th><th className="num">공제</th><th className="num">지급액</th><th>지급일</th><th>상태</th></tr></thead>
-          <tbody>
-            {list.map((s,i) => {
-              const emp = EMPLOYEES.find(e => e.name === s.employee);
-              return (
-                <tr key={i}>
-                  <td style={{fontWeight:500}}>{emp?.nameKr || s.employee}</td>
-                  <td>{s.year}.{pad2(s.month)}</td>
-                  <td className="num">{s.workDays}일</td>
-                  <td className="num">{fmt(s.baseSalary)}</td>
-                  <td className="num">{fmt(s.overtime)}</td>
-                  <td className="num" style={{color:'var(--ok)'}}>{fmt(s.tip)}</td>
-                  <td className="num" style={{color:'var(--err)'}}>-{fmt(s.deduction)}</td>
-                  <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(s.netSalary)}</td>
-                  <td>{s.paidDate || '-'}</td>
-                  <td><span className={`sts ${s.paid?'sts-ok':'sts-warn'}`}>{s.paid?'지급완료':'대기'}</span></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const [list,setList]=useState([]);useEffect(()=>{DataService.read('salary').then(setList);},[]);
+  return (<div className="fade-in"><div className="pn"><div className="pn-h"><div className="pn-t">지급 이력</div></div>
+    <table className="tbl"><thead><tr><th>직원</th><th>기간</th><th className="num">출근일</th><th className="num">기본급</th><th className="num">추가수당</th><th className="num">팁</th><th className="num">공제</th><th className="num">지급액</th><th>지급일</th><th>상태</th></tr></thead>
+    <tbody>{list.map((s,i)=>{const emp=EMPLOYEES.find(e=>e.name===s.employee);
+      return (<tr key={i}><td style={{fontWeight:500}}>{emp?.nameKr||s.employee}</td><td>{s.year}.{pad2(s.month)}</td><td className="num">{s.workDays}일</td><td className="num">{fmt(s.baseSalary)}</td>
+        <td className="num">{fmt(s.overtime)}</td><td className="num" style={{color:'var(--ok)'}}>{fmt(s.tip)}</td><td className="num" style={{color:'var(--err)'}}>-{fmt(s.deduction)}</td>
+        <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(s.netSalary)}</td><td>{s.paidDate||'-'}</td>
+        <td><span className={`sts ${s.paid?'sts-ok':'sts-warn'}`}>{s.paid?'지급완료':'대기'}</span></td></tr>);})}</tbody></table></div></div>);
 }
 
 function SalaryPayslip() {
-  const [list, setList] = useState([]);
-  const [selIdx, setSelIdx] = useState(0);
-  useEffect(() => { DataService.read('salary').then(setList); }, []);
-
-  if (list.length === 0) return <div className="empty"><div>지급 이력이 없습니다</div></div>;
-  const s = list[selIdx] || list[0];
-  const emp = EMPLOYEES.find(e => e.name === s.employee);
-
-  return (
-    <div className="fade-in">
-      <div className="toolbar">
-        <select className="form-inp" value={selIdx} onChange={e => setSelIdx(Number(e.target.value))} style={{width:220}}>
-          {list.map((s,i) => {
-            const e = EMPLOYEES.find(x => x.name === s.employee);
-            return <option key={i} value={i}>{e?.nameKr||s.employee} - {s.year}.{pad2(s.month)}</option>;
-          })}
-        </select>
-      </div>
-      <div className="payslip">
-        <h3>급여 명세서</h3>
-        <div className="period">{s.year}년 {s.month}월 · {emp?.nameKr || s.employee} ({emp?.position || ''})</div>
-        <div className="row"><span className="k">기본급</span><span className="v">{fmt(s.baseSalary)}₫</span></div>
-        <div className="row"><span className="k">추가수당 (초과근무)</span><span className="v">{fmt(s.overtime)}₫</span></div>
-        <div className="row"><span className="k">팁</span><span className="v" style={{color:'var(--ok)'}}>{fmt(s.tip)}₫</span></div>
-        <div className="row"><span className="k">공제액</span><span className="v" style={{color:'var(--err)'}}>-{fmt(s.deduction)}₫</span></div>
-        <div className="row"><span className="k">근무일</span><span className="v">{s.workDays}일</span></div>
-        <div className="row"><span className="k">근무시간</span><span className="v">{s.workHours}h</span></div>
-        <div className="row total"><span className="k" style={{fontSize:14,fontWeight:600}}>실지급액</span><span className="v">{fmt(s.netSalary)}₫</span></div>
-        <div style={{marginTop:12,fontSize:10,color:'var(--text3)'}}>
-          지급일: {s.paidDate || '미정'} · 상태: {s.paid ? '지급완료' : '대기'}
-        </div>
-      </div>
-    </div>
-  );
+  const [list,setList]=useState([]);const [idx,setIdx]=useState(0);
+  useEffect(()=>{DataService.read('salary').then(setList);},[]);
+  if(list.length===0) return <div className="empty">지급 이력이 없습니다</div>;
+  const s=list[idx]||list[0];const emp=EMPLOYEES.find(e=>e.name===s.employee);
+  return (<div className="fade-in">
+    <div className="toolbar"><select className="form-inp" value={idx} onChange={e=>setIdx(Number(e.target.value))} style={{width:200}}>{list.map((s,i)=>{const e=EMPLOYEES.find(x=>x.name===s.employee);return <option key={i} value={i}>{e?.nameKr||s.employee} - {s.year}.{pad2(s.month)}</option>;})}</select></div>
+    <div className="payslip">
+      <h3>급여 명세서</h3><div className="period">{s.year}년 {s.month}월 · {emp?.nameKr||s.employee} ({emp?.position||''})</div>
+      {[['기본급',fmt(s.baseSalary)+'₫'],['추가수당',fmt(s.overtime)+'₫'],['팁',fmt(s.tip)+'₫','var(--ok)'],['공제액','-'+fmt(s.deduction)+'₫','var(--err)'],['근무일',s.workDays+'일'],['근무시간',s.workHours+'h']].map(([k,v,c],i)=>(
+        <div key={i} className="row"><span className="k">{k}</span><span className="v" style={c?{color:c}:{}}>{v}</span></div>
+      ))}
+      <div className="row total"><span className="k" style={{fontSize:13,fontWeight:600}}>실지급액</span><span className="v">{fmt(s.netSalary)}₫</span></div>
+      <div style={{marginTop:10,fontSize:9.5,color:'var(--text3)'}}>지급일: {s.paidDate||'미정'} · 상태: {s.paid?'지급완료':'대기'}</div>
+    </div></div>);
 }
 
 /* ════════════════════════════════════════
    MAIN APP
    ════════════════════════════════════════ */
 function App() {
-  const [user, setUser] = useState(getUser);
-  const [menu, setMenu] = useState('sales');
-  const [subTab, setSubTab] = useState(0);
-  const [now, setNow] = useState(new Date());
+  const [user,setUser]=useState(getUser);
+  const [menu,setMenu]=useState('sales');
+  const [subTab,setSub]=useState(0);
+  const [now,setNow]=useState(new Date());
+  const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
 
-  useEffect(() => {
-    if (!user) { window.location.href = 'erp.html'; return; }
-    const t = setInterval(() => setNow(new Date()), 60000);
-    // 스플래시 제거
-    const sp = document.getElementById('splash');
-    if (sp) { sp.style.opacity = '0'; setTimeout(() => sp.remove(), 500); }
-    return () => clearInterval(t);
-  }, [user]);
+  useEffect(()=>{
+    if(!user){window.location.href='erp.html';return;}
+    const t=setInterval(()=>setNow(new Date()),60000);
+    const sp=document.getElementById('splash');
+    if(sp){sp.style.opacity='0';setTimeout(()=>sp.remove(),500);}
+    return ()=>clearInterval(t);
+  },[user]);
 
-  if (!user) return null;
+  useEffect(()=>{
+    document.body.classList.toggle('light',!dark);
+    localStorage.setItem('hskb_theme',dark?'dark':'light');
+  },[dark]);
 
-  const changeMenu = (id) => { setMenu(id); setSubTab(0); };
-  const logout = () => { sessionStorage.removeItem('hskb_erp_user'); window.location.href = 'erp.html'; };
+  if(!user) return null;
 
-  const renderContent = () => {
-    switch(menu) {
-      case 'sales':
-        if (subTab === 0) return <SalesDailyInput />;
-        if (subTab === 1) return <SalesList />;
-        return <SalesMonthlySummary />;
-      case 'purchase':
-        if (subTab === 0) return <PurchaseInput />;
-        if (subTab === 1) return <PurchaseList />;
-        return <PurchaseStats />;
-      case 'settlement':
-        return <Settlement period={['monthly','quarterly','semi','annual'][subTab]} />;
-      case 'contracts':
-        if (subTab === 0) return <ContractList />;
-        if (subTab === 1) return <ContractAdd />;
-        return <ContractExpiry />;
-      case 'attendance':
-        if (subTab === 0) return <AttendanceMonthly />;
-        if (subTab === 1) return <AttendanceByEmployee />;
-        return <AttendanceSummary />;
-      case 'salary':
-        if (subTab === 0) return <SalaryCalc />;
-        if (subTab === 1) return <SalaryHistory />;
-        return <SalaryPayslip />;
+  const go=(id)=>{setMenu(id);setSub(0);};
+  const logout=()=>{sessionStorage.removeItem('hskb_erp_user');window.location.href='erp.html';};
+
+  const renderContent=()=>{
+    switch(menu){
+      case 'sales': return subTab===0?<SalesDailyInput/>:subTab===1?<SalesList/>:<SalesMonthlySummary/>;
+      case 'purchase': return subTab===0?<PurchaseInput/>:subTab===1?<PurchaseList/>:<PurchaseStats/>;
+      case 'settlement': return <Settlement period={['monthly','quarterly','semi','annual'][subTab]}/>;
+      case 'contracts': return subTab===0?<ContractList/>:subTab===1?<ContractAdd/>:<ContractExpiry/>;
+      case 'attendance': return subTab===0?<AttendanceMonthly/>:subTab===1?<AttendanceByEmployee/>:<AttendanceSummary/>;
+      case 'salary': return subTab===0?<SalaryCalc/>:subTab===1?<SalaryHistory/>:<SalaryPayslip/>;
       default: return null;
     }
   };
 
   return (
-    <React.Fragment>
+    <ThemeCtx.Provider value={{dark,setDark}}>
       <style>{CSS}</style>
       <div className="app">
         <div className="hdr">
-          <div className="hdr-logo">
-            <div className="mk">H</div>
-            <div className="nm">HWASA K-Beauty</div>
-          </div>
+          <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
           <div className="hdr-nav">
-            {MENUS.map(m => (
-              <div key={m.id} className={`hdr-tab ${menu===m.id?'active':''}`} onClick={() => changeMenu(m.id)}>
-                <Ic d={m.icon} size={15} />
-                {m.label}
-              </div>
-            ))}
+            {MENUS.map(m=>(<div key={m.id} className={`hdr-tab ${menu===m.id?'active':''}`} onClick={()=>go(m.id)}><Ic d={m.icon} size={14}/>{m.label}</div>))}
           </div>
           <div className="hdr-right">
             <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+            <button className="theme-btn" onClick={()=>setDark(!dark)} title={dark?'라이트 모드':'다크 모드'}>
+              {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={15}/> : <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" size={15}/>}
+            </button>
             <div className="hdr-user">
-              <div className="av" style={{background: user.color || 'var(--gold)'}}>{user.initial || user.name?.charAt(0)}</div>
-              <div className="info"><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
+              <div className="av" style={{background:user.color||'var(--gold)'}}>{user.initial||user.name?.charAt(0)}</div>
+              <div><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
             </div>
             <button className="btn-logout" onClick={logout}>로그아웃</button>
           </div>
         </div>
         <div className="content">
-          <div className="sub-tabs">
-            {SUB_TABS[menu].map((tab, i) => (
-              <div key={i} className={`sub-tab ${subTab===i?'active':''}`} onClick={() => setSubTab(i)}>{tab}</div>
-            ))}
-          </div>
-          <div className="page" key={menu+'-'+subTab}>
-            {renderContent()}
-          </div>
+          <div className="sub-tabs">{SUB_TABS[menu].map((tab,i)=>(<div key={i} className={`sub-tab ${subTab===i?'active':''}`} onClick={()=>setSub(i)}>{tab}</div>))}</div>
+          <div className="page" key={menu+'-'+subTab}>{renderContent()}</div>
         </div>
       </div>
-    </React.Fragment>
+    </ThemeCtx.Provider>
   );
 }
 
-// ─── RENDER ───
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
   </script>
 </body>
 </html>

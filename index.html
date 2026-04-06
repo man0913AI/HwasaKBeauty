@@ -675,7 +675,7 @@
 
         
         /* FOOTER */
-        .footer-slim { background: #111; border-top: 1px solid rgba(184,149,106,0.3); padding: 16px 0; }
+        .footer-slim { background: #111; border-top: 1px solid rgba(184,149,106,0.3); padding: 16px 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
         .footer-inner { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #ccc; }
         .footer-inner a { color: #B8956A; text-decoration: none; transition: color 0.3s; }
         .footer-inner a:hover { color: #d4b58a; }
@@ -858,7 +858,10 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="footer-slim">
+
+    <!-- SCRIPTS -->
+    </div><!-- scroll-container -->
+<footer class="footer-slim">
         <div class="footer-inner">
             <span>© 2026 Hwasa K-Beauty</span>
             <span class="footer-sep">|</span>
@@ -871,9 +874,6 @@
             <a href="erp.html" class="footer-erp-link">ERP</a>
         </div>
     </footer>
-
-    <!-- SCRIPTS -->
-    </div><!-- scroll-container -->
     <script>
         // Loader with date counter
         window.addEventListener('load', () => {

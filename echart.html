@@ -70,23 +70,27 @@
         .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; z-index: 1001; background: none; border: none; }
         .menu-toggle span { display: block; width: 24px; height: 1px; background: #fff; }
 
-        /* ========== WRAPPER — 고정, 스크롤 없음 ========== */
+        /* ========== WRAPPER — 스크롤 가능 ========== */
         .echart-wrapper {
-            position: fixed;
-            top: 80px; left: 0; right: 0; bottom: 0;
-            z-index: 3;
-            display: flex;
-            flex-direction: column;
-            max-width: 640px;
+            position: relative;
+            max-width: 680px;
             margin: 0 auto;
+            padding-top: 90px;
+            padding-bottom: 40px;
             width: 100%;
+            z-index: 3;
         }
 
-        /* ========== PROGRESS BAR ========== */
+        /* ========== PROGRESS BAR — 상단 고정 ========== */
         .progress-section {
-            background: transparent;
-            padding: 34px 16px 8px;
-            flex-shrink: 0;
+            position: fixed;
+            top: 80px; left: 0; right: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            padding: 14px 16px 10px;
+            z-index: 50;
+            max-width: 680px;
+            margin: 0 auto;
         }
         .echart-header .label {
             font-family: var(--font-nav); font-size: 11px; letter-spacing: 5px;
@@ -110,7 +114,7 @@
         .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .progress-step .dot {
             width: 32px; height: 32px; border-radius: 50%;
-            border: 2px solid rgba(0,0,0,0.25);
+            border: 2px solid rgba(255,255,255,0.3);
             display: flex; align-items: center; justify-content: center;
             font-family: var(--font-nav); font-size: 12px; font-weight: 600;
             color: #fff; background: transparent;
@@ -139,21 +143,21 @@
         .progress-line.done .fill { width: 100%; background: var(--color-success); }
 
         /* ========== FORM AREA ========== */
-        .form-area { flex: 1; padding: 34px 16px 64px; max-width: 100%; width: 100%; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
-        .form-area::-webkit-scrollbar { display: none; }
-        .form-area { scrollbar-width: none; }
+        .form-area { padding: 70px 16px 40px; max-width: 100%; width: 100%; box-sizing: border-box; }
         .form-page {
-            display: none; opacity: 0; transform: translateX(30px);
-            transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+            display: block; opacity: 1; transform: none;
+            margin-bottom: 32px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid rgba(184,149,106,0.2);
         }
-        .form-page.active { display: block; opacity: 1; transform: translateX(0); }
+        .form-page:last-child { border-bottom: none; }
         .page-title {
-            font-family: var(--font-display); font-size: 18px; font-weight: 400;
-            margin-bottom: 4px; color: #1a1a1a;
+            font-family: var(--font-display); font-size: 20px; font-weight: 400;
+            margin-bottom: 4px; color: #fff;
         }
-        .page-title em { font-style: italic; color: var(--color-accent); }
+        .page-title em { font-style: italic; color: var(--color-accent-light); }
         .page-subtitle {
-            font-size: 10px; color: #444;
+            font-size: 11px; color: #fff;
             margin-bottom: 14px; font-weight: 300;
         }
 
@@ -163,41 +167,41 @@
         .form-label {
             display: block; font-family: var(--font-nav); font-size: 9px;
             letter-spacing: 2px; text-transform: uppercase;
-            color: #1a1a1a; margin-bottom: 6px; font-weight: 600;
+            color: #fff; margin-bottom: 6px; font-weight: 600;
         }
         .form-label .required { color: var(--color-danger); margin-left: 2px; }
 
         .form-input, .form-select, .form-textarea {
             width: 100%; padding: 8px 10px;
-            border: 1px solid rgba(0,0,0,0.15); border-radius: 0;
-            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 0;
+            background: rgba(0,0,0,0.3);
             font-family: var(--font-body); font-size: 12px;
-            color: #1a1a1a; transition: border-color 0.3s, box-shadow 0.3s;
+            color: #fff; transition: border-color 0.3s, box-shadow 0.3s;
             outline: none; -webkit-appearance: none;
         }
         .form-input:focus, .form-select:focus, .form-textarea:focus {
             border-color: var(--color-accent);
             box-shadow: 0 0 0 3px rgba(184,149,106,0.2);
         }
-        .form-input::placeholder { color: rgba(0,0,0,0.6); }
+        .form-input::placeholder { color: rgba(255,255,255,0.4); }
         .form-textarea { resize: vertical; min-height: 64px; }
         .form-select {
             cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;
         }
-        .form-select option { background: #fff; color: #1a1a1a; }
+        .form-select option { background: #1a1a1a; color: #fff; }
 
         /* ========== CHECK ITEMS — 반투명 ========== */
         .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
         .check-item {
             display: flex; align-items: center; gap: 8px;
             padding: 6px 10px;
-            border: 1px solid rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.15);
             cursor: pointer; transition: all 0.3s;
-            background: transparent;
+            background: rgba(0,0,0,0.2);
         }
-        .check-item:hover { border-color: #1a1a1a; background: rgba(255,255,255,0.3); }
+        .check-item:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.08); }
         .check-item.selected {
             border-color: var(--color-accent);
             background: rgba(184,149,106,0.2);
@@ -205,7 +209,7 @@
         .check-item input { display: none; }
         .check-dot {
             width: 14px; height: 14px; border-radius: 50%;
-            border: 2px solid rgba(0,0,0,0.25);
+            border: 2px solid rgba(255,255,255,0.3);
             display: flex; align-items: center; justify-content: center;
             transition: all 0.3s; flex-shrink: 0;
         }
@@ -213,9 +217,9 @@
         .check-dot::after { content: '✓'; font-size: 8px; color: #fff; opacity: 0; transition: opacity 0.2s; }
         .check-item.selected .check-dot::after { opacity: 1; }
         .check-square .check-dot { border-radius: 3px; }
-        .check-label { font-size: 10px; font-weight: 400; color: #1a1a1a; }
+        .check-label { font-size: 10px; font-weight: 400; color: #fff; }
 
-        .form-divider { height: 1px; background: rgba(0,0,0,0.1); margin: 12px 0; }
+        .form-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 12px 0; }
         .form-section-title {
             font-family: var(--font-nav); font-size: 10px; letter-spacing: 3px;
             text-transform: uppercase; color: var(--color-accent);
@@ -224,45 +228,34 @@
 
         /* ========== VISIT CARD — 반투명 ========== */
         .visit-card {
-            border: 1px solid rgba(0,0,0,0.1); padding: 19px; margin-bottom: 12px;
-            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15); padding: 19px; margin-bottom: 12px;
+            background: rgba(0,0,0,0.2);
         }
         .visit-card-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.1);
+            margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .visit-card-date { font-family: var(--font-nav); font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #1a1a1a; }
+        .visit-card-date { font-family: var(--font-nav); font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #fff; }
         .visit-card-badge {
             font-family: var(--font-nav); font-size: 10px; letter-spacing: 1px;
             text-transform: uppercase; padding: 4px 12px;
             background: rgba(184,149,106,0.25); color: var(--color-accent-light);
         }
 
-        /* ========== BOTTOM NAV — 반투명 ========== */
-        .bottom-nav-full {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: transparent;
-            border-top: 1px solid rgba(0,0,0,0.1); z-index: 200;
+        /* ========== SAVE AREA ========== */
+        .save-area {
+            text-align: center; padding: 32px 16px 60px;
         }
-        .bottom-nav-inner {
-            max-width: 640px; margin: 0 auto; padding: 10px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .page-indicator { font-family: var(--font-nav); font-size: 12px; letter-spacing: 1px; color: #1a1a1a; }
-        .page-indicator strong { color: var(--color-accent-light); }
-        .btn-nav {
-            padding: 10px 24px; font-family: var(--font-nav); font-size: 11px;
-            letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+        .btn-save-main {
+            display: inline-block; padding: 16px 60px;
+            background: var(--color-accent); color: #fff;
+            font-family: var(--font-nav); font-size: 14px;
+            letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
+            border: none; cursor: pointer;
             transition: all 0.3s var(--ease-smooth);
         }
-        .btn-prev { color: #1a1a1a; border: 1px solid rgba(0,0,0,0.2); background: rgba(255,255,255,0.5); }
-        .btn-prev:hover { border-color: #1a1a1a; color: #1a1a1a; background: rgba(255,255,255,0.8); }
-        .btn-next { background: var(--color-accent); color: #fff; }
-        .btn-next:hover { background: #A07D56; }
-        .btn-pulse { animation: pulse-gold 0.8s ease-in-out infinite; }
-        @keyframes pulse-gold { 0%,100%{box-shadow:0 0 0 0 rgba(184,149,106,0.5)} 50%{box-shadow:0 0 0 8px rgba(184,149,106,0)} }
-        .btn-submit { background: var(--color-success); color: #fff; padding: 12px 40px; }
-        .btn-submit:hover { background: #43A047; }
+        .btn-save-main:hover { background: #A07D56; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(184,149,106,0.3); }
+        .bottom-nav-full { display: none; }
 
         /* ========== SUCCESS ========== */
         .success-screen { display: none; text-align: center; padding: 80px 24px; }
@@ -283,9 +276,10 @@
         .btn-home:hover { background: #fff; color: #000; }
 
         #summaryContent {
-            background: transparent !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: #1a1a1a;
+            background: rgba(0,0,0,0.3) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            color: #fff;
+            padding: 20px;
         }
 
         /* ========== RESPONSIVE ========== */
@@ -343,8 +337,9 @@
         }
         .body-map-checks { flex: 1; }
 
-        /* ========== 전체 고정, 스크롤 없음 ========== */
-        html, body { overflow: hidden; height: 100%; margin: 0; }
+        /* ========== 스크롤 허용 ========== */
+        html { scroll-behavior: smooth; }
+        body { overflow-y: auto; overflow-x: hidden; min-height: 100vh; margin: 0; }
         
         /* FOOTER */
         
@@ -690,13 +685,18 @@
             </div>
 
             <div class="success-screen" id="successScreen"><div class="success-icon">✓</div><h2>저장 완료</h2><p>E-Chart가 성공적으로 저장되었습니다.<br>클라우드에 동기화되면 ERP 시스템에서 확인하실 수 있습니다.</p><a href="index.html" class="btn-home">홈으로 돌아가기</a></div>
-        </div>
 
-        <div class="bottom-nav-full" id="bottomNav"><div class="bottom-nav-inner">
-            <button class="btn-nav btn-prev" id="btnPrev" onclick="prevPage()">← 이전</button>
-            <span class="page-indicator"><strong id="currentPageNum">1</strong> / 5</span>
-            <button class="btn-nav btn-next" id="btnNext" onclick="nextPage()">다음 →</button>
-        </div></div>
+            <!-- 저장 버튼 -->
+            <div class="save-area" id="saveArea">
+                <div style="margin-bottom:16px">
+                    <label style="display:flex;align-items:center;gap:8px;justify-content:center;cursor:pointer;color:#fff;font-size:12px;">
+                        <input type="checkbox" id="consentCheck2" style="accent-color:var(--color-accent);width:16px;height:16px;">
+                        개인정보 수집 및 이용에 동의합니다
+                    </label>
+                </div>
+                <button class="btn-save-main" onclick="submitFormScroll()">저장하기</button>
+            </div>
+        </div>
     </div>
 
 
@@ -715,33 +715,62 @@
         </div>
     </footer>
     <script>
-        let currentPage=1;const totalPages=5;
+        // 오늘 날짜 표시
         document.getElementById('todayDate').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-        function goToPage(p){if(p<1||p>totalPages)return;const c=document.getElementById('page'+currentPage);if(c)c.classList.remove('active');currentPage=p;const t=document.getElementById('page'+currentPage);if(t){t.classList.add('active');const fa=document.querySelector('.form-area');if(fa)fa.scrollTop=0;}updateProgress();updateButtons();if(currentPage===5)generateSummary()}
-        function nextPage(){if(currentPage===5){submitForm();return}goToPage(currentPage+1)}
-        function prevPage(){goToPage(currentPage-1)}
-        function updateProgress(){document.querySelectorAll('.progress-step').forEach((s,i)=>{const n=i+1;s.classList.remove('active','done');if(n===currentPage)s.classList.add('active');else if(n<currentPage)s.classList.add('done')});for(let i=1;i<totalPages;i++){const l=document.getElementById('line'+i);if(l){l.classList.toggle('done',i<currentPage);l.querySelector('.fill').style.width=i<currentPage?'100%':'0%'}}document.getElementById('currentPageNum').textContent=currentPage}
-        function updateButtons(){document.getElementById('btnPrev').style.visibility=currentPage===1?'hidden':'visible';const n=document.getElementById('btnNext');if(currentPage===totalPages){n.textContent='저장하기 ✓';n.className='btn-nav btn-submit'}else{n.textContent='다음 →';n.className='btn-nav btn-next'}}
+
+        // 프로그레스 바: 스크롤 위치에 따라 현재 섹션 하이라이트
+        function updateProgressOnScroll() {
+            const pages = document.querySelectorAll('.form-page');
+            const steps = document.querySelectorAll('.progress-step');
+            const lines = [];
+            for(let i=1;i<5;i++) { const l=document.getElementById('line'+i); if(l) lines.push(l); }
+            let activeIdx = 0;
+            pages.forEach((p, i) => {
+                const rect = p.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.5) activeIdx = i;
+            });
+            steps.forEach((s, i) => {
+                s.classList.remove('active','done');
+                if (i === activeIdx) s.classList.add('active');
+                else if (i < activeIdx) s.classList.add('done');
+            });
+            lines.forEach((l, i) => {
+                l.classList.toggle('done', i < activeIdx);
+                l.querySelector('.fill').style.width = i < activeIdx ? '100%' : '0%';
+            });
+        }
+        window.addEventListener('scroll', updateProgressOnScroll);
+        updateProgressOnScroll();
+
+        // 프로그레스 스텝 클릭 → 해당 섹션으로 스크롤
+        function goToPage(p) {
+            const el = document.getElementById('page'+p);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 체크박스/라디오
         function toggleCheck(el){el.classList.toggle('selected');const inp=el.querySelector('input');if(inp)inp.checked=el.classList.contains('selected')}
         function toggleRadio(el,gid){document.getElementById(gid).querySelectorAll('.check-item').forEach(i=>i.classList.remove('selected'));el.classList.add('selected');el.querySelector('input').checked=true}
         function getSelected(id){return Array.from(document.querySelectorAll('#'+id+' .check-item.selected .check-label')).map(e=>e.textContent).join(', ')||'미선택'}
         function getVal(id){const el=document.getElementById(id);if(!el)return'';if(el.tagName==='SELECT')return el.options[el.selectedIndex]?.text||'';return el.value||''}
-        function generateSummary(){const s=(t,c)=>'<div style="margin-bottom:20px"><div style="font-family:var(--font-nav);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--color-accent-light);margin-bottom:10px;font-weight:600">'+t+'</div><div style="font-size:13px;line-height:2;color:#fff">'+c+'</div></div><div style="height:1px;background:rgba(255,255,255,0.1);margin:16px 0"></div>';document.getElementById('summaryContent').innerHTML=s('기본 정보','<b>이름:</b> '+getVal('nameKr')+' ('+getVal('nameEn')+')<br><b>전화:</b> '+getVal('phone')+'<br><b>성별:</b> '+getVal('gender')+' · <b>국적:</b> '+getVal('nationality')+' · <b>연령대:</b> '+getVal('ageRange')+'<br><b>방문경로:</b> '+getVal('visitSource')+' · <b>지역:</b> '+getVal('area'))+s('피부 분석','<b>피부타입:</b> '+getSelected('skinType')+'<br><b>피부고민:</b> '+getSelected('skinConcerns')+'<br><b>알레르기:</b> '+getSelected('allergyList')+'<br><b>복용약물:</b> '+getSelected('medicationList')+'<br><b>스킨케어:</b> '+getSelected('skincareBrand')+'<br><b>특이사항:</b> '+getSelected('specialCondition'))+s('관리 부위','<b>얼굴:</b> '+getSelected('faceArea')+'<br><b>바디:</b> '+getSelected('bodyArea')+'<br><b>프로그램:</b> '+getSelected('programs')+'<br><b>선호시간:</b> '+getSelected('preferTime'))+s('시술 기록','<b>날짜:</b> '+document.getElementById('todayDate').textContent+'<br><b>회차:</b> '+getVal('visitCount')+' · <b>담당:</b> '+getVal('therapist')+'<br><b>시술항목:</b> '+getSelected('treatmentItems')+'<br><b>시간:</b> '+getVal('duration')+' · <b>금액:</b> '+getVal('payment')+'<br><b>피부반응:</b> '+getSelected('skinReaction')+'<br><b>홈케어:</b> '+getSelected('homecareAdvice')+'<br><b>다음예약:</b> '+getVal('nextVisit')+' · <b>추천관리:</b> '+getVal('nextTreatment'))}
-        function submitForm(){if(!document.getElementById('consentCheck').checked){alert('동의를 체크해 주세요.');return}const d={ts:new Date().toISOString(),basic:{nameKr:getVal('nameKr'),nameEn:getVal('nameEn'),phone:getVal('phone'),birth:getVal('birthdate'),gender:getVal('gender'),nation:getVal('nationality'),area:getVal('area'),age:getVal('ageRange'),firstVisit:getVal('firstVisit'),source:getVal('visitSource')},skin:{type:getSelected('skinType'),concerns:getSelected('skinConcerns'),allergy:getSelected('allergyList'),medication:getSelected('medicationList'),brand:getSelected('skincareBrand'),condition:getSelected('specialCondition')},areas:{face:getSelected('faceArea'),body:getSelected('bodyArea'),programs:getSelected('programs'),time:getSelected('preferTime')},visit:{date:new Date().toISOString().split('T')[0],count:getVal('visitCount'),therapist:getVal('therapist'),items:getSelected('treatmentItems'),duration:getVal('duration'),payment:getVal('payment'),reaction:getSelected('skinReaction'),homecare:getSelected('homecareAdvice'),nextVisit:getVal('nextVisit'),nextTreatment:getVal('nextTreatment')}};console.log('📋 E-Chart:',JSON.stringify(d,null,2));document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active'));document.getElementById('successScreen').classList.add('active');document.getElementById('bottomNav').style.display='none'}
+
+        // 저장 (스크롤 버전)
+        function submitFormScroll(){
+            const cb = document.getElementById('consentCheck2');
+            if(!cb || !cb.checked){alert('개인정보 수집 동의를 체크해 주세요.');return;}
+            const d={ts:new Date().toISOString(),basic:{nameKr:getVal('nameKr'),nameEn:getVal('nameEn'),phone:getVal('phone'),birth:getVal('birthdate'),gender:getVal('gender'),nation:getVal('nationality'),area:getVal('area'),age:getVal('ageRange'),firstVisit:getVal('firstVisit'),source:getVal('visitSource')},skin:{type:getSelected('skinType'),concerns:getSelected('skinConcerns'),allergy:getSelected('allergyList'),medication:getSelected('medicationList'),brand:getSelected('skincareBrand'),condition:getSelected('specialCondition')},areas:{face:getSelected('faceArea'),body:getSelected('bodyArea'),programs:getSelected('programs'),time:getSelected('preferTime')},visit:{date:new Date().toISOString().split('T')[0],count:getVal('visitCount'),therapist:getVal('therapist'),items:getSelected('treatmentItems'),duration:getVal('duration'),payment:getVal('payment'),reaction:getSelected('skinReaction'),homecare:getSelected('homecareAdvice'),nextVisit:getVal('nextVisit'),nextTreatment:getVal('nextTreatment')}};
+            console.log('E-Chart:', JSON.stringify(d, null, 2));
+            // 성공 화면 표시
+            document.querySelectorAll('.form-page').forEach(p=>p.style.display='none');
+            document.getElementById('saveArea').style.display='none';
+            document.getElementById('successScreen').classList.add('active');
+            window.scrollTo({top:0,behavior:'smooth'});
+        }
+
+        // 바디맵
         function toggleBodyMap(svgEl, partKey, label) {
-            // Toggle all SVG parts with same partKey across both maps
-            document.querySelectorAll('.bm-part[data-part^="'+partKey+'"]').forEach(p=>{
-                if(p.dataset.part===svgEl.dataset.part || p.dataset.part===partKey ||
-                   p.dataset.part===partKey+'-l'||p.dataset.part===partKey+'-r'||
-                   p.dataset.part===partKey+'-lb'||p.dataset.part===partKey+'-rb'||
-                   p.dataset.part===partKey+'-b') {
-                    p.classList.toggle('bm-active', svgEl.classList.contains('bm-active') || !svgEl.classList.contains('bm-active'));
-                }
-            });
-            // Sync all matching parts to same state
             const isNowActive = !svgEl.classList.contains('bm-active');
             document.querySelectorAll('[data-part^="'+partKey+'"]').forEach(p=>{ p.classList.toggle('bm-active', isNowActive); });
-            // Sync checkbox
             const cb = document.getElementById('bmc-'+partKey);
             if(cb) { cb.classList.toggle('selected', isNowActive); const inp=cb.querySelector('input'); if(inp) inp.checked=isNowActive; }
         }
@@ -750,22 +779,9 @@
             const isActive = cb && cb.classList.contains('selected');
             document.querySelectorAll('[data-part^="'+partKey+'"]').forEach(p=>p.classList.toggle('bm-active', isActive));
         }
-        // 스크롤 바닥 → 다음 페이지
-        (function(){
-            const fa = document.querySelector('.form-area');
-            if(!fa) return;
-            fa.addEventListener('scroll', function(){
-                if(this.scrollHeight - this.scrollTop <= this.clientHeight + 32) {
-                    const btn = document.getElementById('btnNext');
-                    if(btn) btn.classList.add('btn-pulse');
-                } else {
-                    const btn = document.getElementById('btnNext');
-                    if(btn) btn.classList.remove('btn-pulse');
-                }
-            });
-        })();
+
+        // 모바일 메뉴
         function toggleMenu(){const n=document.getElementById('nav');n.style.display=n.style.display==='flex'?'none':'flex';if(window.innerWidth<=768&&n.style.display==='flex'){n.style.cssText='display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;gap:28px;';n.querySelectorAll('a').forEach(a=>{a.style.color='#fff';a.style.fontSize='18px'})}}
-        updateButtons();
     </script>
 </body>
 </html>

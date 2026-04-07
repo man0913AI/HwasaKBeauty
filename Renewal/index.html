@@ -12,75 +12,55 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
   <style>
-:root {
-  --accent:#B8956A;--accent-light:#D4B896;--accent-dark:#A07D56;
-  --font-display:'Cormorant Garamond',Georgia,serif;
-  --font-body:'Noto Sans KR',sans-serif;
-  --font-nav:'Instrument Sans',sans-serif;
-  --ease:cubic-bezier(0.25,0.46,0.45,0.94);--ease-out:cubic-bezier(0.16,1,0.3,1);
-}
+:root{--accent:#B8956A;--accent-light:#D4B896;--accent-dark:#A07D56;--font-display:'Cormorant Garamond',Georgia,serif;--font-body:'Noto Sans KR',sans-serif;--font-nav:'Instrument Sans',sans-serif;--ease:cubic-bezier(0.25,0.46,0.45,0.94);--ease-out:cubic-bezier(0.16,1,0.3,1);}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:smooth;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 body{font-family:var(--font-body);background:#000;color:#fff;line-height:1.6;overflow:hidden;height:100%;}
-a{text-decoration:none;color:inherit;}
-button{border:none;background:none;cursor:pointer;font-family:inherit;}
-img{max-width:100%;display:block;}
-#root{height:100%;}
+a{text-decoration:none;color:inherit;}button{border:none;background:none;cursor:pointer;font-family:inherit;}img{max-width:100%;display:block;}#root{height:100%;}
 
-/* BG */
 .bg-video-wrap{position:fixed;inset:0;z-index:-2;overflow:hidden;}
 .bg-video-wrap video{width:100%;height:100%;object-fit:cover;}
-.bg-overlay{position:fixed;inset:0;z-index:-1;pointer-events:none;}
-.bg-overlay-static{background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.6) 35%,rgba(0,0,0,0.35) 60%,rgba(0,0,0,0.18) 80%,rgba(0,0,0,0.08) 100%);}
+.bg-overlay{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(0,0,0,.82) 0%,rgba(0,0,0,.6) 35%,rgba(0,0,0,.35) 60%,rgba(0,0,0,.18) 80%,rgba(0,0,0,.08) 100%);}
 
-/* HEADER */
 .header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 48px 0 20px;height:80px;display:flex;align-items:center;justify-content:space-between;background:transparent;}
 .logo-img{height:68px;width:auto;filter:invert(1) brightness(2);transition:opacity .3s;cursor:pointer;}
 .nav{display:flex;align-items:center;gap:20px;}
-.nav a,.nav-link{font-family:var(--font-nav);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#fff;transition:color .3s;font-weight:700;cursor:pointer;background:none;border:none;white-space:nowrap;}
-.nav a:hover,.nav-link:hover,.nav a.active,.nav-link.active{color:var(--accent);}
+.nav-link{font-family:var(--font-nav);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#fff;transition:color .3s;font-weight:700;cursor:pointer;background:none;border:none;white-space:nowrap;}
+.nav-link:hover,.nav-link.active{color:var(--accent);}
 .nav-cta{padding:10px 24px;border:1px solid var(--accent);color:var(--accent)!important;font-size:11px!important;}
 .nav-cta:hover{background:var(--accent);color:#fff!important;}
 .menu-toggle{display:none;flex-direction:column;gap:6px;cursor:pointer;z-index:1001;background:none;border:none;}
 .menu-toggle span{display:block;width:28px;height:1px;background:#fff;transition:all .3s;}
 
-/* SIDE NAV */
-.side-nav{position:fixed;right:0;top:80px;z-index:100;display:flex;flex-direction:column;align-items:flex-end;gap:0;background:transparent;}
-.side-nav a,.side-link{display:block;padding:12px 14px;font-family:var(--font-nav);font-size:10px;letter-spacing:2px;color:#fff;text-decoration:none;transition:color .3s,background .3s;text-transform:uppercase;text-align:right;cursor:pointer;background:none;border:none;}
+.side-nav{position:fixed;right:0;top:80px;z-index:100;display:flex;flex-direction:column;align-items:flex-end;background:transparent;}
+.side-link{display:block;padding:12px 14px;font-family:var(--font-nav);font-size:10px;letter-spacing:2px;color:#fff;transition:color .3s,background .3s;text-transform:uppercase;text-align:right;cursor:pointer;background:none;border:none;}
 .side-link:hover{color:var(--accent);background:rgba(0,0,0,.3);}
+.side-link.active{color:var(--accent);}
 
-/* SCROLL CONTAINER */
-.scroll-ct{position:fixed;top:80px;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden;z-index:1;}
-.scroll-ct::-webkit-scrollbar{display:none;}.scroll-ct{scrollbar-width:none;}
+.scroll-ct{position:fixed;top:80px;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden;z-index:1;scroll-behavior:smooth;}
+.scroll-ct::-webkit-scrollbar{width:4px;}.scroll-ct::-webkit-scrollbar-thumb{background:rgba(184,149,106,.3);border-radius:2px;}.scroll-ct::-webkit-scrollbar-track{background:transparent;}
 
-/* FOOTER */
 .footer-slim{position:fixed;bottom:0;left:0;right:0;z-index:100;background:transparent;padding:16px 0;}
 .footer-inner{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;font-family:var(--font-nav);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;}
 .footer-inner a,.footer-link{color:#fff;text-decoration:none;transition:color .3s;cursor:pointer;background:none;border:none;font-family:var(--font-nav);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
 .footer-inner a:hover,.footer-link:hover{color:var(--accent);}
 .footer-sep{color:rgba(255,255,255,.4);}
 
-/* COMMON */
 .section{max-width:1100px;margin:0 auto;padding:80px 48px;}
 .section-label{font-family:var(--font-nav);font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--accent-light);margin-bottom:12px;}
 .section-title{font-family:var(--font-display);font-size:clamp(28px,4vw,48px);font-weight:300;color:#fff;margin-bottom:8px;line-height:1.2;}
 .section-title em{font-style:italic;color:var(--accent-light);}
 .section-desc{font-size:14px;color:#fff;font-weight:300;max-width:600px;line-height:1.8;margin-bottom:24px;}
 .divider-line{width:40px;height:1px;background:var(--accent);margin:20px 0;}
-.btn-primary{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;font-family:var(--font-nav);font-size:12px;letter-spacing:2px;text-transform:uppercase;transition:background .3s;cursor:pointer;border:none;}
-.btn-primary:hover{background:var(--accent-dark);}
+.btn-primary{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;font-family:var(--font-nav);font-size:12px;letter-spacing:2px;text-transform:uppercase;transition:background .3s,transform .2s;cursor:pointer;border:none;}
+.btn-primary:hover{background:var(--accent-dark);transform:translateY(-1px);}
 .btn-outline{display:inline-block;padding:14px 36px;border:1px solid rgba(255,255,255,.3);color:#fff;font-family:var(--font-nav);font-size:12px;letter-spacing:2px;text-transform:uppercase;transition:all .3s;cursor:pointer;background:transparent;}
 .btn-outline:hover{background:#fff;color:#000;}
-.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s var(--ease),transform .8s var(--ease);}
-.reveal.visible{opacity:1;transform:none;}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s var(--ease),transform .8s var(--ease);}.reveal.visible{opacity:1;transform:none;}
 
-/* STATS */
 .stats-bar{display:flex;justify-content:center;gap:48px;padding:40px 0;flex-wrap:wrap;}
-.stat-item{text-align:center;}
-.stat-num{font-family:var(--font-display);font-size:42px;font-weight:300;color:var(--accent-light);letter-spacing:2px;}
-.stat-label{font-family:var(--font-nav);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:4px;}
+.stat-item{text-align:center;}.stat-num{font-family:var(--font-display);font-size:42px;font-weight:300;color:var(--accent-light);letter-spacing:2px;}.stat-label{font-family:var(--font-nav);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:4px;}
 
-/* SERVICE CARDS */
 .service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;}
 .service-card{border:1px solid rgba(255,255,255,.08);padding:40px 28px;transition:border-color .3s,transform .3s;cursor:default;}
 .service-card:hover{border-color:var(--accent);transform:translateY(-4px);}
@@ -88,14 +68,12 @@ img{max-width:100%;display:block;}
 .service-name{font-family:var(--font-display);font-size:22px;font-weight:400;margin-bottom:10px;}
 .service-desc{font-size:13px;color:rgba(255,255,255,.8);line-height:1.7;}
 
-/* ABOUT */
 .about-grid{display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:center;}
 .about-img{width:250px;height:250px;border-radius:50%;overflow:hidden;border:2px solid var(--accent);margin:0 auto;}
 .about-img img{width:100%;height:100%;object-fit:cover;}
 .about-name{font-family:var(--font-display);font-size:28px;font-weight:400;margin-bottom:8px;}
 .about-text{font-size:14px;line-height:2;color:rgba(255,255,255,.85);}
 
-/* DIPLOMA */
 .diploma-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:24px;}
 .diploma-card{border:1px solid rgba(255,255,255,.08);overflow:hidden;cursor:pointer;transition:border-color .3s,transform .3s;}
 .diploma-card:hover{border-color:var(--accent);transform:translateY(-2px);}
@@ -103,702 +81,365 @@ img{max-width:100%;display:block;}
 .diploma-caption{padding:10px 12px;font-size:11px;color:rgba(255,255,255,.7);}
 .diploma-caption strong{color:#fff;display:block;margin-bottom:2px;}
 
-/* PROGRAM */
 .prog-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
 .prog-tab{font-family:var(--font-nav);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:1px solid rgba(184,149,106,.3);border-radius:20px;color:#fff;cursor:pointer;transition:all .25s;background:transparent;}
 .prog-tab:hover,.prog-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 .prog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
-.prog-card{border:1px solid rgba(255,255,255,.08);padding:24px;transition:border-color .3s;}
-.prog-card:hover{border-color:var(--accent);}
-.prog-card h3{font-family:var(--font-display);font-size:20px;font-weight:300;margin-bottom:8px;}
-.prog-card h3 em{color:var(--accent-light);font-style:italic;}
+.prog-card{border:1px solid rgba(255,255,255,.08);padding:24px;transition:border-color .3s;}.prog-card:hover{border-color:var(--accent);}
+.prog-card h3{font-family:var(--font-display);font-size:20px;font-weight:300;margin-bottom:8px;}.prog-card h3 em{color:var(--accent-light);font-style:italic;}
 .prog-card p{font-size:12px;color:#fff;line-height:1.7;margin-bottom:12px;}
 .prog-tag{display:inline-block;font-family:var(--font-nav);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border:1px solid rgba(184,149,106,.3);color:var(--accent);border-radius:20px;margin:0 4px 4px 0;}
-.prog-price{font-size:13px;font-weight:600;color:var(--accent-light);margin-top:10px;}
 
-/* SHOP */
 .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;}
-.product-card{border:1px solid rgba(255,255,255,.08);overflow:hidden;transition:border-color .3s;}
-.product-card:hover{border-color:var(--accent);}
+.product-card{border:1px solid rgba(255,255,255,.08);overflow:hidden;transition:border-color .3s;}.product-card:hover{border-color:var(--accent);}
 .product-img{height:200px;background:#070707;display:flex;align-items:center;justify-content:center;font-size:56px;}
-.product-body{padding:20px;}
-.product-name{font-family:var(--font-display);font-size:18px;margin-bottom:6px;}
-.product-desc-text{font-size:12px;color:#fff;line-height:1.7;margin-bottom:10px;}
-.product-price{font-family:var(--font-nav);font-size:16px;font-weight:600;color:var(--accent);}
+.product-body{padding:20px;}.product-name{font-family:var(--font-display);font-size:18px;margin-bottom:6px;}
+.product-desc-text{font-size:12px;color:#fff;line-height:1.7;margin-bottom:10px;}.product-price{font-family:var(--font-nav);font-size:16px;font-weight:600;color:var(--accent);}
 
-/* CONTACT */
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
 .contact-card{border:1px solid rgba(255,255,255,.08);padding:24px;}
 .contact-card h3{font-family:var(--font-nav);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
-.contact-info{font-size:13px;line-height:2;color:#fff;}
-.contact-link{color:var(--accent-light);text-decoration:underline;}
+.contact-info{font-size:13px;line-height:2;color:#fff;}.contact-link{color:var(--accent-light);text-decoration:underline;}
 
-/* TV FRAME (selfbeauty) */
 .tv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px;}
-.tv-wrap{position:relative;background:linear-gradient(145deg,#c7a78a,#e8d5c0,#b8956a,#d4b896);border-radius:18px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
-.tv-screen{border-radius:10px;overflow:hidden;background:#000;}
-.tv-screen video{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;}
+.tv-wrap{background:linear-gradient(145deg,#c7a78a,#e8d5c0,#b8956a,#d4b896);border-radius:18px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.tv-screen{border-radius:10px;overflow:hidden;background:#000;}.tv-screen video{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;}
 .tv-empty{width:100%;aspect-ratio:9/16;background:#070707;display:flex;align-items:center;justify-content:center;}
-.tv-plus{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.07);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;}
+.tv-plus{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;}
 
-/* MARBLE (letter) */
 .marble-grid{display:flex;flex-direction:column;gap:40px;max-width:700px;margin:0 auto;}
 .marble-frame{background:linear-gradient(135deg,#e8e4de,#d4cfc6,#f0ece6,#c8c0b4);border-radius:6px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.4);}
-.marble-inner{border:2px solid rgba(184,149,106,.4);border-radius:2px;overflow:hidden;}
-.marble-inner video{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;}
+.marble-inner{border:2px solid rgba(184,149,106,.4);border-radius:2px;overflow:hidden;}.marble-inner video{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;}
 
-/* TIMELINE */
 .timeline{position:relative;max-width:700px;margin:0 auto;padding:20px 0;}
 .timeline::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(184,149,106,.3);transform:translateX(-50%);}
-.tl-item{display:flex;margin-bottom:28px;position:relative;}
-.tl-item:nth-child(odd){flex-direction:row-reverse;text-align:right;}
-.tl-content{width:45%;padding:16px;}
-.tl-year{font-family:var(--font-nav);font-size:11px;letter-spacing:3px;color:var(--accent);margin-bottom:4px;}
-.tl-title{font-size:14px;font-weight:500;margin-bottom:4px;}
-.tl-desc{font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;}
+.tl-item{display:flex;margin-bottom:28px;position:relative;}.tl-item:nth-child(odd){flex-direction:row-reverse;text-align:right;}
+.tl-content{width:45%;padding:16px;}.tl-year{font-family:var(--font-nav);font-size:11px;letter-spacing:3px;color:var(--accent);margin-bottom:4px;}
+.tl-title{font-size:14px;font-weight:500;margin-bottom:4px;}.tl-desc{font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;}
 .tl-dot{position:absolute;left:50%;top:20px;width:10px;height:10px;border-radius:50%;background:var(--accent);transform:translateX(-50%);z-index:2;}
 
-/* LIGHTBOX */
-.lightbox{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;}
+.lightbox{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;cursor:pointer;}.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;}
+.modal-overlay{position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;}
+.modal-box{background:#111;border:1px solid rgba(184,149,106,.3);padding:32px;max-width:400px;width:90%;text-align:center;position:relative;}
+.modal-close{position:absolute;top:12px;right:16px;font-size:20px;color:#fff;cursor:pointer;background:none;border:none;}
 
-/* MOBILE */
 .mobile-menu{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
 .mobile-menu.open{display:flex;}
-.mobile-menu a,.mobile-menu button{font-family:var(--font-nav);font-size:18px;color:#fff;letter-spacing:2px;text-transform:uppercase;font-weight:700;background:none;border:none;cursor:pointer;}
-.mobile-menu a:hover,.mobile-menu button:hover{color:var(--accent);}
+.mobile-menu button{font-family:var(--font-nav);font-size:18px;color:#fff;letter-spacing:2px;text-transform:uppercase;font-weight:700;background:none;border:none;cursor:pointer;}
+.mobile-menu button:hover{color:var(--accent);}
+.mobile-close{position:absolute;top:24px;right:24px;font-size:28px;color:#fff;cursor:pointer;background:none;border:none;}
 
-/* LOADER */
 .loader-wrap{position:fixed;inset:0;z-index:3000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s;}
 .loader-text{font-family:var(--font-display);font-size:24px;font-weight:300;color:#fff;letter-spacing:4px;margin-bottom:16px;}
 .loader-bar{width:200px;height:2px;background:rgba(255,255,255,.1);overflow:hidden;border-radius:1px;}
 .loader-fill{height:100%;background:var(--accent);width:0;transition:width 1.5s var(--ease);}
 
-@media(max-width:1024px){.service-grid{grid-template-columns:1fr 1fr;}.about-grid{grid-template-columns:1fr;text-align:center;}.contact-grid{grid-template-columns:1fr;}}
-@media(max-width:768px){.nav{display:none;}.menu-toggle{display:flex;}.section{padding:60px 24px;}.service-grid{grid-template-columns:1fr;}.stats-bar{gap:24px;}.header{padding:0 20px;}.side-nav{display:none;}}
+.form-input{width:100%;padding:10px 12px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;font-family:inherit;outline:none;transition:border-color .3s;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(184,149,106,.15);}
+.form-input::placeholder{color:rgba(255,255,255,.4);}
+.form-select{width:100%;padding:10px 12px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;font-family:inherit;outline:none;cursor:pointer;}
+.form-select option{background:#1a1a1a;color:#fff;}
+.form-label{display:block;font-family:var(--font-nav);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:6px;font-weight:600;}
+.form-group{margin-bottom:12px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.chk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.chk-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.2);cursor:pointer;font-size:11px;color:#fff;transition:all .2s;user-select:none;}
+.chk-item:hover{border-color:rgba(255,255,255,.3);}
+.chk-item.on{border-color:var(--accent);background:rgba(184,149,106,.2);}
+.chk-dot{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);flex-shrink:0;transition:all .2s;}
+.chk-item.on .chk-dot{border-color:var(--accent);background:var(--accent);}
+.chk-round .chk-dot{border-radius:50%;}
+
+.sub-title{font-family:var(--font-nav);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin:16px 0 10px;font-weight:600;}
+
+@media(max-width:1024px){.service-grid{grid-template-columns:1fr 1fr;}.about-grid{grid-template-columns:1fr;text-align:center;}.contact-grid{grid-template-columns:1fr;}.timeline::before{left:20px;}.tl-item,.tl-item:nth-child(odd){flex-direction:row;text-align:left;}.tl-content{width:auto;flex:1;}.tl-dot{left:20px;}}
+@media(max-width:768px){.nav{display:none;}.menu-toggle{display:flex;}.section{padding:60px 24px;}.service-grid{grid-template-columns:1fr;}.stats-bar{gap:24px;}.header{padding:0 20px;}.side-nav{display:none;}.form-row{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
-const {useState,useEffect,useRef,useCallback,useMemo,createContext,useContext} = React;
+const {useState,useEffect,useRef,useCallback,useMemo} = React;
 
 /* ═══ ROUTER ═══ */
-const useHash = () => {
-  const [hash,setHash] = useState(window.location.hash.slice(1)||'/');
-  useEffect(()=>{const h=()=>setHash(window.location.hash.slice(1)||'/');window.addEventListener('hashchange',h);return()=>window.removeEventListener('hashchange',h);},[]);
-  return hash;
-};
-const navigate = (path) => { window.location.hash = path; };
+const useHash=()=>{const[h,s]=useState(location.hash.slice(1)||'/');useEffect(()=>{const f=()=>s(location.hash.slice(1)||'/');addEventListener('hashchange',f);return()=>removeEventListener('hashchange',f);},[]);return h;};
+const go=(p)=>{location.hash=p;};
 
-/* ═══ CONSTANTS ═══ */
-const NAV_ITEMS = [
-  {path:'/',label:'Home'},{path:'/diploma',label:'Diploma'},{path:'/program',label:'Program'},
-  {path:'/selfbeauty',label:'Self Beauty'},{path:'/echart',label:'E-Chart'},
-  {path:'/letter',label:'Letter'},{path:'/about',label:'About'},
-];
-const SIDE_ITEMS = [{path:'/academy',label:'Academy'},{path:'/shop',label:'Shop'},{path:'/contact',label:'Contact'}];
+/* ═══ DATA ═══ */
+const NAV=[{p:'/',l:'Home'},{p:'/diploma',l:'Diploma'},{p:'/program',l:'Program'},{p:'/selfbeauty',l:'Self Beauty'},{p:'/echart',l:'E-Chart'},{p:'/letter',l:'Letter'},{p:'/about',l:'About'}];
+const SIDE=[{p:'/academy',l:'Academy'},{p:'/shop',l:'Shop'},{p:'/contact',l:'Contact'}];
+const ALL_NAV=[...NAV,...SIDE];
 
-const STATS = [{num:22,suffix:'+',label:'Years of Experience'},{num:3500,suffix:'+',label:'Satisfied Clients'},{num:15,suffix:'+',label:'Specialized Treatments'},{num:98,suffix:'%',label:'Client Satisfaction'}];
-
-const SERVICES = [
-  {num:'01',name:'페이셜 케어',desc:'모공, 주름, 색소 등 피부 고민별 맞춤 관리'},
-  {num:'02',name:'바디 마사지',desc:'한국식 경락 마사지와 아로마 테라피'},
-  {num:'03',name:'특수 관리',desc:'리프팅, 재생, 미백 등 전문 메디컬 케어'},
-];
-
-/* ═══ BACKGROUND ═══ */
-function Background({isHome}) {
-  return (<>
-    <div className="bg-video-wrap">
-      {isHome
-        ? <video autoPlay muted loop playsInline><source src="../bg-video.mp4" type="video/mp4"/></video>
-        : <video muted playsInline preload="metadata" poster="../video-poster.jpg"
-            ref={el=>{if(el){el.currentTime=0.5;el.pause();}}}><source src="../bg-video.mp4" type="video/mp4"/></video>}
+/* ═══ SHARED COMPONENTS ═══ */
+function BG({isHome}){
+  const vRef=useCallback(el=>{if(el&&!isHome){el.currentTime=0.5;el.pause();}},[isHome]);
+  return(<>
+    <div className="bg-video-wrap">{isHome
+      ?<video autoPlay muted loop playsInline><source src="../bg-video.mp4" type="video/mp4"/></video>
+      :<video muted playsInline preload="metadata" poster="../video-poster.jpg" ref={vRef}><source src="../bg-video.mp4" type="video/mp4"/></video>}
     </div>
-    {!isHome && <div className="bg-overlay bg-overlay-static"/>}
+    {!isHome&&<div className="bg-overlay"/>}
   </>);
 }
 
-/* ═══ HEADER ═══ */
-function Header({current}) {
-  const [menuOpen,setMenuOpen] = useState(false);
-  return (<>
+function Header({cur}){
+  const[open,setOpen]=useState(false);
+  useEffect(()=>{setOpen(false);},[cur]);
+  return(<>
     <header className="header">
-      <img src="../logo.png" alt="Hwasa K-Beauty" className="logo-img" onClick={()=>navigate('/')}/>
+      <img src="../logo.png" alt="Hwasa K-Beauty" className="logo-img" onClick={()=>go('/')}/>
       <nav className="nav">
-        {NAV_ITEMS.map(n=>(
-          <button key={n.path} className={`nav-link ${current===n.path?'active':''}`} onClick={()=>navigate(n.path)}>{n.label}</button>
-        ))}
-        <button className="nav-link nav-cta" onClick={()=>navigate('/echart')}>상담 예약</button>
+        {NAV.map(n=><button key={n.p} className={`nav-link${cur===n.p?' active':''}`} onClick={()=>go(n.p)}>{n.l}</button>)}
+        <button className="nav-link nav-cta" onClick={()=>go('/echart')}>상담 예약</button>
       </nav>
-      <button className="menu-toggle" onClick={()=>setMenuOpen(!menuOpen)}><span/><span/><span/></button>
+      <button className="menu-toggle" onClick={()=>setOpen(!open)}><span/><span/><span/></button>
     </header>
-    <div className={`mobile-menu ${menuOpen?'open':''}`}>
-      {[...NAV_ITEMS,...SIDE_ITEMS].map(n=>(
-        <button key={n.path} onClick={()=>{navigate(n.path);setMenuOpen(false);}}>{n.label}</button>
-      ))}
+    <div className={`mobile-menu${open?' open':''}`}>
+      <button className="mobile-close" onClick={()=>setOpen(false)}>&times;</button>
+      {ALL_NAV.map(n=><button key={n.p} onClick={()=>go(n.p)}>{n.l}</button>)}
     </div>
   </>);
 }
 
-/* ═══ SIDEBAR ═══ */
-function Sidebar({current}) {
-  return (<div className="side-nav">
-    {SIDE_ITEMS.map(s=>(
-      <button key={s.path} className="side-link" style={current===s.path?{color:'var(--accent)'}:{}} onClick={()=>navigate(s.path)}>{s.label}</button>
-    ))}
-  </div>);
+function Side({cur}){
+  return(<div className="side-nav">{SIDE.map(s=><button key={s.p} className={`side-link${cur===s.p?' active':''}`} onClick={()=>go(s.p)}>{s.l}</button>)}</div>);
 }
 
-/* ═══ FOOTER ═══ */
-function Footer() {
-  return (<footer className="footer-slim"><div className="footer-inner">
-    <span>&copy; 2026 Hwasa K-Beauty</span>
-    <span className="footer-sep">|</span>
-    <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" rel="noreferrer">Instagram</a>
-    <span className="footer-sep">|</span>
-    <a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer">KakaoTalk</a>
-    <span className="footer-sep">|</span>
-    <button className="footer-link" onClick={()=>navigate('/contact')}>Contact</button>
-    <span className="footer-sep">|</span>
+function Footer(){
+  return(<footer className="footer-slim"><div className="footer-inner">
+    <span>&copy; 2026 Hwasa K-Beauty</span><span className="footer-sep">|</span>
+    <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" rel="noreferrer">Instagram</a><span className="footer-sep">|</span>
+    <a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer">KakaoTalk</a><span className="footer-sep">|</span>
+    <button className="footer-link" onClick={()=>go('/contact')}>Contact</button><span className="footer-sep">|</span>
     <a href="../erp.html">ERP</a>
   </div></footer>);
 }
 
-/* ═══ REVEAL HOOK ═══ */
-function useReveal() {
-  const ref = useRef(null);
+/* ═══ HOOKS ═══ */
+function useReveal(scrollRef){
   useEffect(()=>{
-    const ct = ref.current?.closest('.scroll-ct');
-    if(!ct) return;
-    const obs = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('visible');});
-    },{root:ct,threshold:0.08,rootMargin:'0px 0px -10px 0px'});
+    const ct=scrollRef?.current;if(!ct)return;
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{root:ct,threshold:0.08,rootMargin:'0px 0px -10px 0px'});
     ct.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-    return ()=>obs.disconnect();
-  });
-  return ref;
+    return()=>obs.disconnect();
+  },[scrollRef]);
 }
 
-/* ═══ COUNTER ═══ */
-function Counter({end,suffix}) {
-  const [val,setVal] = useState(0);
-  const ref = useRef(null);
+function Counter({end,suffix}){
+  const[v,setV]=useState(0);const ref=useRef(null);const started=useRef(false);
   useEffect(()=>{
-    const obs = new IntersectionObserver(([e])=>{
-      if(e.isIntersecting){
-        let start=0;const dur=1500;const t0=performance.now();
-        const tick=(now)=>{const p=Math.min((now-t0)/dur,1);setVal(Math.floor(p*end));if(p<1) requestAnimationFrame(tick);};
-        requestAnimationFrame(tick);obs.disconnect();
-      }
-    },{threshold:0.3});
-    if(ref.current) obs.observe(ref.current);
-    return ()=>obs.disconnect();
+    if(!ref.current||started.current)return;
+    const obs=new IntersectionObserver(([e])=>{if(e.isIntersecting&&!started.current){started.current=true;const t0=performance.now();const tick=now=>{const p=Math.min((now-t0)/1500,1);setV(Math.floor(p*end));if(p<1)requestAnimationFrame(tick);};requestAnimationFrame(tick);obs.disconnect();}},{threshold:0.3});
+    obs.observe(ref.current);return()=>obs.disconnect();
   },[end]);
-  return <span ref={ref}>{val.toLocaleString()}{suffix}</span>;
+  return <span ref={ref}>{v.toLocaleString()}{suffix}</span>;
 }
 
-/* ═══ PAGE: HOME ═══ */
-function HomePage() {
-  const r = useReveal();
-  return (<div className="scroll-ct" ref={r}>
+/* ═══ ECHART COMPONENTS ═══ */
+function CheckGrid({items,multi=true}){
+  const[sel,setSel]=useState(new Set());
+  const toggle=(it)=>setSel(p=>{const n=new Set(p);if(multi){n.has(it)?n.delete(it):n.add(it);}else{n.clear();n.add(it);}return n;});
+  return(<div className={`chk-grid${multi?'':' chk-round'}`}>{items.map(it=>(
+    <div key={it} className={`chk-item${sel.has(it)?' on':''}`} onClick={()=>toggle(it)}>
+      <div className="chk-dot"/>{it}
+    </div>))}</div>);
+}
+
+/* ═══ PAGES ═══ */
+function HomePage(){
+  const ref=useRef(null);useReveal(ref);
+  return(<div className="scroll-ct" ref={ref}>
     <div className="section" style={{minHeight:'calc(100vh - 80px)',display:'flex',flexDirection:'column',justifyContent:'center'}}>
       <div className="section-label">Premium Korean Skin Care in Hanoi</div>
       <h1 className="section-title" style={{fontSize:'clamp(36px,5vw,56px)'}}>Unveil Your <em>True Beauty</em></h1>
       <p className="section-desc">피부 관리 22년 경력의 전문가가 하노이에서 제공하는 정통 한국식 메디컬 스킨케어</p>
-      <div style={{display:'flex',gap:12,marginTop:8}}>
-        <button className="btn-primary" onClick={()=>navigate('/echart')}>상담 예약하기 &rarr;</button>
-        <button className="btn-outline" onClick={()=>navigate('/program')}>프로그램 보기</button>
-      </div>
+      <div style={{display:'flex',gap:12,marginTop:8}}><button className="btn-primary" onClick={()=>go('/echart')}>상담 예약하기 &rarr;</button><button className="btn-outline" onClick={()=>go('/program')}>프로그램 보기</button></div>
     </div>
-
-    <div className="section reveal">
-      <div className="section-label">Our Philosophy</div>
-      <h2 className="section-title">피부 과학과 정성이 <em>만나는 곳</em></h2>
-      <p className="section-desc">22년간 축적된 피부 관리 노하우와 한국 최신 메디컬 스킨케어 기술을 결합하여, 하노이에서 가장 신뢰할 수 있는 프리미엄 피부관리를 제공합니다.</p>
-      <button className="btn-primary" onClick={()=>navigate('/about')}>자세히보기 &rarr;</button>
+    <div className="section reveal"><div className="section-label">Our Philosophy</div><h2 className="section-title">피부 과학과 정성이 <em>만나는 곳</em></h2><p className="section-desc">22년간 축적된 피부 관리 노하우와 한국 최신 메디컬 스킨케어 기술을 결합하여, 하노이에서 가장 신뢰할 수 있는 프리미엄 피부관리를 제공합니다.</p><button className="btn-primary" onClick={()=>go('/about')}>자세히보기 &rarr;</button></div>
+    <div className="section reveal"><div className="section-label">Our Programs</div><h2 className="section-title">Signature <em>Programs</em></h2>
+      <div className="service-grid">{[{n:'01',t:'페이셜 케어',d:'모공, 주름, 색소 등 피부 고민별 맞춤 관리'},{n:'02',t:'바디 마사지',d:'한국식 경락 마사지와 아로마 테라피'},{n:'03',t:'특수 관리',d:'리프팅, 재생, 미백 등 전문 메디컬 케어'}].map(s=><div key={s.n} className="service-card"><div className="service-num">{s.n}</div><div className="service-name">{s.t}</div><div className="service-desc">{s.d}</div></div>)}</div>
     </div>
+    <div className="stats-bar reveal">{[{n:22,s:'+',l:'Years of Experience'},{n:3500,s:'+',l:'Satisfied Clients'},{n:15,s:'+',l:'Specialized Treatments'},{n:98,s:'%',l:'Client Satisfaction'}].map((s,i)=><div key={i} className="stat-item"><div className="stat-num"><Counter end={s.n} suffix={s.s}/></div><div className="stat-label">{s.l}</div></div>)}</div>
+    <div className="section reveal"><div className="section-label">E-Chart System</div><h2 className="section-title">온라인으로 간편하게 <em>피부 상담</em></h2><p className="section-desc">방문 전 온라인 E-Chart를 작성하시면, 피부 상태를 미리 분석하여 최적의 맞춤 관리 프로그램을 준비해 드립니다.</p><button className="btn-primary" onClick={()=>go('/echart')}>E-Chart 작성하기 &rarr;</button></div>
+    <div className="section reveal" style={{textAlign:'center',paddingBottom:120}}><div className="section-label">Book Now</div><h2 className="section-title">당신만의 뷰티 플랜을 <em>시작하세요</em></h2><p className="section-desc" style={{margin:'0 auto 24px'}}>지금 상담을 예약하고, 22년 경력 전문가의 프리미엄 피부관리를 경험하세요.</p><div style={{display:'flex',gap:12,justifyContent:'center'}}><button className="btn-primary" onClick={()=>go('/echart')}>상담 예약 &rarr;</button><button className="btn-outline" onClick={()=>go('/contact')}>연락하기</button></div></div>
+  </div>);
+}
 
-    <div className="section reveal">
-      <div className="section-label">Our Programs</div>
-      <h2 className="section-title">Signature <em>Programs</em></h2>
-      <div className="service-grid">
-        {SERVICES.map(s=>(<div key={s.num} className="service-card">
-          <div className="service-num">{s.num}</div>
-          <div className="service-name">{s.name}</div>
-          <div className="service-desc">{s.desc}</div>
-        </div>))}
-      </div>
+function AboutPage(){
+  const ref=useRef(null);useReveal(ref);
+  return(<div className="scroll-ct" ref={ref}>
+    <div className="section"><div className="section-label">Our Story</div><h1 className="section-title">About <em>Hwasa</em></h1><p className="section-desc">22년 경력의 전문가가 이끄는 프리미엄 한국식 피부관리</p></div>
+    <div className="section reveal"><div className="about-grid"><div style={{textAlign:'center'}}><div className="about-img"><img src="../profile-director.png" alt="원장 홍은하"/></div><div className="section-label" style={{marginTop:16}}>Director</div></div><div><div className="about-name">원장 홍은하</div><div className="divider-line"/><p className="about-text">22년간의 피부관리 전문 경력을 바탕으로 한국의 우수한 스킨케어 기술을 하노이에 전달하고 있습니다.<br/><br/>메디컬 스킨케어, 두피 트리콜로지, 얼굴윤곽 테라피, 슬리밍 바디 디톡스 등 다양한 전문 분야의 자격을 보유하고 있습니다.<br/><br/>Hwasa K-Beauty에서 정통 한국식 프리미엄 피부관리를 경험해 보세요.</p></div></div></div>
+    <div className="stats-bar reveal" style={{paddingBottom:120}}>{[{n:22,s:'+',l:'Years Experience'},{n:3500,s:'+',l:'Clients Served'},{n:15,s:'+',l:'Certifications'}].map((s,i)=><div key={i} className="stat-item"><div className="stat-num"><Counter end={s.n} suffix={s.s}/></div><div className="stat-label">{s.l}</div></div>)}</div>
+  </div>);
+}
+
+function DiplomaPage(){
+  const[lb,setLb]=useState(null);const ref=useRef(null);useReveal(ref);
+  const certs=[{img:'../images/diploma_kcea2025.jpg',t:'대한민국 문화교육대상',s:'KCEA 제25-072호 2025.12'},{img:'../images/diploma_kbeauty2015.jpg',t:'강사자격증 — 스킨케어',s:'K뷰티전문가연합회 2015.02'},{img:'../images/diploma_sookmyung2021.jpg',t:'표창장 — 숙명여자대학교',s:'뷰티최고전문가 피부강사 2021.10'},{img:'../images/diploma_goryeo2024.jpg',t:'위촉장 — 고려전문학교',s:'뷰티최고경영자과정 지도교수 2024.07'},{img:'../images/diploma_snu2018.jpg',t:'위촉장 — 서울대학교 초빙교수',s:'Beauty CEO Program 2018.11'},{img:'../images/diploma_appoint2021.jpg',t:'임명장 — 숙명여자대학교',s:'피부 전문 강사 과정 2021.10'},{img:'../images/diploma_nasaret2023.jpg',t:'임명장 — 나사렛대학교',s:'피부미용 국가자격취득 2023.02'},{img:'../cert-scalp.jpg',t:'Scalp Trichologist',s:'Professional Instructor 2020.03'},{img:'../cert-slimming.jpg',t:'Slimming Body Detox',s:'Professional Instructor 2023.05'},{img:'../cert-therapist.jpg',t:'Facial Contour Techniques',s:'Therapist Certificate 2019.05'},{img:'../images/cert_medical_skincare.jpg',t:'Medical Skin Care Lecturer',s:'Heritage Reformed College 2018.03'},{img:'../images/cert_ibes_plasma.jpg',t:'Plasma Esthetic Technique',s:'IBES 국제뷰티전문가학회 2023.04'},{img:'../director-award_.jpg',t:'원장 수상 경력',s:'피부관리 전문가 인증'},{img:'../cert-snu.jpg',t:'서울대학교 STHIS 위촉장',s:'Visiting Professor 2018.11'},{img:'../images/cert_beauty_festival.jpg',t:'Beauty Festival 위촉장',s:'Bac Ninh 2024.06'}];
+  const tl=[{y:'2025',t:'대한민국 문화교육대상',d:'KCEA 수상'},{y:'2024',t:'고려전문학교 지도교수 위촉',d:'뷰티최고경영자과정'},{y:'2023',t:'Hwasa K-Beauty 오픈',d:'하노이 미딩에 오픈'},{y:'2023',t:'나사렛대학교 외래교수',d:'피부미용 국가자격취득과정'},{y:'2021',t:'숙명여자대학교 표창장',d:'뷰티최고전문가 피부강사'},{y:'2020',t:'Scalp Trichologist 자격',d:'두피 트리콜로지 전문 강사'},{y:'2019',t:'Facial Contour Techniques',d:'얼굴윤곽 테라피 수료'},{y:'2018',t:'서울대학교 초빙교수',d:'Beauty CEO Program'},{y:'2015',t:'스킨케어 강사자격증',d:'K뷰티전문가연합회'}];
+  return(<div className="scroll-ct" ref={ref}>
+    <div className="section"><div className="section-label">Certifications &amp; Career</div><h1 className="section-title">Diploma &amp; <em>Credentials</em></h1><p className="section-desc">22년간 쌓아온 전문 자격과 교육 이수 경력을 소개합니다</p></div>
+    <div className="section reveal" style={{paddingTop:0}}>
+      <div className="diploma-grid">{certs.map((c,i)=><div key={i} className="diploma-card" onClick={()=>setLb(c.img)}><img src={c.img} alt={c.t} loading="lazy"/><div className="diploma-caption"><strong>{c.t}</strong>{c.s}</div></div>)}</div>
     </div>
-
-    <div className="stats-bar reveal">
-      {STATS.map((s,i)=>(<div key={i} className="stat-item">
-        <div className="stat-num"><Counter end={s.num} suffix={s.suffix}/></div>
-        <div className="stat-label">{s.label}</div>
-      </div>))}
+    <div className="section reveal" style={{paddingBottom:120}}>
+      <div className="section-label">Career Timeline</div><h2 className="section-title">교육 이수 <em>경력</em></h2><div className="divider-line"/>
+      <div className="timeline">{tl.map((t,i)=><div key={i} className="tl-item"><div className="tl-content"><div className="tl-year">{t.y}</div><div className="tl-title">{t.t}</div><div className="tl-desc">{t.d}</div></div><div className="tl-dot"/><div style={{width:'45%'}}/></div>)}</div>
     </div>
+    {lb&&<div className="lightbox" onClick={()=>setLb(null)}><img src={lb} alt=""/></div>}
+  </div>);
+}
 
-    <div className="section reveal">
-      <div className="section-label">E-Chart System</div>
-      <h2 className="section-title">온라인으로 간편하게 <em>피부 상담</em></h2>
-      <p className="section-desc">방문 전 온라인 E-Chart를 작성하시면, 피부 상태를 미리 분석하여 최적의 맞춤 관리 프로그램을 준비해 드립니다.</p>
-      <button className="btn-primary" onClick={()=>navigate('/echart')}>E-Chart 작성하기 &rarr;</button>
-    </div>
-
-    <div className="section reveal" style={{textAlign:'center',paddingBottom:120}}>
-      <div className="section-label">Book Now</div>
-      <h2 className="section-title">당신만의 뷰티 플랜을 <em>시작하세요</em></h2>
-      <p className="section-desc" style={{margin:'0 auto 24px'}}>지금 상담을 예약하고, 22년 경력 전문가의 프리미엄 피부관리를 경험하세요.</p>
-      <div style={{display:'flex',gap:12,justifyContent:'center'}}>
-        <button className="btn-primary" onClick={()=>navigate('/echart')}>상담 예약 &rarr;</button>
-        <button className="btn-outline" onClick={()=>navigate('/contact')}>연락하기</button>
-      </div>
+function ProgramPage(){
+  const[tab,setTab]=useState('전체');const ref=useRef(null);useReveal(ref);
+  const P=[{c:'이벤트',n:'발 마사지',d:'30분 165,000₫ / 60분 220,000₫'},{c:'이벤트',n:'바디 마사지',d:'60분 33만₫ / 90분 44만₫'},{c:'이벤트',n:'골프 케어',d:'바디 60분 + 페이스 30분 / 88만₫'},{c:'이벤트',n:'피부관리 60분',d:'클렌징/딥클렌징/마사지/영양/팩 / 44만₫'},{c:'멤버십',n:'VIP Membership',d:'CLUB 1,100만₫ / BRONZE 2,200만₫ / VVIP 3,850만₫'},{c:'콤보',n:'Hwasa Combo A/B/C',d:'페이스+바디+발 풀케어 / 87만₫~132만₫'},{c:'콤보',n:'Golf Combo A/B/C',d:'골프후 페이스+바디+발 / 87만₫~132만₫'},{c:'패키지',n:'여드름 3 Step Package',d:'15/10/6회 (2,200만/1,650만/1,100만₫)'},{c:'패키지',n:'아이돌 화이트닝',d:'12/8/5회 (1,100만/880만/550만₫)'},{c:'패키지',n:'여배우 리프팅',d:'12/8/5회 (1,100만/880만/550만₫)'},{c:'페이스',n:'Skelling-Feling 필링',d:'비건스피쿨/아쿠아필링/아이돌플래닝'},{c:'페이스',n:'Plasma Program',d:'여드름흉터 모공/멀티/에어 플라즈마'},{c:'페이스',n:'HIFU Lifting 영끌리프팅',d:'하이푸 플러스 5회/윤곽/이중턱'},{c:'페이스',n:'RF 고주파 리프팅',d:'여드름흉터 모공/볼륨/코 모공'},{c:'바디',n:'순환 바디 제로통증',d:'90분/60분/제로통증 앰플'},{c:'바디',n:'빼빼관리 슬림 부스터',d:'빼빼관리/슬림 부스터 앰플'},{c:'타투',n:'반영구 눈썹 헤어라인',d:'그라데이션/자연/콤보/페더링/전두부/헤어라인'}];
+  const tabs=['전체','이벤트','멤버십','콤보','패키지','페이스','바디','타투'];
+  const fl=tab==='전체'?P:P.filter(p=>p.c===tab);
+  return(<div className="scroll-ct" ref={ref}>
+    <div className="section"><div className="section-label">Skin Care Programs</div><h1 className="section-title">Our <em>Programs</em></h1><p className="section-desc">고객님의 피부 타입에 맞는 최적의 프로그램을 제안합니다</p></div>
+    <div className="section" style={{paddingTop:0,paddingBottom:120}}>
+      <div className="prog-tabs">{tabs.map(t=><button key={t} className={`prog-tab${tab===t?' active':''}`} onClick={()=>setTab(t)}>{t}</button>)}</div>
+      <div className="prog-grid">{fl.map((p,i)=><div key={i} className="prog-card"><div className="prog-tag">{p.c}</div><h3>{p.n}</h3><p>{p.d}</p></div>)}</div>
+      <div style={{textAlign:'center',marginTop:48}}><p style={{fontSize:14,marginBottom:20}}>정확한 가격과 상담은 카카오톡 또는 전화로 문의해 주세요</p><a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="btn-primary">카카오 상담 예약</a><p style={{fontSize:12,marginTop:20,lineHeight:1.8}}>모든관리 부가세 10% 적용 &middot; 매너팁 10만동 별도 &middot; 피부타입에 따라 맞춤케어 변경</p></div>
     </div>
   </div>);
 }
 
-/* ═══ PAGE: ABOUT ═══ */
-function AboutPage() {
-  const r = useReveal();
-  return (<div className="scroll-ct" ref={r}>
-    <div className="section">
-      <div className="section-label">Our Story</div>
-      <h1 className="section-title">About <em>Hwasa</em></h1>
-      <p className="section-desc">22년 경력의 전문가가 이끄는 프리미엄 한국식 피부관리</p>
-    </div>
-    <div className="section reveal">
-      <div className="about-grid">
-        <div style={{textAlign:'center'}}>
-          <div className="about-img"><img src="../profile-director.png" alt="원장 홍은하"/></div>
-          <div className="section-label" style={{marginTop:16}}>Director</div>
-        </div>
-        <div>
-          <div className="about-name">원장 홍은하</div>
-          <div className="divider-line"/>
-          <p className="about-text">22년간의 피부관리 전문 경력을 바탕으로 한국의 우수한 스킨케어 기술을 하노이에 전달하고 있습니다.<br/><br/>메디컬 스킨케어, 두피 트리콜로지, 얼굴윤곽 테라피, 슬리밍 바디 디톡스 등 다양한 전문 분야의 자격을 보유하고 있습니다.<br/><br/>Hwasa K-Beauty에서 정통 한국식 프리미엄 피부관리를 경험해 보세요.</p>
-        </div>
-      </div>
-    </div>
-    <div className="stats-bar reveal" style={{paddingBottom:120}}>
-      {[{n:22,s:'+',l:'Years Experience'},{n:3500,s:'+',l:'Clients Served'},{n:15,s:'+',l:'Certifications'}].map((s,i)=>(
-        <div key={i} className="stat-item"><div className="stat-num"><Counter end={s.n} suffix={s.s}/></div><div className="stat-label">{s.l}</div></div>
-      ))}
-    </div>
-  </div>);
-}
-
-/* ═══ PAGE: CONTACT ═══ */
-function ContactPage() {
-  return (<div className="scroll-ct">
-    <div className="section">
-      <div className="section-label">Contact Us</div>
-      <h1 className="section-title">Get in <em>Touch</em></h1>
-      <p className="section-desc">상담 예약 및 방문 안내</p>
-    </div>
+function ShopPage(){
+  const[tab,setTab]=useState('All');const[modal,setModal]=useState(null);
+  const P=[{c:'스킨케어',n:'Hwasa 시그니처 세럼',d:'원장 직접 선별한 고농축 재생 앰플',p:'W58,000',b:'Best',e:'💧'},{c:'스킨케어',n:'딥 모이스처 크림',d:'세라마이드 & 히알루론산 복합체',p:'W42,000',e:'🧴'},{c:'마스크팩',n:'골드 리프팅 마스크',d:'실제 금박 성분 탄력광채',p:'W35,000',b:'New',e:'✨'},{c:'마스크팩',n:'진정 바이오 마스크',d:'EGF 성장인자 홍조자극 즉각 진정',p:'W28,000',e:'🌿'},{c:'디바이스',n:'미니 RF 리프팅 디바이스',d:'가정용 고주파 디바이스',p:'W180,000',b:'Hot',e:'⚡'},{c:'세트',n:'Hwasa 스킨케어 풀 세트',d:'세럼+크림+마스크팩(5매) 구성',p:'W120,000',b:'Set',e:'🎁'}];
+  const tabs=['All','스킨케어','마스크팩','디바이스','세트'];const fl=tab==='All'?P:P.filter(x=>x.c===tab);
+  return(<div className="scroll-ct">
+    <div className="section"><div className="section-label">Online &amp; Offline</div><h1 className="section-title">Hwasa <em>Shop</em></h1><p className="section-desc">엄선된 한국 스킨케어 제품을 온라인 오프라인에서 만나보세요</p></div>
     <div className="section" style={{paddingTop:0}}>
+      <div className="prog-tabs">{tabs.map(t=><button key={t} className={`prog-tab${tab===t?' active':''}`} onClick={()=>setTab(t)}>{t}</button>)}</div>
+      <div className="product-grid">{fl.map((x,i)=><div key={i} className="product-card"><div className="product-img">{x.e}</div><div className="product-body">{x.b&&<span style={{fontSize:9,background:'var(--accent)',color:'#fff',padding:'2px 8px',borderRadius:10,marginBottom:6,display:'inline-block'}}>{x.b}</span>}<div className="product-name">{x.n}</div><div className="product-desc-text">{x.d}</div><div className="product-price">{x.p}</div><button className="btn-outline" style={{padding:'8px 16px',fontSize:10,marginTop:10}} onClick={()=>setModal(x.n)}>문의하기</button></div></div>)}</div>
+    </div>
+    <div className="section" style={{paddingTop:0,paddingBottom:120,textAlign:'center'}}><div className="section-label">구매 안내</div><h2 className="section-title">온라인 &amp; 오프라인 <em>모두 구매 가능</em></h2><p className="section-desc" style={{margin:'0 auto 24px'}}>매장 방문 구매와 카카오톡/인스타그램 DM을 통한 온라인 주문 모두 가능합니다.</p><div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}><a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="btn-primary">카카오톡 주문</a><a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" rel="noreferrer" className="btn-outline">Instagram DM</a></div></div>
+    {modal&&<div className="modal-overlay" onClick={()=>setModal(null)}><div className="modal-box" onClick={e=>e.stopPropagation()}><button className="modal-close" onClick={()=>setModal(null)}>&times;</button><h3 style={{fontFamily:'var(--font-display)',fontSize:22,marginBottom:12}}>Product Inquiry</h3><p style={{fontSize:12,marginBottom:16,color:'rgba(255,255,255,.7)'}}>"{modal}" 제품명을 알려주시면 재고 확인 및 주문 안내를 드리겠습니다.</p><div style={{display:'flex',flexDirection:'column',gap:10}}><a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="btn-primary" style={{textAlign:'center'}}>KakaoTalk 문의</a><a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" rel="noreferrer" className="btn-outline" style={{textAlign:'center'}}>Instagram DM</a></div></div></div>}
+  </div>);
+}
+
+function ContactPage(){
+  return(<div className="scroll-ct">
+    <div className="section"><div className="section-label">Contact Us</div><h1 className="section-title">Get in <em>Touch</em></h1><p className="section-desc">상담 예약 및 방문 안내</p></div>
+    <div className="section" style={{paddingTop:0,paddingBottom:120}}>
       <div className="contact-grid">
         <div>
           <div className="contact-card"><h3>Location</h3><div className="contact-info">A1, Khu Five Star My Dinh<br/>P. Tu Liem, TP. Ha Noi, Vietnam<br/>Hwasa K-Beauty</div></div>
           <div className="contact-card" style={{marginTop:16}}><h3>Hours</h3><div className="contact-info">월-일: 09:00 - 19:30<br/>금요일: - 21:00</div></div>
-          <div className="contact-card" style={{marginTop:16}}><h3>Contact</h3><div className="contact-info">
-            <a href="tel:0326842002" className="contact-link">032-684-2002</a><br/>
-            <a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="contact-link">KakaoTalk: hwasavn</a><br/>
-            <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" rel="noreferrer" className="contact-link">Instagram: @hwasa_k_beauty</a><br/>
-            <a href="https://www.google.com/maps?q=21.017912,105.7759452&z=17" target="_blank" rel="noreferrer" className="contact-link">Google Map</a>
-          </div></div>
+          <div className="contact-card" style={{marginTop:16}}><h3>Contact</h3><div className="contact-info"><a href="tel:0326842002" className="contact-link">032-684-2002</a><br/><a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="contact-link">KakaoTalk: hwasavn</a><br/><a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" rel="noreferrer" className="contact-link">Instagram: @hwasa_k_beauty</a><br/><a href="https://www.google.com/maps?q=21.017912,105.7759452&z=17" target="_blank" rel="noreferrer" className="contact-link">Google Map</a></div></div>
         </div>
-        <div>
-          <iframe src="https://maps.google.com/maps?q=Hwasa+K+Beauty+%ED%99%94%EC%82%AC%EC%BC%80%EC%9D%B4%EB%B7%B0%ED%8B%B0&t=&z=17&ie=UTF8&iwloc=&output=embed"
-            style={{width:'100%',height:'100%',minHeight:400,border:'1px solid rgba(255,255,255,.08)'}} loading="lazy"/>
-        </div>
+        <div><iframe src="https://maps.google.com/maps?q=Hwasa+K+Beauty+%ED%99%94%EC%82%AC%EC%BC%80%EC%9D%B4%EB%B7%B0%ED%8B%B0&t=&z=17&ie=UTF8&iwloc=&output=embed" style={{width:'100%',height:'100%',minHeight:400,border:'1px solid rgba(255,255,255,.08)'}} loading="lazy"/></div>
       </div>
     </div>
   </div>);
 }
 
-/* ═══ PAGE: SELF BEAUTY ═══ */
-function SelfBeautyPage() {
-  const r = useReveal();
-  return (<div className="scroll-ct" ref={r}>
-    <div className="section">
-      <div className="section-label">Beauty Tips</div>
-      <h1 className="section-title">Self <em>Beauty</em></h1>
-      <p className="section-desc">집에서도 실천할 수 있는 셀프 뷰티 팁</p>
-    </div>
-    <div className="section reveal" style={{paddingBottom:120}}>
-      <div className="tv-grid">
-        <div className="tv-wrap"><div className="tv-screen"><video controls muted playsInline><source src="../Self-Beauty/SelfBeauty_1.mp4" type="video/mp4"/></video></div></div>
-        {[2,3,4].map(i=>(<div key={i} className="tv-wrap"><div className="tv-screen"><div className="tv-empty"><div className="tv-plus">+</div></div></div></div>))}
-      </div>
-    </div>
+function SelfBeautyPage(){
+  const ref=useRef(null);useReveal(ref);
+  return(<div className="scroll-ct" ref={ref}>
+    <div className="section"><div className="section-label">Beauty Tips</div><h1 className="section-title">Self <em>Beauty</em></h1><p className="section-desc">집에서도 실천할 수 있는 셀프 뷰티 팁</p></div>
+    <div className="section reveal" style={{paddingBottom:120}}><div className="tv-grid"><div className="tv-wrap"><div className="tv-screen"><video controls muted playsInline><source src="../Self-Beauty/SelfBeauty_1.mp4" type="video/mp4"/></video></div></div>{[2,3,4].map(i=><div key={i} className="tv-wrap"><div className="tv-screen"><div className="tv-empty"><div className="tv-plus">+</div></div></div></div>)}</div></div>
   </div>);
 }
 
-/* ═══ PAGE: LETTER ═══ */
-function LetterPage() {
-  const r = useReveal();
-  return (<div className="scroll-ct" ref={r}>
-    <div className="section">
-      <div className="section-label">Newsletter</div>
-      <h1 className="section-title">Hwasa <em>Letter</em></h1>
-      <p className="section-desc">Hwasa K-Beauty의 정기 &amp; 비정기 뉴스레터</p>
-    </div>
-    <div className="section reveal" style={{paddingBottom:120}}>
-      <div className="marble-grid">
-        {['Letter_1','Letter_2'].map(v=>(<div key={v} className="marble-frame"><div className="marble-inner"><video controls muted playsInline><source src={`../Letter/${v}.mp4`} type="video/mp4"/></video></div></div>))}
-      </div>
-    </div>
+function LetterPage(){
+  const ref=useRef(null);useReveal(ref);
+  return(<div className="scroll-ct" ref={ref}>
+    <div className="section"><div className="section-label">Newsletter</div><h1 className="section-title">Hwasa <em>Letter</em></h1><p className="section-desc">Hwasa K-Beauty의 정기 &amp; 비정기 뉴스레터</p></div>
+    <div className="section reveal" style={{paddingBottom:120}}><div className="marble-grid">{['Letter_1','Letter_2'].map(v=><div key={v} className="marble-frame"><div className="marble-inner"><video controls muted playsInline><source src={`../Letter/${v}.mp4`} type="video/mp4"/></video></div></div>)}</div></div>
   </div>);
 }
 
-/* ═══ PAGE: DIPLOMA (간소화) ═══ */
-function DiplomaPage() {
-  const [lb,setLb] = useState(null);
-  const r = useReveal();
-  const certs = [
-    {img:'../images/diploma_kcea2025.jpg',title:'대한민국 문화교육대상',sub:'KCEA 제25-072호 2025.12'},
-    {img:'../images/diploma_kbeauty2015.jpg',title:'강사자격증 — 스킨케어',sub:'K뷰티전문가연합회 2015.02'},
-    {img:'../images/diploma_sookmyung2021.jpg',title:'표창장 — 숙명여자대학교',sub:'뷰티최고전문가 피부강사 과정 2021.10'},
-    {img:'../images/diploma_goryeo2024.jpg',title:'위촉장 — 고려전문학교',sub:'뷰티최고경영자과정 지도교수 2024.07'},
-    {img:'../images/diploma_snu2018.jpg',title:'위촉장 — 서울대학교 초빙교수',sub:'Beauty CEO Program 2018.11'},
-    {img:'../images/diploma_appoint2021.jpg',title:'임명장 — 숙명여자대학교',sub:'피부 전문 강사 과정 2021.10'},
-    {img:'../images/diploma_nasaret2023.jpg',title:'임명장 — 나사렛대학교',sub:'피부미용 국가자격취득과정 2023.02'},
-    {img:'../cert-scalp.jpg',title:'Scalp Trichologist',sub:'Professional Instructor 2020.03'},
-    {img:'../cert-slimming.jpg',title:'Slimming Body Detox',sub:'Professional Instructor 2023.05'},
-    {img:'../cert-therapist.jpg',title:'Facial Contour Techniques',sub:'Therapist Certificate 2019.05'},
-    {img:'../images/cert_medical_skincare.jpg',title:'Medical Skin Care Lecturer',sub:'Heritage Reformed College 2018.03'},
-    {img:'../images/cert_ibes_plasma.jpg',title:'Plasma Esthetic Technique',sub:'IBES 국제뷰티전문가학회 2023.04'},
-    {img:'../director-award_.jpg',title:'원장 수상 경력',sub:'피부관리 전문가 인증'},
-    {img:'../cert-snu.jpg',title:'서울대학교 STHIS 위촉장',sub:'Visiting Professor 2018.11'},
-    {img:'../images/cert_beauty_festival.jpg',title:'Beauty Festival 위촉장',sub:'Bac Ninh 2024.06'},
-  ];
-  return (<div className="scroll-ct" ref={r}>
-    <div className="section">
-      <div className="section-label">Certifications &amp; Career</div>
-      <h1 className="section-title">Diploma &amp; <em>Credentials</em></h1>
-      <p className="section-desc">22년간 쌓아온 전문 자격과 교육 이수 경력을 소개합니다</p>
-    </div>
-    <div className="section reveal" style={{paddingTop:0,paddingBottom:120}}>
-      <div className="diploma-grid">
-        {certs.map((c,i)=>(<div key={i} className="diploma-card" onClick={()=>setLb(c.img)}>
-          <img src={c.img} alt={c.title} loading="lazy"/>
-          <div className="diploma-caption"><strong>{c.title}</strong>{c.sub}</div>
-        </div>))}
-      </div>
-    </div>
-    {lb && <div className="lightbox" onClick={()=>setLb(null)}><img src={lb} alt=""/></div>}
-  </div>);
-}
-
-/* ═══ PAGE: PROGRAM (간소화) ═══ */
-function ProgramPage() {
-  const [tab,setTab] = useState('전체');
-  const r = useReveal();
-  const progs = [
-    {cat:'이벤트',name:'발 마사지',desc:'30분 165,000₫ / 60분 220,000₫'},
-    {cat:'이벤트',name:'바디 마사지',desc:'60분 33만₫ / 90분 44만₫'},
-    {cat:'이벤트',name:'골프 케어',desc:'바디 60분 + 페이스 30분 / 88만₫'},
-    {cat:'이벤트',name:'피부관리 60분',desc:'클렌징/딥클렌징/마사지/영양/팩 / 44만₫'},
-    {cat:'멤버십',name:'VIP Membership',desc:'CLUB 1,100만₫ / BRONZE 2,200만₫ / VVIP 3,850만₫'},
-    {cat:'콤보',name:'Hwasa Combo A/B/C',desc:'페이스+바디+발 풀케어 / 87만₫~132만₫'},
-    {cat:'콤보',name:'Golf Combo A/B/C',desc:'골프후 페이스+바디+발 / 87만₫~132만₫'},
-    {cat:'패키지',name:'여드름 3 Step Package',desc:'15/10/6회 (2,200만₫/1,650만₫/1,100만₫)'},
-    {cat:'패키지',name:'아이돌 화이트닝',desc:'12/8/5회 (1,100만₫/880만₫/550만₫)'},
-    {cat:'패키지',name:'여배우 리프팅',desc:'12/8/5회 (1,100만₫/880만₫/550만₫)'},
-    {cat:'페이스',name:'Skelling-Feling 필링',desc:'비건스피쿨/아쿠아필링/아이돌플래닝'},
-    {cat:'페이스',name:'Plasma Program',desc:'여드름흉터 모공/멀티/에어 플라즈마'},
-    {cat:'페이스',name:'HIFU Lifting 영끌리프팅',desc:'하이푸 플러스 5회/윤곽/이중턱'},
-    {cat:'페이스',name:'RF 고주파 리프팅',desc:'여드름흉터 모공/볼륨/코 모공'},
-    {cat:'바디',name:'순환 바디 제로통증',desc:'90분/60분/제로통증 앰플'},
-    {cat:'바디',name:'빼빼관리 슬림 부스터',desc:'빼빼관리/슬림 부스터 앰플'},
-    {cat:'타투',name:'반영구 눈썹 헤어라인',desc:'그라데이션/자연/콤보/페더링/전두부/헤어라인'},
-  ];
-  const tabs = ['전체','이벤트','멤버십','콤보','패키지','페이스','바디','타투'];
-  const filtered = tab==='전체'?progs:progs.filter(p=>p.cat===tab);
-  return (<div className="scroll-ct" ref={r}>
-    <div className="section">
-      <div className="section-label">Skin Care Programs</div>
-      <h1 className="section-title">Our <em>Programs</em></h1>
-      <p className="section-desc">고객님의 피부 타입에 맞는 최적의 프로그램을 제안합니다</p>
-    </div>
+function AcademyPage(){
+  const[ok,setOk]=useState(false);
+  const C=[{lv:'Level 1',n:'기초 스킨케어 입문 과정',d:'피부 타입 분석, 기본 클렌징, 수분관리 루틴',t:'4주 과정, 주 1회 2시간'},{lv:'Level 2',n:'전문 피부 관리 심화 과정',d:'딥클렌징, 각질 관리, 앰플 적용법, 트러블 케어',t:'8주 과정, 주 2회 2시간'},{lv:'Level 3',n:'원장 창업 마스터 클래스',d:'원장이 직접 전수하는 프리미엄 과정',t:'12주 과정, 맞춤형 일정'},{lv:'Online',n:'온라인 셀프 뷰티 클래스',d:'영상 강의 + 자료 제공',t:'자기 주도형, 무제한'},{lv:'Special',n:'원데이 스페셜 워크숍',d:'골드 마스크팩, 두피 관리, 바디 슬리밍',t:'1일 과정, 3~4시간'},{lv:'Family',n:'패밀리 스킨케어 클래스',d:'자녀와 함께하는 천연 팩 만들기',t:'1일 과정, 2시간'}];
+  return(<div className="scroll-ct">
+    <div className="section"><div className="section-label">Education &amp; Training</div><h1 className="section-title">Hwasa <em>Academy</em></h1><p className="section-desc">15년 경력 원장의 노하우를 담은 프리미엄 뷰티 교육 과정</p></div>
+    <div className="section" style={{paddingTop:0}}><div className="prog-grid">{C.map((c,i)=><div key={i} className="prog-card"><div className="prog-tag">{c.lv}</div><h3>{c.n}</h3><p>{c.d}</p><p style={{fontSize:11,color:'var(--accent-light)',marginTop:8}}>{c.t}</p></div>)}</div></div>
     <div className="section" style={{paddingTop:0,paddingBottom:120}}>
-      <div className="prog-tabs">{tabs.map(t=>(<button key={t} className={`prog-tab ${tab===t?'active':''}`} onClick={()=>setTab(t)}>{t}</button>))}</div>
-      <div className="prog-grid">
-        {filtered.map((p,i)=>(<div key={i} className="prog-card">
-          <div className="prog-tag">{p.cat}</div>
-          <h3>{p.name}</h3>
-          <p>{p.desc}</p>
-        </div>))}
-      </div>
-      <div style={{textAlign:'center',marginTop:48}}>
-        <p style={{fontSize:14,marginBottom:20}}>정확한 가격과 상담은 카카오톡 또는 전화로 문의해 주세요</p>
-        <a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="btn-primary">카카오 상담 예약</a>
-        <p style={{fontSize:12,marginTop:20,lineHeight:1.8}}>모든관리 부가세 10% 적용 됩니다 &middot; 매너팁 10만동 별도 &middot; 피부타입에 따라 맞춤케어 변경</p>
-      </div>
+      {ok?<div style={{textAlign:'center',padding:60}}><div style={{width:60,height:60,borderRadius:'50%',background:'#4CAF50',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:'#fff',margin:'0 auto 20px'}}>✓</div><h2 style={{fontFamily:'var(--font-display)',fontSize:28,marginBottom:8}}>신청이 완료되었습니다!</h2><p>빠른 시일 내에 연락드리겠습니다.</p><a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="btn-primary" style={{marginTop:20}}>카카오톡 바로가기</a></div>
+      :<><div className="section-label">Apply Now</div><h2 className="section-title">수강 <em>신청</em></h2><p style={{fontSize:14,marginBottom:20}}>아래 양식을 작성해 주시면 원장이 직접 연락드려 상세 안내를 해드립니다.</p><div style={{maxWidth:500}}><div className="form-group"><input className="form-input" placeholder="이름"/></div><div className="form-group"><input className="form-input" placeholder="연락처"/></div><div className="form-group"><select className="form-select"><option value="">관심 과정 선택</option>{C.map(c=><option key={c.n} value={c.n}>{c.n}</option>)}</select></div><div className="form-group"><textarea className="form-input" placeholder="문의 사항" rows={4} style={{resize:'vertical'}}/></div><button className="btn-primary" onClick={()=>setOk(true)}>수강 신청하기</button></div></>}
     </div>
   </div>);
 }
 
-/* ═══ PAGE: SHOP (간소화) ═══ */
-function ShopPage() {
-  const [tab,setTab] = useState('All');
-  const products = [
-    {cat:'스킨케어',name:'Hwasa 시그니처 세럼',desc:'원장 직접 선별한 고농축 재생 앰플',price:'W58,000',badge:'Best',emoji:'💧'},
-    {cat:'스킨케어',name:'딥 모이스처 크림',desc:'세라마이드 & 히알루론산 복합체',price:'W42,000',emoji:'🧴'},
-    {cat:'마스크팩',name:'골드 리프팅 마스크',desc:'실제 금박 성분 탄력광채',price:'W35,000',badge:'New',emoji:'✨'},
-    {cat:'마스크팩',name:'진정 바이오 마스크',desc:'EGF 성장인자 홍조자극 즉각 진정',price:'W28,000',emoji:'🌿'},
-    {cat:'디바이스',name:'미니 RF 리프팅 디바이스',desc:'가정용 고주파 디바이스',price:'W180,000',badge:'Hot',emoji:'⚡'},
-    {cat:'세트',name:'Hwasa 스킨케어 풀 세트',desc:'세럼+크림+마스크팩(5매) 구성',price:'W120,000',badge:'Set',emoji:'🎁'},
-  ];
-  const tabs = ['All','스킨케어','마스크팩','디바이스','세트'];
-  const filtered = tab==='All'?products:products.filter(p=>p.cat===tab);
-  return (<div className="scroll-ct">
-    <div className="section">
-      <div className="section-label">Online &amp; Offline</div>
-      <h1 className="section-title">Hwasa <em>Shop</em></h1>
-      <p className="section-desc">엄선된 한국 스킨케어 제품을 온라인 오프라인에서 만나보세요</p>
-    </div>
-    <div className="section" style={{paddingTop:0,paddingBottom:120}}>
-      <div className="prog-tabs">{tabs.map(t=>(<button key={t} className={`prog-tab ${tab===t?'active':''}`} onClick={()=>setTab(t)}>{t}</button>))}</div>
-      <div className="product-grid">
-        {filtered.map((p,i)=>(<div key={i} className="product-card">
-          <div className="product-img">{p.emoji}</div>
-          <div className="product-body">
-            {p.badge && <span style={{fontSize:9,background:'var(--accent)',color:'#fff',padding:'2px 8px',borderRadius:10,marginBottom:6,display:'inline-block'}}>{p.badge}</span>}
-            <div className="product-name">{p.name}</div>
-            <div className="product-desc-text">{p.desc}</div>
-            <div className="product-price">{p.price}</div>
-          </div>
-        </div>))}
-      </div>
-    </div>
-  </div>);
-}
+function EChartPage(){
+  const[done,setDone]=useState(false);const ref=useRef(null);
+  const[consent,setConsent]=useState(false);
+  if(done) return(<div className="scroll-ct"><div className="section" style={{textAlign:'center',paddingTop:120}}><div style={{width:80,height:80,borderRadius:'50%',background:'#4CAF50',display:'flex',alignItems:'center',justifyContent:'center',fontSize:36,color:'#fff',margin:'0 auto 24px'}}>✓</div><h2 style={{fontFamily:'var(--font-display)',fontSize:32,marginBottom:12}}>저장 완료</h2><p>E-Chart가 성공적으로 저장되었습니다.</p><button className="btn-outline" style={{marginTop:24}} onClick={()=>go('/')}>홈으로 돌아가기</button></div></div>);
 
-/* ═══ PAGE: ACADEMY (간소화) ═══ */
-function AcademyPage() {
-  const [success,setSuccess] = useState(false);
-  const courses = [
-    {level:'Level 1',name:'기초 스킨케어 입문 과정',desc:'피부 타입 분석, 기본 클렌징, 수분관리 루틴',dur:'4주 과정, 주 1회 2시간'},
-    {level:'Level 2',name:'전문 피부 관리 심화 과정',desc:'딥클렌징, 각질 관리, 앰플 적용법, 트러블 케어',dur:'8주 과정, 주 2회 2시간'},
-    {level:'Level 3',name:'원장 창업 마스터 클래스',desc:'Hwasa K-Beauty 원장이 직접 전수하는 프리미엄 과정',dur:'12주 과정, 맞춤형 일정'},
-    {level:'Online',name:'온라인 셀프 뷰티 클래스',desc:'영상 강의 + 자료 제공',dur:'자기 주도형, 무제한'},
-    {level:'Special',name:'원데이 스페셜 워크숍',desc:'골드 마스크팩, 두피 관리, 바디 슬리밍 테크닉',dur:'1일 과정, 3~4시간'},
-    {level:'Family',name:'패밀리 스킨케어 클래스',desc:'자녀와 함께하는 천연 팩 만들기',dur:'1일 과정, 2시간'},
-  ];
-  return (<div className="scroll-ct">
-    <div className="section">
-      <div className="section-label">Education &amp; Training</div>
-      <h1 className="section-title">Hwasa <em>Academy</em></h1>
-      <p className="section-desc">15년 경력 원장의 노하우를 담은 프리미엄 뷰티 교육 과정</p>
-    </div>
-    <div className="section" style={{paddingTop:0}}>
-      <div className="prog-grid">
-        {courses.map((c,i)=>(<div key={i} className="prog-card">
-          <div className="prog-tag">{c.level}</div>
-          <h3>{c.name}</h3>
-          <p>{c.desc}</p>
-          <p style={{fontSize:11,color:'var(--accent-light)',marginTop:8}}>{c.dur}</p>
-        </div>))}
-      </div>
-    </div>
-    <div className="section" style={{paddingTop:0,paddingBottom:120}}>
-      {success ? (
-        <div style={{textAlign:'center',padding:60}}>
-          <div style={{width:60,height:60,borderRadius:'50%',background:'#4CAF50',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:'#fff',margin:'0 auto 20px'}}>✓</div>
-          <h2 style={{fontFamily:'var(--font-display)',fontSize:28,marginBottom:8}}>신청이 완료되었습니다!</h2>
-          <p>빠른 시일 내에 연락드리겠습니다.</p>
-          <a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer" className="btn-primary" style={{marginTop:20}}>카카오톡 바로가기</a>
-        </div>
-      ) : (
-        <>
-          <div className="section-label">Apply Now</div>
-          <h2 className="section-title">수강 <em>신청</em></h2>
-          <p style={{fontSize:14,marginBottom:20}}>아래 양식을 작성해 주시면 원장이 직접 연락드려 상세 안내를 해드립니다.</p>
-          <div style={{maxWidth:500}}>
-            <input placeholder="이름" style={{width:'100%',padding:'10px 12px',marginBottom:12,background:'rgba(0,0,0,.3)',border:'1px solid rgba(255,255,255,.2)',color:'#fff',fontSize:13,fontFamily:'inherit',outline:'none'}}/>
-            <input placeholder="연락처" style={{width:'100%',padding:'10px 12px',marginBottom:12,background:'rgba(0,0,0,.3)',border:'1px solid rgba(255,255,255,.2)',color:'#fff',fontSize:13,fontFamily:'inherit',outline:'none'}}/>
-            <select style={{width:'100%',padding:'10px 12px',marginBottom:12,background:'rgba(0,0,0,.3)',border:'1px solid rgba(255,255,255,.2)',color:'#fff',fontSize:13,fontFamily:'inherit',outline:'none'}}>
-              <option value="">관심 과정 선택</option>
-              {courses.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}
-            </select>
-            <textarea placeholder="문의 사항" rows={4} style={{width:'100%',padding:'10px 12px',marginBottom:12,background:'rgba(0,0,0,.3)',border:'1px solid rgba(255,255,255,.2)',color:'#fff',fontSize:13,fontFamily:'inherit',outline:'none',resize:'vertical'}}/>
-            <button className="btn-primary" onClick={()=>setSuccess(true)}>수강 신청하기</button>
-          </div>
-        </>
-      )}
-    </div>
-  </div>);
-}
+  const Inp=({label,req,...p})=><div className="form-group"><label className="form-label">{label}{req&&<span style={{color:'#E57373',marginLeft:2}}>*</span>}</label><input className="form-input" {...p}/></div>;
+  const Sel=({label,opts,...p})=><div className="form-group"><label className="form-label">{label}</label><select className="form-select" {...p}>{opts.map(o=><option key={o} value={o}>{o}</option>)}</select></div>;
+  const ST=({children})=><div className="sub-title">{children}</div>;
 
-/* ═══ PAGE: E-CHART (간소화 — 스크롤 폼) ═══ */
-function EChartPage() {
-  const [done,setDone] = useState(false);
-  const scrollRef = useRef(null);
-  if(done) return (<div className="scroll-ct">
-    <div className="section" style={{textAlign:'center',paddingTop:120}}>
-      <div style={{width:80,height:80,borderRadius:'50%',background:'#4CAF50',display:'flex',alignItems:'center',justifyContent:'center',fontSize:36,color:'#fff',margin:'0 auto 24px'}}>✓</div>
-      <h2 style={{fontFamily:'var(--font-display)',fontSize:32,marginBottom:12}}>저장 완료</h2>
-      <p>E-Chart가 성공적으로 저장되었습니다.</p>
-      <button className="btn-outline" style={{marginTop:24}} onClick={()=>navigate('/')}>홈으로 돌아가기</button>
-    </div>
-  </div>);
-
-  const CheckGrid = ({id,items,multi=true}) => (
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(120px,1fr))',gap:8}}>
-      {items.map(it=>(<label key={it} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 10px',border:'1px solid rgba(255,255,255,.15)',background:'rgba(0,0,0,.2)',cursor:'pointer',fontSize:11,color:'#fff',transition:'all .2s'}}
-        onClick={e=>{const el=e.currentTarget;el.classList.toggle('selected');el.style.borderColor=el.classList.contains('selected')?'var(--accent)':'rgba(255,255,255,.15)';el.style.background=el.classList.contains('selected')?'rgba(184,149,106,.2)':'rgba(0,0,0,.2)';}}>
-        <span style={{width:12,height:12,borderRadius:multi?3:'50%',border:'2px solid rgba(255,255,255,.3)',flexShrink:0}}/>{it}
-      </label>))}
-    </div>
-  );
-
-  const Input = ({label,required,...props}) => (
-    <div style={{marginBottom:11}}><label style={{display:'block',fontFamily:'var(--font-nav)',fontSize:9,letterSpacing:2,textTransform:'uppercase',color:'#fff',marginBottom:6,fontWeight:600}}>{label}{required&&<span style={{color:'#E57373',marginLeft:2}}>*</span>}</label>
-    <input {...props} style={{width:'100%',padding:'8px 10px',border:'1px solid rgba(255,255,255,.2)',background:'rgba(0,0,0,.3)',color:'#fff',fontSize:12,fontFamily:'inherit',outline:'none',...(props.style||{})}}/></div>
-  );
-  const Select = ({label,options,...props}) => (
-    <div style={{marginBottom:11}}><label style={{display:'block',fontFamily:'var(--font-nav)',fontSize:9,letterSpacing:2,textTransform:'uppercase',color:'#fff',marginBottom:6,fontWeight:600}}>{label}</label>
-    <select {...props} style={{width:'100%',padding:'8px 10px',border:'1px solid rgba(255,255,255,.2)',background:'rgba(0,0,0,.3)',color:'#fff',fontSize:12,fontFamily:'inherit',outline:'none'}}>{options.map(o=><option key={o.v||o} value={o.v||o} style={{background:'#1a1a1a'}}>{o.l||o}</option>)}</select></div>
-  );
-  const SectionTitle = ({children}) => <div style={{fontFamily:'var(--font-nav)',fontSize:10,letterSpacing:3,textTransform:'uppercase',color:'var(--accent)',marginBottom:10,marginTop:16,fontWeight:600}}>{children}</div>;
-
-  return (<div className="scroll-ct" ref={scrollRef}>
-    <div className="section" style={{paddingBottom:0}}>
-      <div className="section-label">E-Chart</div>
-      <h1 className="section-title">전자 <em>차트</em></h1>
-    </div>
-
-    {/* 1. 기본 정보 */}
+  return(<div className="scroll-ct" ref={ref}>
+    <div className="section" style={{paddingBottom:0}}><div className="section-label">E-Chart</div><h1 className="section-title">전자 <em>차트</em></h1></div>
     <div className="section" style={{paddingTop:16,borderBottom:'1px solid rgba(184,149,106,.2)'}}>
-      <h2 style={{fontFamily:'var(--font-display)',fontSize:20,marginBottom:4}}>기본 <em style={{color:'var(--accent-light)',fontStyle:'italic'}}>정보</em></h2>
-      <p style={{fontSize:11,color:'#fff',marginBottom:14}}>고객님의 기본 정보를 입력해 주세요.</p>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-        <Input label="이름 (한글)" required placeholder="홍길동"/>
-        <Input label="이름 (영문/베트남어)" placeholder="Hong Gildong"/>
-        <Input label="전화번호" required type="tel" placeholder="0xx-xxxx-xxxx"/>
-        <Input label="생년월일" required type="date"/>
-        <Select label="성별" options={['선택','여성','남성']}/>
-        <Select label="국적" options={['선택','한국','베트남','일본','중국','기타']}/>
-        <Input label="최초 방문일" type="date"/>
-        <Select label="방문 경로" options={['선택','인스타그램','카카오톡','지인 소개','블로그/검색','페이스북','매장 방문','기타']}/>
-        <Select label="거주 지역" options={['선택','미딩','꺼우저이','동다','호안끼엠','떠이호','롱비엔','하동','남뜨리엠','박뜨리엠','타인쑤언','기타']}/>
-        <Select label="연령대" options={['선택','10대','20대','30대','40대','50대','60대 이상']}/>
-      </div>
+      <h2 style={{fontFamily:'var(--font-display)',fontSize:20,marginBottom:4}}>기본 <em style={{color:'var(--accent-light)',fontStyle:'italic'}}>정보</em></h2><p style={{fontSize:11,marginBottom:14}}>고객님의 기본 정보를 입력해 주세요.</p>
+      <div className="form-row"><Inp label="이름 (한글)" req placeholder="홍길동"/><Inp label="이름 (영문/베트남어)" placeholder="Hong Gildong"/></div>
+      <div className="form-row"><Inp label="전화번호" req type="tel" placeholder="0xx-xxxx-xxxx"/><Inp label="생년월일" req type="date"/></div>
+      <div className="form-row"><Sel label="성별" opts={['선택','여성','남성']}/><Sel label="국적" opts={['선택','한국','베트남','일본','중국','기타']}/></div>
+      <div className="form-row"><Inp label="최초 방문일" type="date"/><Sel label="방문 경로" opts={['선택','인스타그램','카카오톡','지인 소개','블로그/검색','페이스북','매장 방문','기타']}/></div>
+      <div className="form-row"><Sel label="거주 지역" opts={['선택','미딩','꺼우저이','동다','호안끼엠','떠이호','롱비엔','하동','남뜨리엠','박뜨리엠','타인쑤언','기타']}/><Sel label="연령대" opts={['선택','10대','20대','30대','40대','50대','60대 이상']}/></div>
     </div>
-
-    {/* 2. 피부 분석 */}
     <div className="section" style={{paddingTop:16,borderBottom:'1px solid rgba(184,149,106,.2)'}}>
       <h2 style={{fontFamily:'var(--font-display)',fontSize:20,marginBottom:14}}>피부 <em style={{color:'var(--accent-light)',fontStyle:'italic'}}>분석</em></h2>
-      <SectionTitle>피부 타입</SectionTitle>
-      <CheckGrid items={['건성','지성','복합성','민감성','중성']} multi={false}/>
-      <SectionTitle>피부 고민 (복수 선택)</SectionTitle>
-      <CheckGrid items={['주름/탄력','색소/기미','여드름/트러블','모공','홍조/붉은기','건조/각질','미백/톤업','리프팅/처짐','흉터/자국','다크서클','탄력 저하','주근깨']}/>
-      <SectionTitle>알레르기 / 건강 상태</SectionTitle>
-      <CheckGrid items={['해당 없음','금속','화장품','향료 과민','알코올 과민','라텍스','식품','아토피/습진','기타']}/>
-      <SectionTitle>복용 중 약물</SectionTitle>
-      <CheckGrid items={['해당 없음','레티놀','로아큐탄','스테로이드','항생제','혈액 희석제','호르몬제/피임약','고혈압/당뇨약','건강보조식품','기타']}/>
-      <SectionTitle>사용 스킨케어 브랜드</SectionTitle>
-      <CheckGrid items={['설화수','라네즈','이니스프리','SK-II','COSRX','닥터자르트','아모레퍼시픽','기타']}/>
-      <SectionTitle>특이 사항</SectionTitle>
-      <CheckGrid items={['해당 없음','임신 중','수유 중','최근 레이저','최근 피부 수술','켈로이드 체질','광과민증']}/>
+      <ST>피부 타입</ST><CheckGrid items={['건성','지성','복합성','민감성','중성']} multi={false}/>
+      <ST>피부 고민 (복수 선택)</ST><CheckGrid items={['주름/탄력','색소/기미','여드름/트러블','모공','홍조/붉은기','건조/각질','미백/톤업','리프팅/처짐','흉터/자국','다크서클','탄력 저하','주근깨']}/>
+      <ST>알레르기 / 건강 상태</ST><CheckGrid items={['해당 없음','금속','화장품','향료 과민','알코올 과민','라텍스','식품','아토피/습진','기타']}/>
+      <ST>복용 중 약물</ST><CheckGrid items={['해당 없음','레티놀','로아큐탄','스테로이드','항생제','혈액 희석제','호르몬제/피임약','고혈압/당뇨약','건강보조식품','기타']}/>
+      <ST>사용 스킨케어 브랜드</ST><CheckGrid items={['설화수','라네즈','이니스프리','SK-II','COSRX','닥터자르트','아모레퍼시픽','기타']}/>
+      <ST>특이 사항</ST><CheckGrid items={['해당 없음','임신 중','수유 중','최근 레이저','최근 피부 수술','켈로이드 체질','광과민증']}/>
     </div>
-
-    {/* 3. 관리 부위 */}
     <div className="section" style={{paddingTop:16,borderBottom:'1px solid rgba(184,149,106,.2)'}}>
       <h2 style={{fontFamily:'var(--font-display)',fontSize:20,marginBottom:14}}>관리 <em style={{color:'var(--accent-light)',fontStyle:'italic'}}>부위</em></h2>
-      <SectionTitle>얼굴 부위</SectionTitle>
-      <CheckGrid items={['이마','눈가','코','볼/광대','입가/팔자','턱선/턱','목/데콜테','두피']}/>
-      <SectionTitle>바디 부위</SectionTitle>
-      <CheckGrid items={['두피','목','어깨','등','팔','복부','힙/골반','다리','발']}/>
-      <SectionTitle>희망 프로그램</SectionTitle>
-      <CheckGrid items={['기본 페이셜','딥클렌징','리프팅','미백','여드름','수분/보습','바디 마사지','경락','재생','특수 관리']}/>
-      <SectionTitle>선호 시간대</SectionTitle>
-      <CheckGrid items={['오전(9-12시)','오후(12-15시)','저녁(15-19시)']} multi={false}/>
+      <ST>얼굴 부위</ST><CheckGrid items={['이마','눈가','코','볼/광대','입가/팔자','턱선/턱','목/데콜테','두피']}/>
+      <ST>바디 부위</ST><CheckGrid items={['두피','목','어깨','등','팔','복부','힙/골반','다리','발']}/>
+      <ST>희망 프로그램</ST><CheckGrid items={['기본 페이셜','딥클렌징','리프팅','미백','여드름','수분/보습','바디 마사지','경락','재생','특수 관리']}/>
+      <ST>선호 시간대</ST><CheckGrid items={['오전(9-12시)','오후(12-15시)','저녁(15-19시)']} multi={false}/>
     </div>
-
-    {/* 4. 시술 기록 */}
     <div className="section" style={{paddingTop:16,borderBottom:'1px solid rgba(184,149,106,.2)'}}>
       <h2 style={{fontFamily:'var(--font-display)',fontSize:20,marginBottom:14}}>시술 <em style={{color:'var(--accent-light)',fontStyle:'italic'}}>기록</em></h2>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-        <Select label="방문 회차" options={['1회차','2회차','3회차','4회차','5회차','6~10회차','11회차 이상']}/>
-        <Select label="담당자" options={['원장','스태프 1','스태프 2']}/>
-      </div>
-      <SectionTitle>시술 항목</SectionTitle>
-      <CheckGrid items={['클렌징','스크럽/필링','스팀','압출','앰플/세럼','마사지','마스크팩','LED','리프팅 기기','갈바닉','미세전류','경락','아로마 바디','보습 마무리','선크림','기타']}/>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:12}}>
-        <Select label="시술 시간" options={['30분','60분','90분','120분','150분']}/>
-        <Select label="결제 금액" options={['300,000₫','500,000₫','700,000₫','1,000,000₫','1,500,000₫','2,000,000₫','직접 입력']}/>
-      </div>
-      <SectionTitle>시술 후 피부 반응</SectionTitle>
-      <CheckGrid items={['특이 반응 없음','일시적 홍조','약간의 부기','따가움','즉각 광채','피부결 개선','고객 만족']}/>
-      <SectionTitle>홈케어 안내</SectionTitle>
-      <CheckGrid items={['자외선 차단','충분한 보습','각질 제거 금지','사우나 금지','당일 화장 자제','수분 섭취','순한 세안','음주 자제']}/>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:12}}>
-        <Input label="다음 예약일" type="date"/>
-        <Select label="다음 관리 추천" options={['동일 관리','기본 페이셜','딥클렌징','리프팅','미백','수분/보습','여드름','재생','바디 마사지','특수 관리']}/>
-      </div>
+      <div className="form-row"><Sel label="방문 회차" opts={['1회차','2회차','3회차','4회차','5회차','6~10회차','11회차 이상']}/><Sel label="담당자" opts={['원장','스태프 1','스태프 2']}/></div>
+      <ST>시술 항목</ST><CheckGrid items={['클렌징','스크럽/필링','스팀','압출','앰플/세럼','마사지','마스크팩','LED','리프팅 기기','갈바닉','미세전류','경락','아로마 바디','보습 마무리','선크림','기타']}/>
+      <div className="form-row" style={{marginTop:12}}><Sel label="시술 시간" opts={['30분','60분','90분','120분','150분']}/><Sel label="결제 금액" opts={['300,000₫','500,000₫','700,000₫','1,000,000₫','1,500,000₫','2,000,000₫','직접 입력']}/></div>
+      <ST>시술 후 피부 반응</ST><CheckGrid items={['특이 반응 없음','일시적 홍조','약간의 부기','따가움','즉각 광채','피부결 개선','고객 만족']}/>
+      <ST>홈케어 안내</ST><CheckGrid items={['자외선 차단','충분한 보습','각질 제거 금지','사우나 금지','당일 화장 자제','수분 섭취','순한 세안','음주 자제']}/>
+      <div className="form-row" style={{marginTop:12}}><Inp label="다음 예약일" type="date"/><Sel label="다음 관리 추천" opts={['동일 관리','기본 페이셜','딥클렌징','리프팅','미백','수분/보습','여드름','재생','바디 마사지','특수 관리']}/></div>
     </div>
-
-    {/* 저장 */}
     <div className="section" style={{textAlign:'center',paddingBottom:120}}>
       <label style={{display:'flex',alignItems:'center',gap:8,justifyContent:'center',cursor:'pointer',fontSize:12,marginBottom:16}}>
-        <input type="checkbox" id="echart-consent" style={{accentColor:'var(--accent)',width:16,height:16}}/>
+        <input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} style={{accentColor:'var(--accent)',width:16,height:16}}/>
         개인정보 수집 및 이용에 동의합니다
       </label>
-      <button className="btn-primary" style={{padding:'16px 60px',fontSize:14,letterSpacing:3}} onClick={()=>{
-        if(!document.getElementById('echart-consent').checked){alert('동의를 체크해 주세요.');return;}
-        setDone(true);
-      }}>저장하기</button>
+      <button className="btn-primary" style={{padding:'16px 60px',fontSize:14,letterSpacing:3}} onClick={()=>{if(!consent){alert('동의를 체크해 주세요.');return;}setDone(true);}}>저장하기</button>
     </div>
   </div>);
 }
 
 /* ═══ APP ═══ */
-function App() {
-  const route = useHash();
-  const isHome = route === '/';
-  const [loaded,setLoaded] = useState(false);
+function App(){
+  const route=useHash();const isHome=route==='/';const[loaded,setLoaded]=useState(false);
+  useEffect(()=>{setTimeout(()=>setLoaded(true),1800);},[]);
+  useEffect(()=>{const ct=document.querySelector('.scroll-ct');if(ct)ct.scrollTop=0;},[route]);
 
-  useEffect(()=>{
-    setTimeout(()=>setLoaded(true), 1800);
-  },[]);
-
-  useEffect(()=>{
-    // 페이지 전환 시 스크롤 상단으로
-    const ct = document.querySelector('.scroll-ct');
-    if(ct) ct.scrollTop = 0;
-  },[route]);
-
-  const page = useMemo(()=>{
-    switch(route) {
-      case '/': return <HomePage/>;
-      case '/about': return <AboutPage/>;
-      case '/contact': return <ContactPage/>;
-      case '/diploma': return <DiplomaPage/>;
-      case '/program': return <ProgramPage/>;
-      case '/shop': return <ShopPage/>;
-      case '/selfbeauty': return <SelfBeautyPage/>;
-      case '/letter': return <LetterPage/>;
-      case '/academy': return <AcademyPage/>;
-      case '/echart': return <EChartPage/>;
-      default: return <HomePage/>;
+  const page=useMemo(()=>{
+    switch(route){
+      case'/':return<HomePage/>;case'/about':return<AboutPage/>;case'/contact':return<ContactPage/>;
+      case'/diploma':return<DiplomaPage/>;case'/program':return<ProgramPage/>;case'/shop':return<ShopPage/>;
+      case'/selfbeauty':return<SelfBeautyPage/>;case'/letter':return<LetterPage/>;
+      case'/academy':return<AcademyPage/>;case'/echart':return<EChartPage/>;
+      default:return<HomePage/>;
     }
   },[route]);
 
-  return (<>
-    {!loaded && isHome && (
-      <div className="loader-wrap" style={{opacity: loaded?0:1}}>
-        <div className="loader-text">HWASA in Hanoi</div>
-        <div className="loader-bar"><div className="loader-fill" ref={el=>{if(el) setTimeout(()=>el.style.width='100%',100);}}/></div>
-      </div>
-    )}
-    <Background isHome={isHome}/>
-    <Header current={route}/>
-    <Sidebar current={route}/>
-    {page}
-    <Footer/>
+  return(<>
+    {!loaded&&isHome&&<div className="loader-wrap" style={{opacity:loaded?0:1}}><div className="loader-text">HWASA in Hanoi</div><div className="loader-bar"><div className="loader-fill" ref={el=>{if(el)setTimeout(()=>el.style.width='100%',100);}}/></div></div>}
+    <BG isHome={isHome}/><Header cur={route}/><Side cur={route}/>{page}<Footer/>
   </>);
 }
 

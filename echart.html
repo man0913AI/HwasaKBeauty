@@ -411,12 +411,12 @@
             <div class="form-page" id="page2">
                 <h2 class="page-title">피부 <em>분석</em></h2><p class="page-subtitle">고객님의 피부 상태와 건강 정보를 선택해 주세요.</p>
                 <div class="form-section-title">피부 타입</div>
-                <div class="form-group"><div class="check-grid" id="skinType">
-                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="dry"><div class="check-dot"></div><span class="check-label">건성</span></label>
-                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="oily"><div class="check-dot"></div><span class="check-label">지성</span></label>
-                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="combination"><div class="check-dot"></div><span class="check-label">복합성</span></label>
-                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="sensitive"><div class="check-dot"></div><span class="check-label">민감성</span></label>
-                    <label class="check-item" onclick="toggleRadio(this,'skinType')"><input type="radio" name="skinType" value="normal"><div class="check-dot"></div><span class="check-label">중성</span></label>
+                <div class="form-group"><div class="check-grid check-square" id="skinType">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="dry"><div class="check-dot"></div><span class="check-label">건성</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="oily"><div class="check-dot"></div><span class="check-label">지성</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="combination"><div class="check-dot"></div><span class="check-label">복합성</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="sensitive"><div class="check-dot"></div><span class="check-label">민감성</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="normal"><div class="check-dot"></div><span class="check-label">중성</span></label>
                 </div></div>
                 <div class="form-divider"></div>
                 <div class="form-section-title">피부 고민 (복수 선택)</div>
@@ -529,10 +529,10 @@
                 </div></div>
                 <div class="form-divider"></div>
                 <div class="form-section-title">선호 관리 시간대</div>
-                <div class="form-group"><div class="check-grid" id="preferTime">
-                    <label class="check-item" onclick="toggleRadio(this,'preferTime')"><input type="radio" name="preferTime" value="morning"><div class="check-dot"></div><span class="check-label">오전 (9-12시)</span></label>
-                    <label class="check-item" onclick="toggleRadio(this,'preferTime')"><input type="radio" name="preferTime" value="afternoon"><div class="check-dot"></div><span class="check-label">오후 (12-15시)</span></label>
-                    <label class="check-item" onclick="toggleRadio(this,'preferTime')"><input type="radio" name="preferTime" value="evening"><div class="check-dot"></div><span class="check-label">저녁 (15-19시)</span></label>
+                <div class="form-group"><div class="check-grid check-square" id="preferTime">
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="morning"><div class="check-dot"></div><span class="check-label">오전 (9-12시)</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="afternoon"><div class="check-dot"></div><span class="check-label">오후 (12-15시)</span></label>
+                    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="evening"><div class="check-dot"></div><span class="check-label">저녁 (15-19시)</span></label>
                 </div></div>
             </div>
 

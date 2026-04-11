@@ -85,12 +85,12 @@
         .progress-section {
             position: sticky;
             top: 0;
-            width: 56px;
+            width: 140px;
             flex-shrink: 0;
-            padding: 24px 0;
+            padding: 24px 8px 24px 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             align-self: flex-start;
             height: fit-content;
             z-index: 50;
@@ -112,25 +112,32 @@
         }
 
         /* ========== PROGRESS BAR — 세로 ========== */
-        .progress-bar-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0; }
-        .progress-step { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .progress-bar-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 0; width: 100%; }
+        .progress-step { display: flex; flex-direction: row; align-items: center; gap: 10px; cursor: pointer; width: 100%; }
         .progress-step .dot {
-            width: 28px; height: 28px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.2);
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
             display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-nav); font-size: 10px; font-weight: 600;
-            color: rgba(255,255,255,0.4); background: transparent;
+            font-family: var(--font-nav); font-size: 12px; font-weight: 700;
+            color: rgba(255,255,255,0.3); background: transparent;
             transition: all 0.4s var(--ease-smooth); position: relative; z-index: 2;
+            flex-shrink: 0;
         }
         .progress-step.active .dot {
             border-color: var(--color-accent); color: #fff;
-            background: var(--color-accent); box-shadow: 0 0 16px rgba(184,149,106,0.4);
+            background: var(--color-accent); box-shadow: 0 0 20px rgba(184,149,106,0.4);
         }
         .progress-step.done .dot { border-color: var(--color-success); color: #fff; background: var(--color-success); }
-        .progress-step .step-label { display: none; }
+        .progress-step .step-label {
+            font-family: var(--font-nav); font-size: 11px; letter-spacing: 0.5px;
+            color: rgba(255,255,255,0.3); white-space: nowrap;
+            transition: color 0.3s; font-weight: 600;
+        }
+        .progress-step.active .step-label { color: var(--color-accent-light); }
+        .progress-step.done .step-label { color: var(--color-success); }
         .progress-line {
-            width: 2px; height: 28px; background: transparent;
-            position: relative; margin: 0;
+            width: 2px; height: 24px; background: rgba(255,255,255,0.06);
+            position: relative; margin: 0 0 0 16px;
         }
         .progress-line .fill {
             position: absolute; top: 0; left: 0; width: 100%; height: 0;
@@ -283,9 +290,10 @@
             .nav { display: none; }
             .menu-toggle { display: flex; }
             .check-grid { grid-template-columns: 1fr 1fr; }
-            .progress-section { width: 40px; padding: 16px 0; }
-            .progress-step .dot { width: 22px; height: 22px; font-size: 9px; }
-            .progress-line { height: 20px; }
+            .progress-section { width: 44px; padding: 16px 4px 16px 0; }
+            .progress-step .dot { width: 26px; height: 26px; font-size: 10px; }
+            .progress-step .step-label { display: none; }
+            .progress-line { height: 16px; margin-left: 12px; }
             .form-area { padding: 16px 12px 40px; }
         }
         @media (max-width: 400px) {

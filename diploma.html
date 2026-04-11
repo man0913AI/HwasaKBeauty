@@ -327,7 +327,7 @@
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: transparent;
+            background: rgba(0,0,0,0.92);
             display: none;
             align-items: center;
             justify-content: center;
@@ -780,6 +780,7 @@
                     a.style.color = '#fff';
                     a.style.fontSize = '18px';
                 });
+                if(!n.querySelector('.mob-close')){var cb=document.createElement('button');cb.className='mob-close';cb.innerHTML='×';cb.style.cssText='position:absolute;top:24px;right:24px;font-size:28px;color:#fff;background:none;border:none;cursor:pointer;z-index:1000';cb.onclick=function(){n.style.display="none"};n.appendChild(cb);}
             }
         }
     </script>

@@ -592,11 +592,9 @@
                 </div>
             </div>
 
-            <!-- PAGE 5 -->
+            <!-- PAGE 5: 최종 확인 (동의는 하단 저장 영역에서 처리) -->
             <div class="form-page" id="page5">
-                <h2 class="page-title">최종 <em>확인</em></h2><p class="page-subtitle">입력 내용을 확인한 후 저장해 주세요.</p>
-                <div id="summaryContent" style="padding:32px;margin-bottom:24px;"></div>
-                <div class="form-group"><div class="check-item check-square" onclick="toggleCheck(this)" style="border-color:var(--color-accent);"><input type="checkbox" id="consentCheck"><div class="check-dot"></div><span class="check-label">위 내용이 정확함을 확인하며, 개인정보 수집 및 이용에 동의합니다.</span></div></div>
+                <h2 class="page-title">최종 <em>확인</em></h2><p class="page-subtitle">모든 항목을 확인한 후 아래 저장 버튼을 눌러주세요.</p>
             </div>
 
             <div class="success-screen" id="successScreen"><div class="success-icon">✓</div><h2>저장 완료</h2><p>E-Chart가 성공적으로 저장되었습니다.<br>클라우드에 동기화되면 ERP 시스템에서 확인하실 수 있습니다.</p><a href="index.html" class="btn-home">홈으로 돌아가기</a></div>
@@ -686,7 +684,7 @@
         }
 
         // 모바일 메뉴
-        function toggleMenu(){const n=document.getElementById('nav');n.style.display=n.style.display==='flex'?'none':'flex';if(window.innerWidth<=768&&n.style.display==='flex'){n.style.cssText='display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;gap:28px;';n.querySelectorAll('a').forEach(a=>{a.style.color='#fff';a.style.fontSize='18px'})}}
+        function toggleMenu(){const n=document.getElementById('nav');n.style.display=n.style.display==='flex'?'none':'flex';if(window.innerWidth<=768&&n.style.display==='flex'){n.style.cssText='display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center;gap:28px;';var cb=document.createElement('button');cb.innerHTML='&times;';cb.style.cssText='position:absolute;top:24px;right:24px;font-size:28px;color:#fff;background:none;border:none;cursor:pointer;z-index:1000';cb.onclick=function(){n.style.display="none"};n.appendChild(cb);n.querySelectorAll('a').forEach(a=>{a.style.color='#fff';a.style.fontSize='18px'})}}
     </script>
 </body>
 </html>

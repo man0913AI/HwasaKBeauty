@@ -160,7 +160,7 @@
             transition: color 0.3s;
             font-weight: 700;
          white-space: nowrap; }
-        .nav a:hover, .nav a.active { color: #fff; }
+        .nav a:hover, .nav a.active { color: var(--color-accent); }
         .nav-cta {
             padding: 10px 24px;
             border: 1px solid var(--color-accent);
@@ -961,6 +961,7 @@
                     a.style.color = '#fff';
                     a.style.fontSize = '18px';
                 });
+                if(!n.querySelector('.mob-close')){var cb=document.createElement('button');cb.className='mob-close';cb.innerHTML='×';cb.style.cssText='position:absolute;top:24px;right:24px;font-size:28px;color:#fff;background:none;border:none;cursor:pointer;z-index:1000';cb.onclick=function(){n.style.display="none"};n.appendChild(cb);}
             }
         }
     </script>

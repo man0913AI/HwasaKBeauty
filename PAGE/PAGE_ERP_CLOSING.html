@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HWASA K-Beauty ERP - 결산</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="ERP_COMMON.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo} = React;
+const SUB_TABS = ['월말','분기','반기','년간'];
+
+
+/* ════════════════════════════════════════
+   SETTLEMENT
+   ════════════════════════════════════════ */
+function Settlement({period}) {
+  const [sales,setSales]=useState({});const [purchase,setPurchase]=useState([]);
+  useEffect(()=>{DataService.read('sales').then(setSales);DataService.read('purchase').then(setPurchase);},[]);
+  const dates=Object.keys(sales).sort();
+  const salesT=dates.reduce((a,d)=>{const rows=sales[d]?.rows||[];return a+rows.reduce((b,r)=>b+(Number(r.cash)||0)+(Number(r.deposit)||0)+(Number(r.card)||0)+(Number(r.krw)||0),0);},0);
+  const expT=dates.reduce((a,d)=>a+(sales[d]?.expenses||[]).reduce((b,e)=>b+(Number(e.amount)||0),0),0);
+  const purT=purchase.reduce((a,p)=>a+(p.total||0),0);const net=salesT-expT-purT;
+  const labels={monthly:'월말 결산',quarterly:'분기 결산',semi:'반기 결산',annual:'년간 결산'};
+  return (<div className="fade-in">
+    <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,marginBottom:14,color:'var(--gold-light)'}}>{labels[period]}</h3>
+    <div className="cards">
+      {[['총 매출',fmt(salesT),'var(--ok)'],['영업 지출',fmt(expT),'var(--warn)'],['매입 비용',fmt(purT),'var(--err)'],['순이익',fmt(net),net>=0?'var(--ok)':'var(--err)']].map(([lb,vl,c],i)=>(
+        <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl" style={{color:c}}>{vl}</div></div>
+      ))}
+    </div>
+    <div className="pn" style={{padding:16}}>
+      <div style={{fontSize:11,color:'var(--text2)',marginBottom:10}}>기간: {dates[0]||'-'} ~ {dates[dates.length-1]||'-'} ({dates.length}일)</div>
+      <table className="tbl"><thead><tr><th>항목</th><th className="num">금액 (VND)</th><th className="num">비율</th></tr></thead>
+      <tbody>
+        <tr><td>매출 합계</td><td className="num" style={{color:'var(--ok)'}}>{fmt(salesT)}</td><td className="num">100%</td></tr>
+        <tr><td>(-) 영업 지출</td><td className="num" style={{color:'var(--err)'}}>-{fmt(expT)}</td><td className="num">{salesT>0?Math.round(expT/salesT*100):0}%</td></tr>
+        <tr><td>(-) 매입 비용</td><td className="num" style={{color:'var(--err)'}}>-{fmt(purT)}</td><td className="num">{salesT>0?Math.round(purT/salesT*100):0}%</td></tr>
+        <tr style={{background:'var(--gold-glow)'}}><td style={{fontWeight:600}}>순이익</td><td className="num" style={{fontWeight:700,fontSize:13,color:net>=0?'var(--ok)':'var(--err)'}}>{fmt(net)}</td><td className="num" style={{fontWeight:600}}>{salesT>0?Math.round(net/salesT*100):0}%</td></tr>
+      </tbody></table>
+    </div></div>);
+}
+
+function App() {
+  const [user,setUser]=useState(getUser());
+  const [subTab,setSub]=useState(0);
+  const [now,setNow]=useState(new Date());
+  const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
+
+  useEffect(()=>{ if(!user){ window.location.href='PAGE_ERP.html'; return; } const t=setInterval(()=>setNow(new Date()),60000); return ()=>clearInterval(t); },[user]);
+  useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
+
+  if(!user) return null;
+  const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
+
+  const renderContent=()=>{ return <Settlement period={['monthly','quarterly','semi','annual'][subTab]}/>; };
+
+  return (
+    <React.Fragment>
+      <style>{ CSS }</style>
+      <div className="app">
+        <div className="hdr">
+          <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
+          <div className="hdr-nav">
+            { ERP_PAGES.map(p=>(
+              <a key={p.id} href={p.href} className={'hdr-tab'+(p.id==='closing'?' active':'')} style={{ textDecoration:'none' }}> <Ic d={p.icon} size={14}/>{ p.label }</a>
+            )) }
+          </div>
+          <div className="hdr-right">
+            <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+            <button className="theme-btn" onClick={()=>setDark(!dark)}>
+              {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={15}/>
+                : <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" size={15}/>
+              }
+            </button>
+            <div className="hdr-user">
+              <div className="av" style={{ background:user.color||'var(--gold)' }}>{user.initial||user.name?.charAt(0)}</div>
+              <div><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
+            </div>
+            <button className="btn-logout" onClick={logout}> 로그아웃</button>
+          </div>
+        </div>
+        <div className="content">
+          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+            <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
+          ))}</div>
+          <div className="page" key={subTab}>{renderContent()}</div>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

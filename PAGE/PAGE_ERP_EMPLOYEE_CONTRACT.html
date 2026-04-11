@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HWASA K-Beauty ERP - 계약서</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="ERP_COMMON.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo} = React;
+const SUB_TABS = ['계약서 목록','추가','만료 내역'];
+
+
+/* ════════════════════════════════════════
+   CONTRACTS
+   ════════════════════════════════════════ */
+function ContractList() {
+  const [list,setList]=useState([]);useEffect(()=>{DataService.read('contracts').then(setList);},[]);
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">계약서 목록</div><div className="pn-st">{list.length}건</div></div></div>
+    <table className="tbl"><thead><tr><th>ID</th><th>직원</th><th>유형</th><th>직위</th><th>시작일</th><th>종료일</th><th className="num">기본급</th><th className="num">시급</th><th>상태</th></tr></thead>
+    <tbody>{list.map((c,i)=>{const emp=EMPLOYEES.find(e=>e.name===c.employee);const isExp=new Date(c.end)<new Date(Date.now()+90*86400000);
+      return (<tr key={i}><td style={{color:'var(--text3)'}}>{c.id}</td><td style={{fontWeight:500}}>{emp?.nameKr||c.employee}</td><td>{c.type}</td><td>{c.position}</td><td>{c.start}</td><td>{c.end}</td>
+        <td className="num">{fmt(c.baseSalary)}</td><td className="num">{fmt(c.hourlyRate)}</td>
+        <td><span className={`sts ${c.status==='유효'?(isExp?'sts-warn':'sts-ok'):'sts-err'}`}>{c.status}{isExp&&c.status==='유효'?' (만료임박)':''}</span></td></tr>);
+    })}</tbody></table></div></div>);
+}
+
+function ContractAdd() {
+  const [form,setForm]=useState({employee:'hong',type:'정규직',position:'',start:today(),end:'',baseSalary:0,hourlyRate:0,note:''});
+  const save=async()=>{const list=await DataService.read('contracts');list.push({...form,id:'c'+String(list.length+1).padStart(3,'0'),status:'유효'});await DataService.write('contracts',list);alert('등록 완료');};
+  return (<div className="fade-in"><div className="pn" style={{padding:16}}>
+    <div style={{fontSize:12,fontWeight:600,marginBottom:12}}>계약서 추가</div>
+    <div className="form-grid">
+      <div className="form-g"><label className="form-l">직원</label><select className="form-inp" value={form.employee} onChange={e=>setForm({...form,employee:e.target.value})}>{EMPLOYEES.map(e=><option key={e.name} value={e.name}>{e.nameKr} ({e.name})</option>)}</select></div>
+      <div className="form-g"><label className="form-l">유형</label><select className="form-inp" value={form.type} onChange={e=>setForm({...form,type:e.target.value})}>{['정규직','계약직','파트타임'].map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+      <div className="form-g"><label className="form-l">직위</label><input className="form-inp" value={form.position} onChange={e=>setForm({...form,position:e.target.value})}/></div>
+      <div className="form-g"><label className="form-l">시작일</label><input type="date" className="form-inp" value={form.start} onChange={e=>setForm({...form,start:e.target.value})}/></div>
+      <div className="form-g"><label className="form-l">종료일</label><input type="date" className="form-inp" value={form.end} onChange={e=>setForm({...form,end:e.target.value})}/></div>
+      <div className="form-g"><label className="form-l">기본급</label><input type="number" className="form-inp" value={form.baseSalary} onChange={e=>setForm({...form,baseSalary:Number(e.target.value)})}/></div>
+      <div className="form-g"><label className="form-l">시급</label><input type="number" className="form-inp" value={form.hourlyRate} onChange={e=>setForm({...form,hourlyRate:Number(e.target.value)})}/></div>
+      <div className="form-g"><label className="form-l">비고</label><input className="form-inp" value={form.note} onChange={e=>setForm({...form,note:e.target.value})}/></div>
+    </div>
+    <button className="btn btn-g" onClick={save}>등록</button>
+  </div></div>);
+}
+
+function ContractExpiry() {
+  const [list,setList]=useState([]);useEffect(()=>{DataService.read('contracts').then(setList);},[]);
+  const now=Date.now();const exp=list.filter(c=>new Date(c.end).getTime()<now+180*86400000).sort((a,b)=>new Date(a.end)-new Date(b.end));
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">만료 예정 계약서</div><div className="pn-st">6개월 이내</div></div></div>
+    {exp.length===0?<div className="empty">만료 예정 계약서가 없습니다</div>:
+    <table className="tbl"><thead><tr><th>직원</th><th>종료일</th><th>D-Day</th><th>상태</th></tr></thead>
+    <tbody>{exp.map((c,i)=>{const emp=EMPLOYEES.find(e=>e.name===c.employee);const dd=Math.ceil((new Date(c.end).getTime()-now)/86400000);
+      return (<tr key={i}><td style={{fontWeight:500}}>{emp?.nameKr||c.employee}</td><td>{c.end}</td>
+        <td style={{fontWeight:600,color:dd<30?'var(--err)':dd<90?'var(--warn)':'var(--ok)'}}>D{dd>0?'-'+dd:'+'+Math.abs(dd)}</td>
+        <td><span className={`sts ${dd<0?'sts-err':dd<30?'sts-warn':'sts-ok'}`}>{dd<0?'만료':'유효'}</span></td></tr>);
+    })}</tbody></table>}
+  </div></div>);
+}
+
+/* ════════════════════════════════════════
+   ATTENDANCE
+   ════════════════════════════════════════ */
+function AttendanceMonthly() {
+  const [data,setData]=useState({});const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setData);},[]);
+  const md=data[mo]||{};const yr=Number(mo.split('-')[0]);const mn=Number(mo.split('-')[1]);
+  const dim=new Date(yr,mn,0).getDate();const days=Array.from({length:dim},(_,i)=>i+1);
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/></div>
+    <div style={{overflow:'auto',maxHeight:'calc(100vh - 190px)'}}>
+      <table className="att-cal"><thead><tr><th style={{position:'sticky',left:0,zIndex:10,minWidth:65}}>직원</th>
+        {days.map(d=>{const dow=new Date(yr,mn-1,d).getDay();return <th key={d} style={dow===0?{color:'var(--err)'}:dow===6?{color:'var(--info)'}:{}}>{d}<br/><span style={{fontSize:7,fontWeight:400}}>{['일','월','화','수','목','금','토'][dow]}</span></th>;})}
+      </tr></thead>
+      <tbody>{EMPLOYEES.map(emp=>{const ed=md[emp.name]||{};return (<React.Fragment key={emp.name}>
+        <tr><td className="emp-name" rowSpan={2}>{emp.nameKr}<br/><span style={{fontSize:7,color:'var(--text3)',fontWeight:400}}>{emp.position}</span></td>
+          {days.map(d=>{const rec=ed[String(d)];return <td key={d}>{rec?<span className="in-t">{rec.in}</span>:<span style={{color:'var(--text3)',fontSize:8}}>-</span>}</td>;})}</tr>
+        <tr>{days.map(d=>{const rec=ed[String(d)];return <td key={d}>{rec?<span className="out-t">{rec.out}</span>:''}</td>;})}</tr>
+      </React.Fragment>);})}</tbody></table></div></div>);
+}
+
+function AttendanceByEmployee() {
+  const [data,setData]=useState({});const [emp,setEmp]=useState('hong');const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setData);},[]);
+  const ed=(data[mo]||{})[emp]||{};const days=Object.keys(ed).sort((a,b)=>Number(a)-Number(b));
+  const totH=days.reduce((a,d)=>{const r=ed[d];if(!r)return a;const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);return a+(oh+om/60)-(ih+im/60);},0);
+  return (<div className="fade-in">
+    <div className="toolbar">
+      <select className="form-inp" value={emp} onChange={e=>setEmp(e.target.value)} style={{width:130}}>{EMPLOYEES.map(e=><option key={e.name} value={e.name}>{e.nameKr} ({e.name})</option>)}</select>
+      <input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/>
+    </div>
+    <div className="cards">
+      <div className="card"><div className="card-lb">출근일</div><div className="card-vl">{days.length}일</div></div>
+      <div className="card"><div className="card-lb">총 근무시간</div><div className="card-vl">{totH.toFixed(1)}h</div></div>
+      <div className="card"><div className="card-lb">일평균</div><div className="card-vl">{days.length>0?(totH/days.length).toFixed(1):'0'}h</div></div>
+    </div>
+    <div className="pn"><table className="tbl"><thead><tr><th>일</th><th>출근</th><th>퇴근</th><th className="num">근무시간</th></tr></thead>
+    <tbody>{days.map(d=>{const r=ed[d];const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);const hrs=((oh+om/60)-(ih+im/60)).toFixed(1);
+      return (<tr key={d}><td>{mo}-{pad2(d)}</td><td style={{color:'var(--ok)'}}>{r.in}</td><td style={{color:'var(--info)'}}>{r.out}</td><td className="num" style={{fontWeight:500}}>{hrs}h</td></tr>);})}</tbody></table></div></div>);
+}
+
+function AttendanceSummary() {
+  const [data,setData]=useState({});const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setData);},[]);
+  const md=data[mo]||{};
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/></div>
+    <div className="pn"><div className="pn-h"><div className="pn-t">근태 요약</div></div>
+    <table className="tbl"><thead><tr><th>직원</th><th>직위</th><th className="num">출근일</th><th className="num">총 근무시간</th><th className="num">일평균</th><th className="num">시급</th><th className="num">예상 급여</th></tr></thead>
+    <tbody>{EMPLOYEES.map(emp=>{const ed=md[emp.name]||{};const days=Object.keys(ed);
+      const totH=days.reduce((a,d)=>{const r=ed[d];if(!r)return a;const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);return a+(oh+om/60)-(ih+im/60);},0);
+      return (<tr key={emp.name}><td style={{fontWeight:500}}>{emp.nameKr}</td><td>{emp.position}</td><td className="num">{days.length}일</td><td className="num">{totH.toFixed(1)}h</td>
+        <td className="num">{days.length>0?(totH/days.length).toFixed(1):'0'}h</td><td className="num">{fmt(emp.hourly)}</td><td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(Math.round(totH*emp.hourly))}</td></tr>);
+    })}</tbody></table></div></div>);
+}
+
+function App() {
+  const [user,setUser]=useState(getUser());
+  const [subTab,setSub]=useState(0);
+  const [now,setNow]=useState(new Date());
+  const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
+
+  useEffect(()=>{ if(!user){ window.location.href='PAGE_ERP.html'; return; } const t=setInterval(()=>setNow(new Date()),60000); return ()=>clearInterval(t); },[user]);
+  useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
+
+  if(!user) return null;
+  const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
+
+  const renderContent=()=>{ return subTab===0?<ContractList/>:subTab===1?<ContractAdd/>:<ContractExpiry/>; };
+
+  return (
+    <React.Fragment>
+      <style>{ CSS }</style>
+      <div className="app">
+        <div className="hdr">
+          <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
+          <div className="hdr-nav">
+            { ERP_PAGES.map(p=>(
+              <a key={p.id} href={p.href} className={'hdr-tab'+(p.id==='contract'?' active':'')} style={{ textDecoration:'none' }}> <Ic d={p.icon} size={14}/>{ p.label }</a>
+            )) }
+          </div>
+          <div className="hdr-right">
+            <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+            <button className="theme-btn" onClick={()=>setDark(!dark)}>
+              {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={15}/>
+                : <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" size={15}/>
+              }
+            </button>
+            <div className="hdr-user">
+              <div className="av" style={{ background:user.color||'var(--gold)' }}>{user.initial||user.name?.charAt(0)}</div>
+              <div><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
+            </div>
+            <button className="btn-logout" onClick={logout}> 로그아웃</button>
+          </div>
+        </div>
+        <div className="content">
+          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+            <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
+          ))}</div>
+          <div className="page" key={subTab}>{renderContent()}</div>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

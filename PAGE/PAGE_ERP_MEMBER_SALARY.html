@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HWASA K-Beauty ERP - 월급여</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="ERP_COMMON.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo} = React;
+const SUB_TABS = ['급여 계산','지급 이력','명세서'];
+
+
+/* ════════════════════════════════════════
+   SALARY
+   ════════════════════════════════════════ */
+function SalaryCalc() {
+  const [att,setAtt]=useState({});const [con,setCon]=useState([]);const [mo,setMo]=useState('2026-03');
+  useEffect(()=>{DataService.read('attendance').then(setAtt);DataService.read('contracts').then(setCon);},[]);
+  const md=att[mo]||{};
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/><div className="spacer"/><button className="btn btn-g">급여 확정</button></div>
+    <div className="pn"><div className="pn-h"><div><div className="pn-t">급여 계산</div><div className="pn-st">{mo}</div></div></div>
+    <table className="tbl"><thead><tr><th>직원</th><th className="num">출근일</th><th className="num">근무시간</th><th className="num">기본급</th><th className="num">시간급</th><th className="num">공제</th><th className="num">지급액</th></tr></thead>
+    <tbody>{EMPLOYEES.map(emp=>{const ed=md[emp.name]||{};const days=Object.keys(ed);
+      const totH=days.reduce((a,d)=>{const r=ed[d];if(!r)return a;const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);return a+(oh+om/60)-(ih+im/60);},0);
+      const ct=con.find(c=>c.employee===emp.name);const base=ct?.baseSalary||emp.base;const hPay=Math.round(totH*emp.hourly);const ded=Math.round(base*0.035);const net=base-ded;
+      return (<tr key={emp.name}><td style={{fontWeight:500}}>{emp.nameKr} <span style={{color:'var(--text3)',fontSize:9}}>({emp.name})</span></td>
+        <td className="num">{days.length}일</td><td className="num">{totH.toFixed(1)}h</td><td className="num">{fmt(base)}</td><td className="num">{fmt(hPay)}</td>
+        <td className="num" style={{color:'var(--err)'}}>-{fmt(ded)}</td><td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:12}}>{fmt(net)}</td></tr>);
+    })}</tbody></table></div></div>);
+}
+
+function SalaryHistory() {
+  const [list,setList]=useState([]);useEffect(()=>{DataService.read('salary').then(setList);},[]);
+  return (<div className="fade-in"><div className="pn"><div className="pn-h"><div className="pn-t">지급 이력</div></div>
+    <table className="tbl"><thead><tr><th>직원</th><th>기간</th><th className="num">출근일</th><th className="num">기본급</th><th className="num">추가수당</th><th className="num">팁</th><th className="num">공제</th><th className="num">지급액</th><th>지급일</th><th>상태</th></tr></thead>
+    <tbody>{list.map((s,i)=>{const emp=EMPLOYEES.find(e=>e.name===s.employee);
+      return (<tr key={i}><td style={{fontWeight:500}}>{emp?.nameKr||s.employee}</td><td>{s.year}.{pad2(s.month)}</td><td className="num">{s.workDays}일</td><td className="num">{fmt(s.baseSalary)}</td>
+        <td className="num">{fmt(s.overtime)}</td><td className="num" style={{color:'var(--ok)'}}>{fmt(s.tip)}</td><td className="num" style={{color:'var(--err)'}}>-{fmt(s.deduction)}</td>
+        <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(s.netSalary)}</td><td>{s.paidDate||'-'}</td>
+        <td><span className={`sts ${s.paid?'sts-ok':'sts-warn'}`}>{s.paid?'지급완료':'대기'}</span></td></tr>);})}</tbody></table></div></div>);
+}
+
+function SalaryPayslip() {
+  const [list,setList]=useState([]);const [idx,setIdx]=useState(0);
+  useEffect(()=>{DataService.read('salary').then(setList);},[]);
+  if(list.length===0) return <div className="empty">지급 이력이 없습니다</div>;
+  const s=list[idx]||list[0];const emp=EMPLOYEES.find(e=>e.name===s.employee);
+  return (<div className="fade-in">
+    <div className="toolbar"><select className="form-inp" value={idx} onChange={e=>setIdx(Number(e.target.value))} style={{width:200}}>{list.map((s,i)=>{const e=EMPLOYEES.find(x=>x.name===s.employee);return <option key={i} value={i}>{e?.nameKr||s.employee} - {s.year}.{pad2(s.month)}</option>;})}</select></div>
+    <div className="payslip">
+      <h3>급여 명세서</h3><div className="period">{s.year}년 {s.month}월 · {emp?.nameKr||s.employee} ({emp?.position||''})</div>
+      {[['기본급',fmt(s.baseSalary)+'₫'],['추가수당',fmt(s.overtime)+'₫'],['팁',fmt(s.tip)+'₫','var(--ok)'],['공제액','-'+fmt(s.deduction)+'₫','var(--err)'],['근무일',s.workDays+'일'],['근무시간',s.workHours+'h']].map(([k,v,c],i)=>(
+        <div key={i} className="row"><span className="k">{k}</span><span className="v" style={c?{color:c}:{}}>{v}</span></div>
+      ))}
+      <div className="row total"><span className="k" style={{fontSize:13,fontWeight:600}}>실지급액</span><span className="v">{fmt(s.netSalary)}₫</span></div>
+      <div style={{marginTop:10,fontSize:9.5,color:'var(--text3)'}}>지급일: {s.paidDate||'미정'} · 상태: {s.paid?'지급완료':'대기'}</div>
+    </div></div>);
+}
+
+function App() {
+  const [user,setUser]=useState(getUser());
+  const [subTab,setSub]=useState(0);
+  const [now,setNow]=useState(new Date());
+  const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
+
+  useEffect(()=>{ if(!user){ window.location.href='PAGE_ERP.html'; return; } const t=setInterval(()=>setNow(new Date()),60000); return ()=>clearInterval(t); },[user]);
+  useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
+
+  if(!user) return null;
+  const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
+
+  const renderContent=()=>{ return subTab===0?<SalaryCalc/>:subTab===1?<SalaryHistory/>:<SalaryPayslip/>; };
+
+  return (
+    <React.Fragment>
+      <style>{ CSS }</style>
+      <div className="app">
+        <div className="hdr">
+          <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
+          <div className="hdr-nav">
+            { ERP_PAGES.map(p=>(
+              <a key={p.id} href={p.href} className={'hdr-tab'+(p.id==='salary'?' active':'')} style={{ textDecoration:'none' }}> <Ic d={p.icon} size={14}/>{ p.label }</a>
+            )) }
+          </div>
+          <div className="hdr-right">
+            <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+            <button className="theme-btn" onClick={()=>setDark(!dark)}>
+              {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={15}/>
+                : <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" size={15}/>
+              }
+            </button>
+            <div className="hdr-user">
+              <div className="av" style={{ background:user.color||'var(--gold)' }}>{user.initial||user.name?.charAt(0)}</div>
+              <div><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
+            </div>
+            <button className="btn-logout" onClick={logout}> 로그아웃</button>
+          </div>
+        </div>
+        <div className="content">
+          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+            <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
+          ))}</div>
+          <div className="page" key={subTab}>{renderContent()}</div>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HWASA K-Beauty ERP - 매출</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="ERP_COMMON.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo} = React;
+const SUB_TABS = ['일일 입력','매출 내역','월별 요약'];
+
+
+/* ════════════════════════════════════════
+   SALES DAILY INPUT — SPREADSHEET
+   ════════════════════════════════════════ */
+function SalesDailyInput() {
+  const [selDate, setSelDate] = useState(today());
+  const [data, setData] = useState({ rows: [], expenses: [] });
+
+  const loadData = useCallback(async (date) => {
+    const all = await DataService.read('sales');
+    const d = all[date] || { rows: [], expenses: [] };
+    if (d.rows.length === 0) d.rows = [mkSaleRow(1, date)];
+    setData(d);
+  }, []);
+  useEffect(() => { loadData(selDate); }, [selDate, loadData]);
+
+  const mkSaleRow = (no, date) => ({
+    no, date, name:'', grade:'', service:'',
+    hair:false, event:false, vip:false,
+    deductAmt:0, deduct:0, tipDeduct:0,
+    cash:0, deposit:0, card:0, krw:0, unpaid:0,
+    male:'', female:'', ticket:'',
+  });
+
+  const upRow = (i, f, v) => setData(p => {
+    const rows = [...p.rows]; rows[i] = { ...rows[i], [f]: v }; return { ...p, rows };
+  });
+  const addRow = () => setData(p => ({ ...p, rows: [...p.rows, mkSaleRow(p.rows.length+1, selDate)] }));
+  const delRow = (i) => setData(p => ({ ...p, rows: p.rows.filter((_,j)=>j!==i).map((r,j)=>({...r,no:j+1})) }));
+  const addExp = () => setData(p => ({ ...p, expenses: [...p.expenses, {item:'기타',amount:0,note:''}] }));
+  const upExp = (i,f,v) => setData(p => { const e=[...p.expenses]; e[i]={...e[i],[f]:v}; return {...p,expenses:e}; });
+  const delExp = (i) => setData(p => ({ ...p, expenses: p.expenses.filter((_,j)=>j!==i) }));
+  const save = async () => { const all=await DataService.read('sales'); all[selDate]=data; await DataService.write('sales',all); alert('저장 완료'); };
+
+  const totals = useMemo(() => {
+    const r=data.rows; const sm=(f)=>r.reduce((a,x)=>a+(Number(x[f])||0),0);
+    const expT=data.expenses.reduce((a,x)=>a+(Number(x.amount)||0),0);
+    const inc=sm('cash')+sm('deposit')+sm('card')+sm('krw');
+    return { dCnt:r.filter(x=>Number(x.deduct)>0).length, dAmt:sm('deductAmt'), tip:sm('tipDeduct'),
+      cash:sm('cash'), dep:sm('deposit'), card:sm('card'), krw:sm('krw'), unpaid:sm('unpaid'),
+      male:r.filter(x=>x.male).length, female:r.filter(x=>x.female).length, expT, inc, net:inc-expT };
+  }, [data]);
+
+  const cols = [
+    {k:'no',l:'No',w:30,t:'ro'},{k:'name',l:'고객명',w:80,t:'tx'},{k:'grade',l:'멤버등급',w:75,t:'sel',opts:MEMBER_GRADES},
+    {k:'service',l:'메뉴',w:130,t:'sel',opts:['',...MASTER.menuHead.filter(m=>m.active).map(m=>m.name)]},{k:'hair',l:'탈모',w:35,t:'chk'},{k:'event',l:'이벤트',w:40,t:'chk'},
+    {k:'vip',l:'VIP',w:35,t:'chk'},{k:'deductAmt',l:'차감금액',w:80,t:'num'},{k:'deduct',l:'차감',w:55,t:'num'},
+    {k:'tipDeduct',l:'팁차감',w:75,t:'num'},{k:'cash',l:'현금',w:85,t:'num'},{k:'deposit',l:'입금+10%',w:80,t:'num'},
+    {k:'card',l:'카드',w:80,t:'num'},{k:'krw',l:'한국돈',w:75,t:'num'},{k:'unpaid',l:'미수',w:65,t:'num'},
+    {k:'male',l:'남',w:30,t:'tx'},{k:'female',l:'여',w:30,t:'tx'},{k:'ticket',l:'TICKET',w:55,t:'tx'},
+  ];
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <input type="date" className="form-inp" value={selDate} onChange={e=>setSelDate(e.target.value)} style={{width:150}} />
+        <span style={{fontSize:11,color:'var(--text2)'}}>{new Date(selDate+'T00:00').toLocaleDateString('ko-KR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
+        <div className="spacer" />
+        <button className="btn btn-s" onClick={addRow}>+ 행 추가</button>
+        <button className="btn btn-g" onClick={save}>저장</button>
+      </div>
+      <div className="ss-wrap">
+        <table className="ss" style={{minWidth:1500}}>
+          <thead><tr>{cols.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
+          <tbody>
+            {data.rows.map((row,ri)=>(
+              <tr key={ri}>{cols.map(c=>(
+                <td key={c.k} className={c.t==='num'?'nc':''}>
+                  {c.t==='ro'?<div className="rn">{row.no}</div>
+                  :c.t==='chk'?<div style={{textAlign:'center'}}><input type="checkbox" checked={!!row[c.k]} onChange={e=>upRow(ri,c.k,e.target.checked)}/></div>
+                  :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o||'-'}</option>)}</select>
+                  :c.t==='num'?<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
+                  :<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>}
+                </td>
+              ))}<td><button className="del-btn" onClick={()=>delRow(ri)}>×</button></td></tr>
+            ))}
+            <tr className="ss-total">
+              <td colSpan={7} style={{textAlign:'right',paddingRight:8}}>합계</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.dAmt)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{totals.dCnt}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.tip)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.cash)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.dep)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.card)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.krw)}</td>
+              <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.unpaid)}</td>
+              <td style={{textAlign:'center'}}>{totals.male}</td>
+              <td style={{textAlign:'center'}}>{totals.female}</td>
+              <td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:10}}>
+        <div className="exp-panel">
+          <h4>지출 항목</h4>
+          {data.expenses.map((exp,i)=>(
+            <div key={i} className="exp-row">
+              <select value={exp.item} onChange={e=>upExp(i,'item',e.target.value)}>{EXPENSE_ITEMS.map(it=><option key={it} value={it}>{it}</option>)}</select>
+              <input value={exp.amount||''} placeholder="금액" onChange={e=>upExp(i,'amount',Number(e.target.value.replace(/,/g,''))||0)} style={{width:90}}/>
+              <input value={exp.note||''} placeholder="비고" onChange={e=>upExp(i,'note',e.target.value)}/>
+              <button onClick={()=>delExp(i)} style={{background:'none',border:'none',color:'var(--err)',cursor:'pointer',fontSize:13}}>×</button>
+            </div>
+          ))}
+          <button className="btn btn-s" onClick={addExp} style={{marginTop:5}}>+ 지출 추가</button>
+        </div>
+        <div className="close-panel">
+          <h4>일일 마감 집계</h4>
+          <div className="close-grid">
+            {[['차감횟수',totals.dCnt+'건'],['차감금액',fmt(totals.dAmt)],['팁차감',fmt(totals.tip)],
+              ['현금',fmt(totals.cash)],['입금+10%',fmt(totals.dep)],['카드',fmt(totals.card)],
+              ['한국돈',fmt(totals.krw)],['미수금',fmt(totals.unpaid)],
+              ['총지출',fmt(totals.expT),'var(--err)'],['총수입',fmt(totals.inc),'var(--ok)'],
+              ['남',totals.male+'명'],['여',totals.female+'명'],
+            ].map(([k,v,c],i)=>(
+              <div key={i} className="close-item"><span className="k">{k}</span><span className="v" style={c?{color:c}:{}}>{v}</span></div>
+            ))}
+            <div className="close-item" style={{gridColumn:'span 2',borderColor:'var(--border-gold)'}}>
+              <span className="k">남은돈 (수입-지출)</span><span className="v" style={{fontSize:13}}>{fmt(totals.net)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   SALES LIST / MONTHLY
+   ════════════════════════════════════════ */
+function SalesList() {
+  const [data, setData] = useState({});
+  const [sel, setSel] = useState('');
+  useEffect(()=>{DataService.read('sales').then(setData);},[]);
+  const dates = Object.keys(data).sort().reverse();
+
+  if (sel && data[sel]) {
+    const d = data[sel];
+    return (<div className="fade-in">
+      <div className="toolbar"><button className="btn btn-s" onClick={()=>setSel('')}>← 목록</button><span style={{fontSize:12,fontWeight:600}}>{sel} 매출 상세</span></div>
+      <div className="ss-wrap"><table className="ss" style={{minWidth:1200}}>
+        <thead><tr><th>No</th><th>고객명</th><th>등급</th><th>서비스</th><th>차감금액</th><th>차감</th><th>팁차감</th><th>현금</th><th>입금</th><th>카드</th><th>한국돈</th><th>미수</th><th>남</th><th>여</th></tr></thead>
+        <tbody>{d.rows.map((r,i)=>(<tr key={i}><td className="rn">{r.no}</td><td style={{padding:'3px 6px'}}>{r.name}</td><td style={{padding:'3px 6px'}}>{r.grade}</td><td style={{padding:'3px 6px'}}>{r.service}</td>
+          <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deductAmt)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deduct)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.tipDeduct)}</td>
+          <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.cash)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deposit)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.card)}</td>
+          <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.krw)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.unpaid)}</td>
+          <td style={{textAlign:'center',padding:'3px'}}>{r.male}</td><td style={{textAlign:'center',padding:'3px'}}>{r.female}</td></tr>))}</tbody>
+      </table></div></div>);
+  }
+
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">매출 내역</div></div></div>
+    <table className="tbl"><thead><tr><th>날짜</th><th>건수</th><th className="num">현금</th><th className="num">입금</th><th className="num">카드</th><th className="num">한국돈</th><th className="num">미수</th><th className="num">합계</th></tr></thead>
+    <tbody>{dates.map(dt=>{const d=data[dt];const sm=(f)=>d.rows.reduce((a,x)=>a+(Number(x[f])||0),0);const tot=sm('cash')+sm('deposit')+sm('card')+sm('krw');
+      return (<tr key={dt} onClick={()=>setSel(dt)} style={{cursor:'pointer'}}><td style={{fontWeight:500,color:'var(--gold-light)'}}>{dt}</td><td>{d.rows.length}건</td>
+        <td className="num">{fmt(sm('cash'))}</td><td className="num">{fmt(sm('deposit'))}</td><td className="num">{fmt(sm('card'))}</td><td className="num">{fmt(sm('krw'))}</td><td className="num">{fmt(sm('unpaid'))}</td>
+        <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(tot)}</td></tr>);
+    })}</tbody></table></div></div>);
+}
+
+function SalesMonthlySummary() {
+  const [data, setData] = useState({});
+  const [mo, setMo] = useState('2026-03');
+  useEffect(()=>{DataService.read('sales').then(setData);},[]);
+  const mDates=Object.keys(data).filter(d=>d.startsWith(mo)).sort();
+  const mData=mDates.map(dt=>{const d=data[dt];const sm=(f)=>d.rows.reduce((a,x)=>a+(Number(x[f])||0),0);const expT=(d.expenses||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+    return {date:dt,cnt:d.rows.length,cash:sm('cash'),dep:sm('deposit'),card:sm('card'),krw:sm('krw'),unpaid:sm('unpaid'),exp:expT};});
+  const gt=(f)=>mData.reduce((a,x)=>a+x[f],0);
+  const totInc=gt('cash')+gt('dep')+gt('card')+gt('krw');
+
+  return (<div className="fade-in">
+    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/></div>
+    <div className="cards">
+      {[['총 매출',fmt(totInc),'var(--gold)'],['현금',fmt(gt('cash')),'var(--ok)'],['카드',fmt(gt('card')),'var(--info)'],['총 지출',fmt(gt('exp')),'var(--warn)'],['미수금',fmt(gt('unpaid')),'var(--err)'],['총 건수',gt('cnt'),'#9B59B6',mDates.length+'일 영업']].map(([lb,vl,c,sub],i)=>(
+        <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl">{vl}</div>{sub&&<div className="card-sub">{sub}</div>}</div>
+      ))}
+    </div>
+    <div className="pn"><table className="tbl">
+      <thead><tr><th>날짜</th><th>건수</th><th className="num">현금</th><th className="num">입금</th><th className="num">카드</th><th className="num">한국돈</th><th className="num">미수</th><th className="num">지출</th><th className="num">순수입</th></tr></thead>
+      <tbody>{mData.map(d=>{const inc=d.cash+d.dep+d.card+d.krw;return (<tr key={d.date}><td>{d.date}</td><td>{d.cnt}건</td><td className="num">{fmt(d.cash)}</td><td className="num">{fmt(d.dep)}</td><td className="num">{fmt(d.card)}</td><td className="num">{fmt(d.krw)}</td><td className="num">{fmt(d.unpaid)}</td><td className="num" style={{color:'var(--err)'}}>{fmt(d.exp)}</td><td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(inc-d.exp)}</td></tr>);})}
+        <tr style={{background:'var(--gold-glow)'}}><td style={{fontWeight:600}}>합계</td><td>{gt('cnt')}건</td><td className="num" style={{fontWeight:600}}>{fmt(gt('cash'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('dep'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('card'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('krw'))}</td><td className="num" style={{fontWeight:600}}>{fmt(gt('unpaid'))}</td><td className="num" style={{fontWeight:600,color:'var(--err)'}}>{fmt(gt('exp'))}</td><td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:12}}>{fmt(totInc-gt('exp'))}</td></tr>
+      </tbody></table></div></div>);
+}
+
+/* ════════════════════════════════════════
+   PURCHASE — SPREADSHEET
+   ════════════════════════════════════════ */
+function PurchaseInput() {
+  const [rows, setRows] = useState([]);
+  useEffect(()=>{DataService.read('purchase').then(setRows);},[]);
+
+  const mkRow = () => ({id:'p'+String(rows.length+1).padStart(3,'0'),date:today(),supplier:'',item:'',category:'원재료',qty:1,unitPrice:0,total:0,note:''});
+
+  const upRow = (i,f,v) => setRows(p=>{
+    const r=[...p]; r[i]={...r[i],[f]:v};
+    if(f==='qty'||f==='unitPrice') r[i].total = (Number(r[i].qty)||0) * (Number(r[i].unitPrice)||0);
+    return r;
+  });
+  const addRow = () => setRows(p=>[...p, mkRow()]);
+  const delRow = (i) => setRows(p=>p.filter((_,j)=>j!==i));
+  const save = async () => { await DataService.write('purchase', rows); alert('저장 완료'); };
+
+  const pCols = [
+    {k:'date',l:'날짜',w:95,t:'date'},{k:'supplier',l:'공급처',w:110,t:'sel',opts:['',...MASTER.suppliers.filter(s=>s.active).map(s=>s.name)]},{k:'item',l:'품목',w:120,t:'tx'},
+    {k:'category',l:'분류',w:80,t:'sel',opts:PURCHASE_CATS},{k:'qty',l:'수량',w:55,t:'num'},
+    {k:'unitPrice',l:'단가(VND)',w:95,t:'num'},{k:'total',l:'합계',w:100,t:'ro_num'},{k:'note',l:'비고',w:100,t:'tx'},
+  ];
+
+  const grandTotal = rows.reduce((a,x)=>a+(x.total||0),0);
+
+  return (<div className="fade-in">
+    <div className="toolbar">
+      <span style={{fontSize:12,fontWeight:600}}>매입 입력</span>
+      <div className="spacer"/>
+      <button className="btn btn-s" onClick={addRow}>+ 행 추가</button>
+      <button className="btn btn-g" onClick={save}>저장</button>
+    </div>
+    <div className="ss-wrap">
+      <table className="ss" style={{minWidth:900}}>
+        <thead><tr><th style={{width:30}}>No</th>{pCols.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
+        <tbody>
+          {rows.map((row,ri)=>(
+            <tr key={ri}>
+              <td className="rn">{ri+1}</td>
+              {pCols.map(c=>(
+                <td key={c.k} className={c.t==='num'||c.t==='ro_num'?'nc':''}>
+                  {c.t==='ro_num'?<div style={{padding:'3px 5px',textAlign:'right',color:'var(--gold-light)',fontWeight:600,fontSize:10.5}}>{fmt(row[c.k])}</div>
+                  :c.t==='date'?<input type="date" value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>
+                  :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o}</option>)}</select>
+                  :c.t==='num'?<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
+                  :<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>}
+                </td>
+              ))}
+              <td><button className="del-btn" onClick={()=>delRow(ri)}>×</button></td>
+            </tr>
+          ))}
+          {rows.length>0 && <tr className="ss-total">
+            <td colSpan={6} style={{textAlign:'right',paddingRight:8}}>합계</td>
+            <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(grandTotal)}</td>
+            <td></td><td></td>
+          </tr>}
+        </tbody>
+      </table>
+    </div>
+  </div>);
+}
+
+function PurchaseList() {
+  const [list,setList]=useState([]);
+  useEffect(()=>{DataService.read('purchase').then(setList);},[]);
+  return (<div className="fade-in"><div className="pn">
+    <div className="pn-h"><div><div className="pn-t">매입 내역</div><div className="pn-st">총 {list.length}건 · {fmt(list.reduce((a,x)=>a+(x.total||0),0))}₫</div></div></div>
+    <table className="tbl"><thead><tr><th>날짜</th><th>공급처</th><th>품목</th><th>분류</th><th className="num">수량</th><th className="num">단가</th><th className="num">합계</th><th>비고</th></tr></thead>
+    <tbody>{[...list].reverse().map((p,i)=>(<tr key={i}><td>{p.date}</td><td>{p.supplier}</td><td>{p.item}</td>
+      <td><span className={`sts ${p.category==='원재료'?'sts-info':p.category==='소모품'?'sts-warn':'sts-ok'}`}>{p.category}</span></td>
+      <td className="num">{p.qty}</td><td className="num">{fmt(p.unitPrice)}</td><td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.total)}</td><td style={{color:'var(--text2)'}}>{p.note}</td></tr>))}</tbody>
+  </table></div></div>);
+}
+
+function PurchaseStats() {
+  const [list,setList]=useState([]);
+  useEffect(()=>{DataService.read('purchase').then(setList);},[]);
+  const byCat={};list.forEach(p=>{byCat[p.category]=(byCat[p.category]||0)+(p.total||0);});
+  const total=list.reduce((a,x)=>a+(x.total||0),0);
+  return (<div className="fade-in"><div className="cards">
+    {Object.entries(byCat).map(([cat,amt])=>(<div className="card" key={cat}><div className="card-lb">{cat}</div><div className="card-vl">{fmt(amt)}</div><div className="card-sub">{total>0?Math.round(amt/total*100):0}%</div></div>))}
+    <div className="card"><div className="card-bar" style={{background:'var(--gold)'}}/><div className="card-lb">총 매입</div><div className="card-vl">{fmt(total)}</div></div>
+  </div></div>);
+}
+
+
+
+function App() {
+  const [user,setUser]=useState(getUser());
+  const [subTab,setSub]=useState(0);
+  const [now,setNow]=useState(new Date());
+  const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
+
+  useEffect(()=>{ if(!user){ window.location.href='PAGE_ERP.html'; return; } const t=setInterval(()=>setNow(new Date()),60000); return ()=>clearInterval(t); },[user]);
+  useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
+
+  if(!user) return null;
+  const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
+
+  const renderContent=()=>{ return subTab===0?<SalesDailyInput/>:subTab===1?<SalesList/>:<SalesMonthlySummary/>; };
+
+  return (
+    <React.Fragment>
+      <style>{ CSS }</style>
+      <div className="app">
+        <div className="hdr">
+          <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
+          <div className="hdr-nav">
+            { ERP_PAGES.map(p=>(
+              <a key={p.id} href={p.href} className={'hdr-tab'+(p.id==='sales'?' active':'')} style={{ textDecoration:'none' }}> <Ic d={p.icon} size={14}/>{ p.label }</a>
+            )) }
+          </div>
+          <div className="hdr-right">
+            <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+            <button className="theme-btn" onClick={()=>setDark(!dark)}>
+              {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={15}/>
+                : <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" size={15}/>
+              }
+            </button>
+            <div className="hdr-user">
+              <div className="av" style={{ background:user.color||'var(--gold)' }}>{user.initial||user.name?.charAt(0)}</div>
+              <div><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
+            </div>
+            <button className="btn-logout" onClick={logout}> 로그아웃</button>
+          </div>
+        </div>
+        <div className="content">
+          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+            <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
+          ))}</div>
+          <div className="page" key={subTab}>{renderContent()}</div>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

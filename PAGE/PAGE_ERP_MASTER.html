@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HWASA K-Beauty ERP - 마스터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="ERP_COMMON.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo} = React;
+const SUB_TABS = ['프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'];
+
+
+/* ════════════════════════════════════════
+   MASTER — 마스터정보 관리
+   ════════════════════════════════════════ */
+function MasterTable({title,dataKey,columns,initRow}) {
+  const [rows,setRows]=useState([]);
+  useEffect(()=>{DataService.read('master').then(m=>setRows(m[dataKey]||[]));},[dataKey]);
+  const up=(i,f,v)=>setRows(p=>{const r=[...p];r[i]={...r[i],[f]:v};return r;});
+  const add=()=>setRows(p=>[...p,initRow(p.length)]);
+  const del=(i)=>setRows(p=>p.filter((_,j)=>j!==i));
+  const save=async()=>{const m=await DataService.read('master');m[dataKey]=rows;await DataService.write('master',m);
+    // 동기화: MASTER 객체 업데이트
+    MASTER[dataKey]=JSON.parse(JSON.stringify(rows));
+    alert('저장 완료');};
+  return (<div className="fade-in">
+    <div className="toolbar"><span style={{fontSize:12,fontWeight:600}}>{title}</span><span style={{fontSize:10,color:'var(--text3)',marginLeft:8}}>{rows.length}건</span><div className="spacer"/><button className="btn btn-s" onClick={add}>+ 추가</button><button className="btn btn-g" onClick={save}>저장</button></div>
+    <div className="ss-wrap"><table className="ss" style={{minWidth:columns.reduce((a,c)=>a+c.w,0)+60}}>
+      <thead><tr><th style={{width:30}}>No</th>{columns.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
+      <tbody>{rows.map((row,ri)=><tr key={ri}><td className="rn">{ri+1}</td>
+        {columns.map(c=><td key={c.k} className={c.t==='num'?'nc':''}>
+          {c.t==='bool'?<div style={{textAlign:'center'}}><input type="checkbox" checked={!!row[c.k]} onChange={e=>up(ri,c.k,e.target.checked)}/></div>
+          :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>up(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o}</option>)}</select>
+          :c.t==='num'?<input value={row[c.k]||''} onChange={e=>up(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
+          :<input value={row[c.k]||''} onChange={e=>up(ri,c.k,e.target.value)}/>}
+        </td>)}
+        <td><button className="del-btn" onClick={()=>del(ri)}>×</button></td></tr>)}
+      </tbody></table></div>
+  </div>);
+}
+
+function MasterProgram(){return <MasterTable title="프로그램 모듈 (재사용 단위)" dataKey="program" columns={[
+  {k:'code',l:'코드',w:60,t:'tx'},{k:'name',l:'프로그램명',w:130,t:'tx'},
+  {k:'majorCat',l:'대분류',w:75,t:'sel',opts:MAJOR_CATS},{k:'defaultTime',l:'기본시간',w:70,t:'sel',opts:TIME_OPTS},
+  {k:'desc',l:'설명',w:160,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({code:'PG'+String(n+1).padStart(3,'0'),name:'',majorCat:'마사지',defaultTime:'30분',desc:'',active:true})}/>;}
+
+function MasterMenuHead(){return <MasterTable title="메뉴 관리 (MENU_HEAD)" dataKey="menuHead" columns={[
+  {k:'code',l:'메뉴코드',w:65,t:'tx'},{k:'name',l:'메뉴명',w:120,t:'tx'},{k:'desc',l:'상세설명',w:200,t:'tx'},
+  {k:'totalTime',l:'총시간(분)',w:75,t:'num'},{k:'price',l:'가격(VND)',w:100,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({code:'MH'+String(n+1).padStart(3,'0'),name:'',desc:'',totalTime:0,price:0,active:true})}/>;}
+
+function MasterMenuBody(){
+  const pgOpts = MASTER.program.filter(p=>p.active).map(p=>p.code+' '+p.name);
+  return (<div className="fade-in">
+    <MasterTable title="메뉴 구성 (MENU_BODY) — 프로그램 라우트" dataKey="menuBody" columns={[
+      {k:'id',l:'ID',w:55,t:'tx'},
+      {k:'menuCode',l:'메뉴',w:130,t:'sel',opts:MASTER.menuHead.map(m=>m.code+' '+m.name)},
+      {k:'pgCode',l:'프로그램',w:140,t:'sel',opts:pgOpts},
+      {k:'time',l:'시간',w:65,t:'sel',opts:TIME_OPTS},
+      {k:'seq',l:'순서',w:45,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
+    ]} initRow={(n)=>({id:'MB'+String(n+1).padStart(3,'0'),menuCode:'',pgCode:'',time:'30분',seq:n+1,active:true})}/>
+    <div className="pn" style={{padding:14,marginTop:8}}>
+      <div style={{fontSize:11,fontWeight:600,marginBottom:8,color:'var(--gold-light)'}}>메뉴별 구성 미리보기</div>
+      {MASTER.menuHead.filter(m=>m.active).map(mh => {
+        const bodies = MASTER.menuBody.filter(b=>b.menuCode===mh.code&&b.active).sort((a,b)=>a.seq-b.seq);
+        if(bodies.length===0) return null;
+        return (<div key={mh.code} style={{marginBottom:10,padding:'8px 10px',border:'1px solid var(--border)',borderRadius:'var(--rs)'}}>
+          <div style={{fontSize:11,fontWeight:600}}>{mh.code} {mh.name} <span style={{color:'var(--text3)',fontWeight:400}}>({mh.totalTime}분 / {fmt(mh.price)}₫)</span></div>
+          <div style={{marginTop:4}}>{bodies.map((b,i)=>{
+            const pg = MASTER.program.find(p=>p.code===b.pgCode);
+            return <span key={i} style={{display:'inline-block',fontSize:9,padding:'2px 8px',margin:'2px 3px',border:'1px solid var(--border-gold)',borderRadius:12,color:'var(--gold-light)'}}>
+              {i+1}. {pg?pg.name:b.pgCode} ({b.time}) <span style={{color:'var(--text3)'}}>{pg?.majorCat}</span>
+            </span>;
+          })}</div>
+        </div>);
+      })}
+    </div>
+  </div>);
+}
+
+function MasterEvents(){return <MasterTable title="이벤트 관리" dataKey="events" columns={[
+  {k:'id',l:'코드',w:55,t:'tx'},{k:'name',l:'이벤트명',w:150,t:'tx'},
+  {k:'menuCode',l:'대상메뉴',w:140,t:'sel',opts:['(전체)',...MASTER.menuHead.map(m=>m.code+' '+m.name)]},
+  {k:'startDate',l:'시작일',w:95,t:'date'},{k:'endDate',l:'종료일',w:95,t:'date'},
+  {k:'discountType',l:'할인유형',w:65,t:'sel',opts:['%','amt']},{k:'discountValue',l:'할인값',w:70,t:'num'},
+  {k:'desc',l:'설명',w:140,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'EV'+String(n+1).padStart(3,'0'),name:'',menuCode:'',startDate:'',endDate:'',discountType:'%',discountValue:0,desc:'',active:true})}/>;}
+
+
+function MasterEmployees(){return <MasterTable title="직원 관리" dataKey="employees" columns={[
+  {k:'name',l:'ID',w:60,t:'tx'},{k:'nameKr',l:'이름',w:60,t:'tx'},{k:'position',l:'직위',w:100,t:'tx'},
+  {k:'base',l:'기본급',w:90,t:'num'},{k:'hourly',l:'시급',w:70,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:n+1,name:'',nameKr:'',position:'',base:0,hourly:0,active:true})}/>;}
+
+function MasterGrades(){
+  const [items,setItems]=useState(MASTER.memberGrades);
+  const save=async()=>{const m=await DataService.read('master');m.memberGrades=items;await DataService.write('master',m);MASTER.memberGrades=[...items];alert('저장 완료');};
+  return (<div className="fade-in">
+    <div className="toolbar"><span style={{fontSize:12,fontWeight:600}}>멤버 등급</span><div className="spacer"/><button className="btn btn-s" onClick={()=>setItems(p=>[...p,''])}>+ 추가</button><button className="btn btn-g" onClick={save}>저장</button></div>
+    <div className="pn" style={{padding:14}}>{items.map((g,i)=><div key={i} style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>
+      <span style={{fontSize:10,color:'var(--text3)',width:24}}>{i+1}</span>
+      <input className="form-inp" value={g} onChange={e=>{const n=[...items];n[i]=e.target.value;setItems(n);}} style={{flex:1}} placeholder={i===0?'(빈 값 = 미지정)':'등급명'}/>
+      <button onClick={()=>setItems(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'var(--err)',cursor:'pointer',fontSize:14}}>×</button>
+    </div>)}</div>
+  </div>);
+}
+
+function MasterExpenseItems(){return <MasterTable title="지출 항목" dataKey="expenseItems" columns={[
+  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'항목명',w:120,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'ex'+String(n+1).padStart(2,'0'),name:'',active:true})}/>;}
+
+function MasterPurchaseCats(){return <MasterTable title="매입 분류" dataKey="purchaseCategories" columns={[
+  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'분류명',w:120,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'pc'+String(n+1).padStart(2,'0'),name:'',active:true})}/>;}
+
+function MasterSuppliers(){return <MasterTable title="공급처 관리" dataKey="suppliers" columns={[
+  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'공급처명',w:140,t:'tx'},{k:'contact',l:'연락처',w:120,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'sp'+String(n+1).padStart(2,'0'),name:'',contact:'',active:true})}/>;}
+
+/* ════════════════════════════════════════
+   CUSTOMER MANAGEMENT — 고객관리
+   ════════════════════════════════════════ */
+function CustomerList({onSelect}) {
+  const [list,setList]=useState([]);const [search,setSearch]=useState('');
+  useEffect(()=>{DataService.read('customers').then(setList);},[]);
+  const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
+  return (<div className="fade-in">
+    <div className="toolbar">
+      <input className="form-inp" placeholder="고객 검색 (이름/코드/연락처)" value={search} onChange={e=>setSearch(e.target.value)} style={{width:250}}/>
+      <div className="spacer"/>
+      <span style={{fontSize:10,color:'var(--text3)'}}>총 {filtered.length}명</span>
+    </div>
+    <div className="pn"><table className="tbl">
+      <thead><tr><th>코드</th><th>이름</th><th>연락처</th><th>등급</th><th>첫방문</th><th className="num">마일리지</th><th className="num">방문횟수</th><th className="num">총 결제</th></tr></thead>
+      <tbody>{filtered.map(c=>{const totalPay=c.payments.reduce((a,p)=>a+p.amount,0);return(
+        <tr key={c.id} onClick={()=>onSelect(c)} style={{cursor:'pointer'}}>
+          <td style={{color:'var(--text3)'}}>{c.id}</td>
+          <td style={{fontWeight:600}}>{c.name}{c.nameEn?<span style={{color:'var(--text3)',fontSize:10,marginLeft:4}}>({c.nameEn})</span>:''}</td>
+          <td>{c.phone}</td>
+          <td>{c.grade?<span className={`sts ${c.grade==='VIP'||c.grade==='VVIP'?'sts-warn':c.grade==='GOLD'?'sts-ok':'sts-info'}`}>{c.grade}</span>:'-'}</td>
+          <td>{c.firstVisit}</td>
+          <td className="num" style={{color:'var(--gold-light)'}}>{fmt(c.mileage)}</td>
+          <td className="num">{c.history.length}회</td>
+          <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(totalPay)}</td>
+        </tr>);})}
+      </tbody>
+    </table></div>
+  </div>);
+}
+
+function CustomerRegister({onDone}) {
+  const [form,setForm]=useState({name:'',nameEn:'',phone:'',gender:'여',birth:'',grade:'',area:'',memo:''});
+  const up=(k,v)=>setForm(p=>({...p,[k]:v}));
+  const save=async()=>{
+    if(!form.name||!form.phone){alert('이름과 연락처는 필수입니다.');return;}
+    const list=await DataService.read('customers');
+    const maxId=list.reduce((a,c)=>Math.max(a,parseInt(c.id.replace('C',''))||0),0);
+    const newC={...form,id:'C'+String(maxId+1).padStart(3,'0'),firstVisit:today(),mileage:0,payments:[],history:[]};
+    list.push(newC);await DataService.write('customers',list);
+    alert(newC.name+' 고객이 등록되었습니다.');if(onDone)onDone(newC);
+  };
+  return (<div className="fade-in">
+    <div className="pn" style={{padding:18}}>
+      <div style={{fontSize:13,fontWeight:600,marginBottom:14}}>신규 고객 등록</div>
+      <div className="form-grid">
+        <div className="form-g"><label className="form-l">이름 *</label><input className="form-inp" value={form.name} onChange={e=>up('name',e.target.value)} placeholder="홍길동"/></div>
+        <div className="form-g"><label className="form-l">영문/베트남명</label><input className="form-inp" value={form.nameEn} onChange={e=>up('nameEn',e.target.value)} placeholder="Hong Gildong"/></div>
+        <div className="form-g"><label className="form-l">연락처 *</label><input className="form-inp" value={form.phone} onChange={e=>up('phone',e.target.value)} placeholder="0912-345-6789"/></div>
+        <div className="form-g"><label className="form-l">성별</label><select className="form-inp" value={form.gender} onChange={e=>up('gender',e.target.value)}><option>여</option><option>남</option></select></div>
+        <div className="form-g"><label className="form-l">생년월일</label><input type="date" className="form-inp" value={form.birth} onChange={e=>up('birth',e.target.value)}/></div>
+        <div className="form-g"><label className="form-l">멤버 등급</label><select className="form-inp" value={form.grade} onChange={e=>up('grade',e.target.value)}>{MEMBER_GRADES.map(g=><option key={g} value={g}>{g||'(없음)'}</option>)}</select></div>
+        <div className="form-g"><label className="form-l">거주 지역</label><input className="form-inp" value={form.area} onChange={e=>up('area',e.target.value)} placeholder="미딩"/></div>
+        <div className="form-g"><label className="form-l">메모</label><input className="form-inp" value={form.memo} onChange={e=>up('memo',e.target.value)}/></div>
+      </div>
+      <button className="btn btn-g" onClick={save}>등록</button>
+    </div>
+  </div>);
+}
+
+function CustomerDetail({customer,onBack}) {
+  const c=customer;if(!c) return <div className="empty">고객을 선택해주세요</div>;
+  const totalPay=c.payments.reduce((a,p)=>a+p.amount,0);
+  const totalTip=c.payments.reduce((a,p)=>a+(p.tip||0),0);
+  return (<div className="fade-in">
+    <div className="toolbar"><button className="btn btn-s" onClick={onBack}>← 목록</button><span style={{fontSize:13,fontWeight:600}}>{c.name}</span><span style={{fontSize:10,color:'var(--text3)',marginLeft:8}}>{c.id}</span></div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+      {/* 좌측: 기초정보 + 마일리지 + 관리이력 */}
+      <div>
+        <div className="pn" style={{padding:16}}>
+          <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>기초 정보</div>
+          {[['코드',c.id],['이름',c.name+(c.nameEn?' ('+c.nameEn+')':'')],['연락처',c.phone],['성별',c.gender],['생년월일',c.birth||'-'],['등급',c.grade||'-'],['첫 방문일',c.firstVisit],['지역',c.area||'-'],['메모',c.memo||'-']].map(([k,v],i)=>(
+            <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid var(--border)',fontSize:11}}>
+              <span style={{color:'var(--text2)'}}>{k}</span><span style={{fontWeight:500}}>{v}</span>
+            </div>
+          ))}
+        </div>
+        <div className="pn" style={{padding:16,marginTop:0}}>
+          <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>마일리지</div>
+          <div style={{fontSize:24,fontWeight:700,color:'var(--gold-light)',marginBottom:6}}>{fmt(c.mileage)}₫</div>
+          <div style={{fontSize:10,color:'var(--text3)'}}>총 결제: {fmt(totalPay)}₫ · 총 팁: {fmt(totalTip)}₫ · 방문: {c.history.length}회</div>
+        </div>
+        <div className="pn" style={{padding:0,marginTop:0}}>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>관리 이력 ({c.history.length}건)</div>
+          <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th>담당</th><th>메모</th></tr></thead>
+          <tbody>{[...c.history].reverse().map((h,i)=>(
+            <tr key={i}><td style={{color:'var(--gold-light)',fontWeight:500}}>{h.date}</td><td>{h.menu}</td><td>{h.therapist}</td><td style={{color:'var(--text2)'}}>{h.note}</td></tr>
+          ))}</tbody></table>
+        </div>
+      </div>
+      {/* 우측: 결제정보 */}
+      <div>
+        <div className="cards" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
+          <div className="card"><div className="card-bar" style={{background:'var(--gold)'}}/><div className="card-lb">총 결제</div><div className="card-vl" style={{fontSize:16}}>{fmt(totalPay)}</div></div>
+          <div className="card"><div className="card-bar" style={{background:'var(--ok)'}}/><div className="card-lb">총 팁</div><div className="card-vl" style={{fontSize:16}}>{fmt(totalTip)}</div></div>
+          <div className="card"><div className="card-bar" style={{background:'var(--info)'}}/><div className="card-lb">방문</div><div className="card-vl" style={{fontSize:16}}>{c.history.length}회</div></div>
+        </div>
+        <div className="pn" style={{padding:0}}>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>결제 내역 ({c.payments.length}건)</div>
+          <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th className="num">금액</th><th>결제</th><th className="num">팁</th></tr></thead>
+          <tbody>{[...c.payments].reverse().map((p,i)=>(
+            <tr key={i}>
+              <td style={{fontWeight:500}}>{p.date}</td><td>{p.menu}</td>
+              <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.amount)}</td>
+              <td><span className={`sts ${p.method==='현금'?'sts-ok':'sts-info'}`}>{p.method}</span></td>
+              <td className="num" style={{color:'var(--ok)'}}>{fmt(p.tip)}</td>
+            </tr>
+          ))}</tbody></table>
+        </div>
+        <div className="pn" style={{padding:16,marginTop:0}}>
+          <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>결제 수단별 합계</div>
+          {(() => {
+            const byMethod={};c.payments.forEach(p=>{byMethod[p.method]=(byMethod[p.method]||0)+p.amount;});
+            return Object.entries(byMethod).map(([m,a],i)=>(
+              <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',fontSize:11}}>
+                <span>{m}</span><span style={{fontWeight:600}}>{fmt(a)}₫</span>
+              </div>
+            ));
+          })()}
+        </div>
+      </div>
+    </div>
+  </div>);
+}
+
+function App() {
+  const [user,setUser]=useState(getUser());
+  const [subTab,setSub]=useState(0);
+  const [now,setNow]=useState(new Date());
+  const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
+
+  useEffect(()=>{ if(!user){ window.location.href='PAGE_ERP.html'; return; } const t=setInterval(()=>setNow(new Date()),60000); return ()=>clearInterval(t); },[user]);
+  useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
+
+  if(!user) return null;
+  const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
+
+  const renderContent=()=>{ return subTab===0?<MasterProgram/>:subTab===1?<MasterMenuHead/>:subTab===2?<MasterMenuBody/>:subTab===3?<MasterEvents/>:subTab===4?<MasterEmployees/>:subTab===5?<MasterGrades/>:subTab===6?<MasterExpenseItems/>:subTab===7?<MasterPurchaseCats/>:subTab===8?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
+
+  return (
+    <React.Fragment>
+      <style>{ CSS }</style>
+      <div className="app">
+        <div className="hdr">
+          <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
+          <div className="hdr-nav">
+            { ERP_PAGES.map(p=>(
+              <a key={p.id} href={p.href} className={'hdr-tab'+(p.id==='master'?' active':'')} style={{ textDecoration:'none' }}> <Ic d={p.icon} size={14}/>{ p.label }</a>
+            )) }
+          </div>
+          <div className="hdr-right">
+            <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+            <button className="theme-btn" onClick={()=>setDark(!dark)}>
+              {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={15}/>
+                : <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" size={15}/>
+              }
+            </button>
+            <div className="hdr-user">
+              <div className="av" style={{ background:user.color||'var(--gold)' }}>{user.initial||user.name?.charAt(0)}</div>
+              <div><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
+            </div>
+            <button className="btn-logout" onClick={logout}> 로그아웃</button>
+          </div>
+        </div>
+        <div className="content">
+          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+            <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
+          ))}</div>
+          <div className="page" key={subTab}>{renderContent()}</div>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

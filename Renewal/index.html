@@ -176,8 +176,8 @@ function BG({isHome}){
   const vRef=useCallback(el=>{if(el&&!isHome){el.currentTime=0.5;el.pause();}},[isHome]);
   return(<>
     <div className="bg-video-wrap">{isHome
-      ?<video autoPlay muted loop playsInline><source src="../bg-video.mp4" type="video/mp4"/></video>
-      :<video muted playsInline preload="metadata" poster="../video-poster.jpg" ref={vRef}><source src="../bg-video.mp4" type="video/mp4"/></video>}
+      ?<video autoPlay muted loop playsInline><source src="../images/VIDEO_BACKGROUND.mp4" type="video/mp4"/></video>
+      :<video muted playsInline preload="metadata" poster="../images/VIDEO_POSTER.jpg" ref={vRef}><source src="../images/VIDEO_BACKGROUND.mp4" type="video/mp4"/></video>}
     </div>
     {!isHome&&<div className="bg-overlay"/>}
   </>);
@@ -188,7 +188,7 @@ function Header({cur}){
   useEffect(()=>{setOpen(false);},[cur]);
   return(<>
     <header className="header">
-      <img src="../logo.png" alt="Hwasa K-Beauty" className="logo-img" onClick={()=>go('/')}/>
+      <img src="../images/IMAGE_LOGO.png" alt="Hwasa K-Beauty" className="logo-img" onClick={()=>go('/')}/>
       <nav className="nav">
         {NAV.map(n=><button key={n.p} className={`nav-link${cur===n.p?' active':''}`} onClick={()=>go(n.p)}>{n.l}</button>)}
         <button className="nav-link nav-cta" onClick={()=>go('/echart')}>상담 예약</button>
@@ -270,7 +270,7 @@ function AboutPage(){
   const ref=useRef(null);useReveal(ref);
   return(<div className="scroll-ct" ref={ref}>
     <div className="section"><div className="section-label">Our Story</div><h1 className="section-title">About <em>Hwasa</em></h1><p className="section-desc">22년 경력의 전문가가 이끄는 프리미엄 한국식 피부관리</p></div>
-    <div className="section reveal"><div className="about-grid"><div style={{textAlign:'center'}}><div className="about-img"><img src="../profile-director.png" alt="원장 홍은하"/></div><div className="section-label" style={{marginTop:16}}>Director</div></div><div><div className="about-name">원장 홍은하</div><div className="divider-line"/><p className="about-text">22년간의 피부관리 전문 경력을 바탕으로 한국의 우수한 스킨케어 기술을 하노이에 전달하고 있습니다.<br/><br/>메디컬 스킨케어, 두피 트리콜로지, 얼굴윤곽 테라피, 슬리밍 바디 디톡스 등 다양한 전문 분야의 자격을 보유하고 있습니다.<br/><br/>Hwasa K-Beauty에서 정통 한국식 프리미엄 피부관리를 경험해 보세요.</p></div></div></div>
+    <div className="section reveal"><div className="about-grid"><div style={{textAlign:'center'}}><div className="about-img"><img src="../images/IMAGE_PROFILE_DIRECTOR.png" alt="원장 홍은하"/></div><div className="section-label" style={{marginTop:16}}>Director</div></div><div><div className="about-name">원장 홍은하</div><div className="divider-line"/><p className="about-text">22년간의 피부관리 전문 경력을 바탕으로 한국의 우수한 스킨케어 기술을 하노이에 전달하고 있습니다.<br/><br/>메디컬 스킨케어, 두피 트리콜로지, 얼굴윤곽 테라피, 슬리밍 바디 디톡스 등 다양한 전문 분야의 자격을 보유하고 있습니다.<br/><br/>Hwasa K-Beauty에서 정통 한국식 프리미엄 피부관리를 경험해 보세요.</p></div></div></div>
     <div className="stats-bar reveal" style={{paddingBottom:120}}>{[{n:22,s:'+',l:'Years Experience'},{n:3500,s:'+',l:'Clients Served'},{n:15,s:'+',l:'Certifications'}].map((s,i)=><div key={i} className="stat-item"><div className="stat-num"><Counter end={s.n} suffix={s.s}/></div><div className="stat-label">{s.l}</div></div>)}</div>
   </div>);
 }

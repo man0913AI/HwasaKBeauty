@@ -1086,12 +1086,12 @@ function MasterMenuHead(){return <MasterTable title="메뉴 관리 (MENU_HEAD)" 
 ]} initRow={(n)=>({code:'MH'+String(n+1).padStart(3,'0'),name:'',desc:'',totalTime:0,price:0,active:true})}/>;}
 
 function MasterMenuBody(){
-  const pgOpts = MASTER.program.filter(p=>p.active).map(p=>p.code);
+  const pgOpts = MASTER.program.filter(p=>p.active).map(p=>p.code+' '+p.name);
   return (<div className="fade-in">
     <MasterTable title="메뉴 구성 (MENU_BODY) — 프로그램 라우트" dataKey="menuBody" columns={[
       {k:'id',l:'ID',w:55,t:'tx'},
       {k:'menuCode',l:'메뉴',w:130,t:'sel',opts:MASTER.menuHead.map(m=>m.code+' '+m.name)},
-      {k:'pgCode',l:'프로그램',w:70,t:'sel',opts:pgOpts},
+      {k:'pgCode',l:'프로그램',w:140,t:'sel',opts:pgOpts},
       {k:'time',l:'시간',w:65,t:'sel',opts:TIME_OPTS},
       {k:'seq',l:'순서',w:45,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
     ]} initRow={(n)=>({id:'MB'+String(n+1).padStart(3,'0'),menuCode:'',pgCode:'',time:'30분',seq:n+1,active:true})}/>
@@ -1116,7 +1116,7 @@ function MasterMenuBody(){
 
 function MasterEvents(){return <MasterTable title="이벤트 관리" dataKey="events" columns={[
   {k:'id',l:'코드',w:55,t:'tx'},{k:'name',l:'이벤트명',w:150,t:'tx'},
-  {k:'menuCode',l:'대상메뉴',w:70,t:'sel',opts:['(전체)',...MASTER.menuHead.map(m=>m.code)]},
+  {k:'menuCode',l:'대상메뉴',w:140,t:'sel',opts:['(전체)',...MASTER.menuHead.map(m=>m.code+' '+m.name)]},
   {k:'startDate',l:'시작일',w:95,t:'date'},{k:'endDate',l:'종료일',w:95,t:'date'},
   {k:'discountType',l:'할인유형',w:65,t:'sel',opts:['%','amt']},{k:'discountValue',l:'할인값',w:70,t:'num'},
   {k:'desc',l:'설명',w:140,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}

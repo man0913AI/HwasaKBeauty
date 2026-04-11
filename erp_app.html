@@ -55,64 +55,94 @@ const getUser = () => {
    CONSTANTS
    ════════════════════════════════════════ */
 /* ═══ MASTER DATA (마스터정보 — DB 연동 시 교체) ═══ */
+const MAJOR_CATS = ['마사지','피부관리','피부시술'];
+
 const MASTER = {
+  /* MENU_HEAD: 메뉴 (프로그램 집합체) */
+  menuHead: [
+    { code:'MH001', name:'화사케어 A', desc:'페이셜 풀코스 A (클렌징+마사지+팩+앰플)', totalTime:90, price:880000, active:true },
+    { code:'MH002', name:'화사케어 B', desc:'페이셜 코스 B (클렌징+마사지+팩)', totalTime:70, price:660000, active:true },
+    { code:'MH003', name:'화사케어 C', desc:'페이셜 기본 C (클렌징+팩)', totalTime:50, price:440000, active:true },
+    { code:'MH004', name:'골프케어 A', desc:'골프 후 바디+페이스 풀 케어', totalTime:120, price:1320000, active:true },
+    { code:'MH005', name:'골프케어 B', desc:'골프 후 바디+페이스 코스', totalTime:100, price:1100000, active:true },
+    { code:'MH006', name:'골프케어 C', desc:'골프 후 바디+페이스 기본', totalTime:80, price:880000, active:true },
+    { code:'MH007', name:'탈모케어', desc:'두피 스케일링+영양+LED', totalTime:60, price:1100000, active:true },
+    { code:'MH008', name:'VIP케어', desc:'프리미엄 전신 관리 코스', totalTime:150, price:1650000, active:true },
+    { code:'MH009', name:'기본관리', desc:'기본 페이셜 클렌징+수분', totalTime:60, price:440000, active:true },
+    { code:'MH010', name:'바디 마사지', desc:'전신 경락/아로마 마사지', totalTime:60, price:330000, active:true },
+    { code:'MH011', name:'발 마사지', desc:'발+종아리 경락 마사지', totalTime:30, price:165000, active:true },
+    { code:'MH012', name:'HIFU 리프팅', desc:'하이푸 초음파 리프팅', totalTime:90, price:2200000, active:true },
+    { code:'MH013', name:'RF 고주파', desc:'고주파 리프팅+탄력', totalTime:60, price:1100000, active:true },
+    { code:'MH014', name:'플라즈마', desc:'플라즈마 피부 재생', totalTime:45, price:880000, active:true },
+    { code:'MH015', name:'아쿠아필링', desc:'아쿠아필 딥클렌징+수분', totalTime:60, price:550000, active:true },
+    { code:'MH016', name:'반영구 눈썹', desc:'눈썹 반영구 시술', totalTime:120, price:3300000, active:true },
+  ],
+
+  /* MENU_BODY: 메뉴 구성 상세 (대분류/중분류/소분류) */
+  menuBody: [
+    { id:'MB001', menuCode:'MH001', majorCat:'피부관리', midCat:'딥클렌징', minorCat:'20분', seq:1, active:true },
+    { id:'MB002', menuCode:'MH001', majorCat:'마사지', midCat:'얼굴 마사지', minorCat:'30분', seq:2, active:true },
+    { id:'MB003', menuCode:'MH001', majorCat:'피부관리', midCat:'앰플 도포', minorCat:'10분', seq:3, active:true },
+    { id:'MB004', menuCode:'MH001', majorCat:'피부관리', midCat:'모델링팩', minorCat:'30분', seq:4, active:true },
+    { id:'MB005', menuCode:'MH002', majorCat:'피부관리', midCat:'딥클렌징', minorCat:'20분', seq:1, active:true },
+    { id:'MB006', menuCode:'MH002', majorCat:'마사지', midCat:'얼굴 마사지', minorCat:'30분', seq:2, active:true },
+    { id:'MB007', menuCode:'MH002', majorCat:'피부관리', midCat:'수분팩', minorCat:'20분', seq:3, active:true },
+    { id:'MB008', menuCode:'MH003', majorCat:'피부관리', midCat:'기본 클렌징', minorCat:'20분', seq:1, active:true },
+    { id:'MB009', menuCode:'MH003', majorCat:'피부관리', midCat:'수분팩', minorCat:'30분', seq:2, active:true },
+    { id:'MB010', menuCode:'MH004', majorCat:'마사지', midCat:'바디 경락 마사지', minorCat:'60분', seq:1, active:true },
+    { id:'MB011', menuCode:'MH004', majorCat:'마사지', midCat:'얼굴 마사지', minorCat:'30분', seq:2, active:true },
+    { id:'MB012', menuCode:'MH004', majorCat:'마사지', midCat:'발 각질정리', minorCat:'30분', seq:3, active:true },
+    { id:'MB013', menuCode:'MH010', majorCat:'마사지', midCat:'전신 경락 마사지', minorCat:'60분', seq:1, active:true },
+    { id:'MB014', menuCode:'MH011', majorCat:'마사지', midCat:'발 경락 마사지', minorCat:'30분', seq:1, active:true },
+    { id:'MB015', menuCode:'MH012', majorCat:'피부시술', midCat:'HIFU 초음파', minorCat:'60분', seq:1, active:true },
+    { id:'MB016', menuCode:'MH012', majorCat:'피부관리', midCat:'진정 마무리', minorCat:'30분', seq:2, active:true },
+    { id:'MB017', menuCode:'MH013', majorCat:'피부시술', midCat:'RF 고주파 시술', minorCat:'40분', seq:1, active:true },
+    { id:'MB018', menuCode:'MH013', majorCat:'피부관리', midCat:'진정 마무리', minorCat:'20분', seq:2, active:true },
+    { id:'MB019', menuCode:'MH014', majorCat:'피부시술', midCat:'플라즈마 시술', minorCat:'30분', seq:1, active:true },
+    { id:'MB020', menuCode:'MH014', majorCat:'피부관리', midCat:'재생 앰플', minorCat:'15분', seq:2, active:true },
+    { id:'MB021', menuCode:'MH015', majorCat:'피부관리', midCat:'아쿠아필 딥클렌징', minorCat:'30분', seq:1, active:true },
+    { id:'MB022', menuCode:'MH015', majorCat:'피부관리', midCat:'수분 집중 케어', minorCat:'30분', seq:2, active:true },
+    { id:'MB023', menuCode:'MH016', majorCat:'피부시술', midCat:'반영구 눈썹 시술', minorCat:'120분', seq:1, active:true },
+    { id:'MB024', menuCode:'MH007', majorCat:'피부관리', midCat:'두피 스케일링', minorCat:'20분', seq:1, active:true },
+    { id:'MB025', menuCode:'MH007', majorCat:'피부관리', midCat:'두피 영양 앰플', minorCat:'20분', seq:2, active:true },
+    { id:'MB026', menuCode:'MH007', majorCat:'피부시술', midCat:'두피 LED', minorCat:'20분', seq:3, active:true },
+  ],
+
+  /* EVENTS: 이벤트 */
+  events: [
+    { id:'EV001', name:'오픈 기념 10% 할인', menuCode:'', startDate:'2026-03-01', endDate:'2026-04-30', discountType:'%', discountValue:10, desc:'전 메뉴 10% 할인', active:true },
+    { id:'EV002', name:'골프케어 패키지 특가', menuCode:'MH004', startDate:'2026-04-01', endDate:'2026-06-30', discountType:'amt', discountValue:200000, desc:'골프케어 A 20만동 할인', active:true },
+    { id:'EV003', name:'첫 방문 고객 15% 할인', menuCode:'', startDate:'2026-01-01', endDate:'2026-12-31', discountType:'%', discountValue:15, desc:'첫 방문 고객 전 메뉴', active:true },
+    { id:'EV004', name:'VIP 회원 바디마사지 무료', menuCode:'MH010', startDate:'2026-04-01', endDate:'2026-04-30', discountType:'%', discountValue:100, desc:'VVIP 회원 대상', active:false },
+  ],
+
   employees: [
     { id:1, name:'hong', nameKr:'홍', position:'수석 관리사', base:8000000, hourly:35000, active:true },
     { id:2, name:'thuy', nameKr:'투이', position:'데스크 매니저', base:6500000, hourly:29000, active:true },
     { id:3, name:'yen', nameKr:'옌', position:'관리사', base:7500000, hourly:33000, active:true },
   ],
-  programs: [
-    { id:'pr01', name:'화사케어 A', category:'페이스', price:880000, active:true },
-    { id:'pr02', name:'화사케어 B', category:'페이스', price:660000, active:true },
-    { id:'pr03', name:'화사케어 C', category:'페이스', price:440000, active:true },
-    { id:'pr04', name:'골프케어 A', category:'콤보', price:1320000, active:true },
-    { id:'pr05', name:'골프케어 B', category:'콤보', price:1100000, active:true },
-    { id:'pr06', name:'골프케어 C', category:'콤보', price:880000, active:true },
-    { id:'pr07', name:'탈모케어', category:'특수', price:1100000, active:true },
-    { id:'pr08', name:'VIP케어', category:'특수', price:1650000, active:true },
-    { id:'pr09', name:'기본관리', category:'페이스', price:440000, active:true },
-    { id:'pr10', name:'바디 마사지 60분', category:'바디', price:330000, active:true },
-    { id:'pr11', name:'바디 마사지 90분', category:'바디', price:440000, active:true },
-    { id:'pr12', name:'발 마사지 30분', category:'이벤트', price:165000, active:true },
-    { id:'pr13', name:'발 마사지 60분', category:'이벤트', price:220000, active:true },
-    { id:'pr14', name:'HIFU 리프팅', category:'페이스', price:2200000, active:true },
-    { id:'pr15', name:'RF 고주파', category:'페이스', price:1100000, active:true },
-    { id:'pr16', name:'플라즈마', category:'페이스', price:880000, active:true },
-    { id:'pr17', name:'아쿠아필링', category:'페이스', price:550000, active:true },
-    { id:'pr18', name:'반영구 눈썹', category:'타투', price:3300000, active:true },
-  ],
   memberGrades: ['','CLUB','BRONZE','SILVER','GOLD','VIP','VVIP','이밴트','무제한'],
   expenseItems: [
-    { id:'ex01', name:'빨래', active:true },
-    { id:'ex02', name:'택배', active:true },
-    { id:'ex03', name:'직원팁', active:true },
-    { id:'ex04', name:'쿠폰', active:true },
-    { id:'ex05', name:'마트', active:true },
-    { id:'ex06', name:'청소', active:true },
-    { id:'ex07', name:'소모품', active:true },
-    { id:'ex08', name:'기타', active:true },
+    { id:'ex01', name:'빨래', active:true },{ id:'ex02', name:'택배', active:true },{ id:'ex03', name:'직원팁', active:true },
+    { id:'ex04', name:'쿠폰', active:true },{ id:'ex05', name:'마트', active:true },{ id:'ex06', name:'청소', active:true },
+    { id:'ex07', name:'소모품', active:true },{ id:'ex08', name:'기타', active:true },
   ],
   purchaseCategories: [
-    { id:'pc01', name:'원재료', active:true },
-    { id:'pc02', name:'소모품', active:true },
-    { id:'pc03', name:'장비', active:true },
-    { id:'pc04', name:'기타', active:true },
+    { id:'pc01', name:'원재료', active:true },{ id:'pc02', name:'소모품', active:true },
+    { id:'pc03', name:'장비', active:true },{ id:'pc04', name:'기타', active:true },
   ],
   suppliers: [
-    { id:'sp01', name:'화장품 도매', contact:'', active:true },
-    { id:'sp02', name:'포장재 업체', contact:'', active:true },
-    { id:'sp03', name:'의료기기 대리점', contact:'', active:true },
-    { id:'sp04', name:'약품 도매', contact:'', active:true },
+    { id:'sp01', name:'화장품 도매', contact:'', active:true },{ id:'sp02', name:'포장재 업체', contact:'', active:true },
+    { id:'sp03', name:'의료기기 대리점', contact:'', active:true },{ id:'sp04', name:'약품 도매', contact:'', active:true },
   ],
-  programCategories: ['페이스','바디','콤보','이벤트','특수','타투'],
 };
 
-// 하위 호환 헬퍼
+// 헬퍼
 const EMPLOYEES = MASTER.employees;
 const MEMBER_GRADES = MASTER.memberGrades;
 const EXPENSE_ITEMS = MASTER.expenseItems.filter(e=>e.active).map(e=>e.name);
 const PURCHASE_CATS = MASTER.purchaseCategories.filter(c=>c.active).map(c=>c.name);
-const PROGRAM_NAMES = MASTER.programs.filter(p=>p.active).map(p=>p.name);
+const MENU_NAMES = MASTER.menuHead.filter(m=>m.active).map(m=>m.name);
 const SUPPLIER_NAMES = MASTER.suppliers.filter(s=>s.active).map(s=>s.name);
 
 const MENUS = [
@@ -125,7 +155,7 @@ const MENUS = [
   { id:'salary', label:'월급여', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87' },
 ];
 const SUB_TABS = {
-  master:['프로그램','직원','멤버등급','지출항목','매입분류','공급처'],
+  master:['메뉴(HEAD)','메뉴상세(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처'],
   sales:['일일 입력','매출 내역','월별 요약'],
   purchase:['매입 입력','매입 내역','통계'],
   settlement:['월말','분기','반기','년간'],
@@ -397,7 +427,7 @@ function SalesDailyInput() {
 
   const cols = [
     {k:'no',l:'No',w:30,t:'ro'},{k:'name',l:'고객명',w:80,t:'tx'},{k:'grade',l:'멤버등급',w:75,t:'sel',opts:MEMBER_GRADES},
-    {k:'service',l:'서비스/프로그램',w:130,t:'sel',opts:['',...MASTER.programs.filter(p=>p.active).map(p=>p.name)]},{k:'hair',l:'탈모',w:35,t:'chk'},{k:'event',l:'이벤트',w:40,t:'chk'},
+    {k:'service',l:'메뉴',w:130,t:'sel',opts:['',...MASTER.menuHead.filter(m=>m.active).map(m=>m.name)]},{k:'hair',l:'탈모',w:35,t:'chk'},{k:'event',l:'이벤트',w:40,t:'chk'},
     {k:'vip',l:'VIP',w:35,t:'chk'},{k:'deductAmt',l:'차감금액',w:80,t:'num'},{k:'deduct',l:'차감',w:55,t:'num'},
     {k:'tipDeduct',l:'팁차감',w:75,t:'num'},{k:'cash',l:'현금',w:85,t:'num'},{k:'deposit',l:'입금+10%',w:80,t:'num'},
     {k:'card',l:'카드',w:80,t:'num'},{k:'krw',l:'한국돈',w:75,t:'num'},{k:'unpaid',l:'미수',w:65,t:'num'},
@@ -834,10 +864,28 @@ function MasterTable({title,dataKey,columns,initRow}) {
   </div>);
 }
 
-function MasterPrograms(){return <MasterTable title="프로그램 관리" dataKey="programs" columns={[
-  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'프로그램명',w:140,t:'tx'},{k:'category',l:'분류',w:80,t:'sel',opts:MASTER.programCategories},
-  {k:'price',l:'가격(VND)',w:100,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
-]} initRow={(n)=>({id:'pr'+String(n+1).padStart(2,'0'),name:'',category:'페이스',price:0,active:true})}/>;}
+function MasterMenuHead(){return <MasterTable title="메뉴 관리 (MENU_HEAD)" dataKey="menuHead" columns={[
+  {k:'code',l:'메뉴코드',w:65,t:'tx'},{k:'name',l:'메뉴명',w:120,t:'tx'},{k:'desc',l:'상세설명',w:200,t:'tx'},
+  {k:'totalTime',l:'소요시간(분)',w:80,t:'num'},{k:'price',l:'가격(VND)',w:100,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({code:'MH'+String(n+1).padStart(3,'0'),name:'',desc:'',totalTime:0,price:0,active:true})}/>;}
+
+function MasterMenuBody(){
+  const menuOpts = MASTER.menuHead.map(m=>m.code+' '+m.name);
+  return <MasterTable title="메뉴 상세 (MENU_BODY) — 대분류/중분류/소분류" dataKey="menuBody" columns={[
+    {k:'id',l:'ID',w:55,t:'tx'},{k:'menuCode',l:'메뉴코드',w:70,t:'sel',opts:MASTER.menuHead.map(m=>m.code)},
+    {k:'majorCat',l:'대분류',w:80,t:'sel',opts:MAJOR_CATS},{k:'midCat',l:'중분류(프로그램)',w:140,t:'tx'},
+    {k:'minorCat',l:'소분류(시간)',w:80,t:'tx'},{k:'seq',l:'순서',w:45,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
+  ]} initRow={(n)=>({id:'MB'+String(n+1).padStart(3,'0'),menuCode:'',majorCat:'마사지',midCat:'',minorCat:'',seq:n+1,active:true})}/>;
+}
+
+function MasterEvents(){return <MasterTable title="이벤트 관리" dataKey="events" columns={[
+  {k:'id',l:'코드',w:55,t:'tx'},{k:'name',l:'이벤트명',w:150,t:'tx'},
+  {k:'menuCode',l:'대상메뉴',w:70,t:'sel',opts:['(전체)',...MASTER.menuHead.map(m=>m.code)]},
+  {k:'startDate',l:'시작일',w:95,t:'date'},{k:'endDate',l:'종료일',w:95,t:'date'},
+  {k:'discountType',l:'할인유형',w:65,t:'sel',opts:['%','amt']},{k:'discountValue',l:'할인값',w:70,t:'num'},
+  {k:'desc',l:'설명',w:140,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'EV'+String(n+1).padStart(3,'0'),name:'',menuCode:'',startDate:'',endDate:'',discountType:'%',discountValue:0,desc:'',active:true})}/>;}
+
 
 function MasterEmployees(){return <MasterTable title="직원 관리" dataKey="employees" columns={[
   {k:'name',l:'ID',w:60,t:'tx'},{k:'nameKr',l:'이름',w:60,t:'tx'},{k:'position',l:'직위',w:100,t:'tx'},
@@ -899,7 +947,7 @@ function App() {
 
   const renderContent=()=>{
     switch(menu){
-      case 'master': return subTab===0?<MasterPrograms/>:subTab===1?<MasterEmployees/>:subTab===2?<MasterGrades/>:subTab===3?<MasterExpenseItems/>:subTab===4?<MasterPurchaseCats/>:<MasterSuppliers/>;
+      case 'master': return subTab===0?<MasterMenuHead/>:subTab===1?<MasterMenuBody/>:subTab===2?<MasterEvents/>:subTab===3?<MasterEmployees/>:subTab===4?<MasterGrades/>:subTab===5?<MasterExpenseItems/>:subTab===6?<MasterPurchaseCats/>:<MasterSuppliers/>;
       case 'sales': return subTab===0?<SalesDailyInput/>:subTab===1?<SalesList/>:<SalesMonthlySummary/>;
       case 'purchase': return subTab===0?<PurchaseInput/>:subTab===1?<PurchaseList/>:<PurchaseStats/>;
       case 'settlement': return <Settlement period={['monthly','quarterly','semi','annual'][subTab]}/>;

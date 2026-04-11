@@ -111,7 +111,7 @@
   <div class="bg-glow"></div>
   <div class="bg-line"></div>
 
-  <a href="index.html" class="home-link">
+  <a href="PAGE_MAIN.html" class="home-link">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     홈으로
   </a>
@@ -204,7 +204,7 @@
       sessionStorage.setItem("hskb_erp_user", JSON.stringify({ id, ...acc }));
 
       setTimeout(() => {
-        window.open("erp_app.html", "_blank");
+        window.open("PAGE_ERP_APP.html", "_blank");
         btn.disabled = false;
         btn.classList.remove("loading");
       }, 700);

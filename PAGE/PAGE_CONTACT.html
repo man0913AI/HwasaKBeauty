@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Letter | Hwasa K-Beauty</title>
+    <title>Contact | Hwasa K-Beauty</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -113,38 +113,33 @@
             .page-hero { padding: 88px 20px 16px; }
         }
         
-        .about-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
-            max-width: 1100px; margin: 0 auto; align-items: center;
+        .contact-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+            max-width: 1100px; margin: 0 auto;
         }
-        .about-img {
-            overflow: hidden; border: 1px solid rgba(255,255,255,0.08);
+        .contact-info-card {
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(184,149,106,0.3);
+            padding: 36px; margin-bottom: 20px; transition: all 0.3s;
         }
-        .about-img img { width: 100%; height: auto; }
-        .about-text h3 {
-            font-family: var(--font-display); font-size: 32px; font-weight: 300;
-            color: #fff; margin-bottom: 20px;
+        .contact-info-card:hover { border-color: var(--color-accent); }
+        .contact-info-card h4 {
+            font-family: var(--font-display); font-size: 20px; font-weight: 400;
+            color: #fff; margin-bottom: 12px;
         }
-        .about-text p {
-            font-size: 15px; color: #fff; font-weight: 300;
-            line-height: 1.9; margin-bottom: 16px;
+        .contact-info-card p {
+            font-size: 14px; color: #fff; font-weight: 300; line-height: 1.8;
         }
-        .about-stats {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
-            max-width: 800px; margin: 60px auto 0; text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.06); padding-top: 48px;
+        .contact-info-card a {
+            color: var(--color-accent); transition: opacity 0.3s;
         }
-        .about-stat-num {
-            font-family: var(--font-display); font-size: 48px; font-weight: 300;
-            color: var(--color-accent); margin-bottom: 8px;
+        .contact-info-card a:hover { opacity: 0.7; }
+        .contact-map {
+            background: transparent; border: 1px solid rgba(184,149,106,0.3);
+            height: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
         }
-        .about-stat-label {
-            font-size: 13px; color: #fff; font-weight: 300;
-        }
-        @media (max-width: 768px) {
-            .about-grid { grid-template-columns: 1fr; gap: 32px; }
-            .about-stats { grid-template-columns: 1fr; gap: 24px; }
-        }
+        .contact-map iframe { width: 100%; height: 100%; min-height: 400px; border: 0; filter: grayscale(0.8) brightness(0.8); }
+        @media (max-width: 768px) { .contact-grid { grid-template-columns: 1fr; } }
 
     
         .bg-video-wrap {
@@ -179,16 +174,6 @@
         }
         .scroll-container::-webkit-scrollbar { display: none; }
         .scroll-container { scrollbar-width: none; }
-        /* ========== FOOTER-SLIM ========== */
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         /* FOOTER */
         
@@ -197,6 +182,16 @@
         
         
         
+
+        
+        .contact-info-card, .contact-info-card h4, .contact-info-card p,
+        .contact-info-card a, .contact-info-card span,
+        .section-header, .section-header h2, .section-header p,
+        .hero-content, .hero-content h1, .hero-content p {
+            opacity: 1 !important;
+        }
+        .contact-info-card p { color: #fff !important; }
+        .contact-info-card h4 { color: #fff !important; }
 
         
         /* RIGHT SIDEBAR */
@@ -208,10 +203,23 @@
         
 
         
-        /* FOOTER */
-        .footer-slim { background: transparent; border-top: none; padding: 16px 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
+        
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+
+        
+        .footer-slim { background: transparent; border-top: none; padding:16px 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
         .footer-inner { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-family: 'Instrument Sans', var(--font-nav, sans-serif); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
-        .footer-inner a { color: #fff; text-decoration: none; transition: color 0.3s; }
+        .footer-inner a { color: #fff; text-decoration:none; transition:color 0.3s; }
         .footer-inner a:hover { color: #B8956A; }
         .footer-sep { color: rgba(255,255,255,0.4); }
         .footer-erp-link { color: #fff !important; }
@@ -221,184 +229,69 @@
 </head>
 <body>
     <div class="bg-video-wrap">
-        <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
-            <source src="bg-video.mp4" type="video/mp4">
+        <video muted playsinline preload="metadata" poster="../video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
+            <source src="../bg-video.mp4" type="video/mp4">
         </video>
     </div>
     <div class="bg-overlay"></div>
 
     <header class="header" id="header">
-        <a href="index.html" class="logo">
-            <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
+        <a href="PAGE_MAIN.html" class="logo">
+            <img src="../logo.png" alt="Hwasa K-Beauty" class="logo-img">
         </a>
         <nav class="nav" id="nav">
-            <a href="index.html">Home</a>
-            <a href="diploma.html">Diploma</a>
-            <a href="program.html">Program</a>
-            <a href="selfbeauty.html">Self Beauty</a>
-            <a href="echart.html">E-Chart</a>
-            <a href="letter.html" class="active">Letter</a>
-            <a href="about.html">About</a>
-            <a href="echart.html" class="nav-cta">상담 예약</a>
+            <a href="PAGE_MAIN.html">Home</a>
+            <a href="PAGE_DIPLOMA.html">Diploma</a>
+            <a href="PAGE_PROGRAM.html">Program</a>
+            <a href="PAGE_SELF_BEAUTY.html">Self Beauty</a>
+            <a href="PAGE_E_CHART.html">E-Chart</a>
+            <a href="PAGE_LETTER.html">Letter</a>
+            <a href="PAGE_ABOUT.html">About</a>
+            <a href="PAGE_E_CHART.html" class="nav-cta">상담 예약</a>
         </nav>
         <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </div>
     </header>
     <div class="side-nav" id="sideNav">
-        <a href="academy.html">ACADEMY</a>
-        <a href="shop.html">SHOP</a>
-        <a href="contact.html">CONTACT</a>
+        <a href="PAGE_ACADEMY.html">ACADEMY</a>
+        <a href="PAGE_MARKET.html">MARKET</a>
+        <a href="PAGE_CONTACT.html" style="color:#B8956A">CONTACT</a>
     </div>
     <div class="scroll-container">
 
     <section class="page-hero">
-        <p class="page-hero-label">Newsletter</p>
-        <h1 class="page-hero-title">Hwasa <em>Letter</em></h1>
-        <p class="page-hero-desc">Hwasa K-Beauty의 정기 &amp; 비정기 뉴스레터</p>
+        <p class="page-hero-label">Contact Us</p>
+        <h1 class="page-hero-title">Get in <em>Touch</em></h1>
+        <p class="page-hero-desc">상담 예약 및 방문 안내</p>
     </section>
 
-    <style>
-        /* ── 가로형 마블 프레임 ── */
-        .marble-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 48px 80px;
-        }
-        .marble-frame {
-            position: relative;
-            opacity: 0;
-            transform: translateY(28px);
-            transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
-        }
-        .marble-frame.visible { opacity: 1; transform: translateY(0); }
-        .marble-frame:nth-child(1) { transition-delay: 0.05s; }
-        .marble-frame:nth-child(2) { transition-delay: 0.18s; }
 
-        /* 마블 외부 테두리 */
-        .marble-outer {
-            position: relative;
-            border-radius: 4px;
-            padding: 14px 14px 10px;
-            background:
-                linear-gradient(135deg,
-                    #e8e0d8 0%, #d4ccc4 15%,
-                    #bbb0a8 30%, #ccc4bc 45%,
-                    #ddd6ce 55%, #c8c0b8 70%,
-                    #b8b0a8 80%, #d0c8c0 100%
-                );
-            box-shadow:
-                0 1px 0 rgba(255,255,255,0.7) inset,
-                0 -1px 0 rgba(0,0,0,0.25) inset,
-                0 12px 40px rgba(0,0,0,0.5),
-                0 2px 8px rgba(0,0,0,0.3);
-        }
-        /* 마블 결 오버레이 (SVG noise) */
-        .marble-outer::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 4px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='200'%3E%3Cdefs%3E%3Cfilter id='m'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.008 0.025' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.18' intercept='0.72'/%3E%3CfeFuncG type='linear' slope='0.15' intercept='0.70'/%3E%3CfeFuncB type='linear' slope='0.12' intercept='0.68'/%3E%3CfeFuncA type='linear' slope='0.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3C/defs%3E%3Crect width='900' height='200' filter='url(%23m)'/%3E%3C/svg%3E") center/cover;
-            pointer-events: none;
-        }
-        /* 안쪽 얇은 금속 테두리 */
-        .marble-outer::after {
-            content: '';
-            position: absolute;
-            inset: 5px;
-            border: 1px solid rgba(255,255,255,0.45);
-            border-radius: 2px;
-            pointer-events: none;
-        }
-        /* 영상 화면 */
-        .marble-screen {
-            position: relative;
-            z-index: 1;
-            border-radius: 2px;
-            overflow: hidden;
-            background: #000;
-            box-shadow: inset 0 0 12px rgba(0,0,0,0.8);
-        }
-        .marble-screen video {
-            display: block;
-            width: 100%;
-            aspect-ratio: 16/9;
-            object-fit: cover;
-            background: #000;
-        }
-        /* 하단 레이블 */
-        .marble-label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 6px 2px 0;
-            position: relative;
-            z-index: 1;
-        }
-        .marble-number {
-            font-family: var(--font-nav, 'Instrument Sans', sans-serif);
-            font-size: 10px;
-            letter-spacing: 3px;
-            color: rgba(80,70,60,0.7);
-        }
-        .marble-dots {
-            display: flex;
-            gap: 5px;
-        }
-        .marble-dot {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: radial-gradient(circle at 40% 35%, #aaa49e, #7a7470);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
-        }
-
-        @media (max-width: 768px) {
-            .marble-grid { padding: 0 20px 60px; gap: 24px; }
-        }
-    </style>
-
-    <div class="marble-grid">
-
-        <div class="marble-frame">
-            <div class="marble-outer">
-                <div class="marble-screen">
-                    <video controls muted preload="metadata">
-                        <source src="Letter/Letter_1.mp4" type="video/mp4">
-                    </video>
+    <section class="section">
+        <div class="contact-grid reveal">
+            <div>
+                <div class="contact-info-card">
+                    <h4>📍 위치</h4>
+                    <p>A1, Khu Five Star Mỹ Đình<br>P. Từ Liêm, TP. Hà Nội, Vietnam<br>Hwasa K-Beauty</p>
                 </div>
-                <div class="marble-label">
-                    <span class="marble-number">#1</span>
-                    <div class="marble-dots">
-                        <div class="marble-dot"></div>
-                        <div class="marble-dot"></div>
-                        <div class="marble-dot"></div>
-                    </div>
+                <div class="contact-info-card">
+                    <h4>🕐 영업시간</h4>
+                    <p>월–일: 09:00 – 19:30<br>금요일: – 21:00</p>
+                </div>
+                <div class="contact-info-card">
+                    <h4>📞 연락처</h4>
+                    <p>전화: <a href="tel:0326842002">032-684-2002</a><br>
+                    카카오톡: <a href="https://open.kakao.com/o/suDPpihg" target="_blank">hwasavn</a><br>
+                    인스타그램: <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">@hwasa_k_beauty</a><br>
+                    Grab: <a href="grab://open?screenType=BOOKING&dropOffLatitude=21.017912&dropOffLongitude=105.7759452&dropOffAddress=Hwasa%20K-Beauty%20A1%20Five%20Star%20My%20Dinh" target="_blank">Hwasa K-Beauty로 이동</a><br>
+                    Google Map: <a href="https://www.google.com/maps?q=21.017912,105.7759452&z=17" target="_blank">지도에서 보기</a></p>
                 </div>
             </div>
-        </div>
-
-        <div class="marble-frame">
-            <div class="marble-outer">
-                <div class="marble-screen">
-                    <video controls muted preload="metadata">
-                        <source src="Letter/Letter_2.mp4" type="video/mp4">
-                    </video>
-                </div>
-                <div class="marble-label">
-                    <span class="marble-number">#2</span>
-                    <div class="marble-dots">
-                        <div class="marble-dot"></div>
-                        <div class="marble-dot"></div>
-                        <div class="marble-dot"></div>
-                    </div>
-                </div>
+            <div class="contact-map">
+                <iframe id="shopMap" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
-
-    </div>
+    </section>
 
     </div><!-- scroll-container -->
 <footer class="footer-slim">
@@ -409,9 +302,9 @@
             <span class="footer-sep">|</span>
             <a href="https://open.kakao.com/o/suDPpihg" target="_blank">KakaoTalk</a>
             <span class="footer-sep">|</span>
-            <a href="contact.html">Contact</a>
+            <a href="PAGE_CONTACT.html">Contact</a>
             <span class="footer-sep">|</span>
-            <a href="erp.html" class="footer-erp-link">ERP</a>
+            <a href="PAGE_ERP.html" class="footer-erp-link">ERP</a>
         </div>
     </footer>
     <script>
@@ -422,12 +315,6 @@
             });
         }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
         revealElements.forEach(el => revealObserver.observe(el));
-
-        // marble frame
-        const marbleObs = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.08 });
-        document.querySelectorAll('.marble-frame').forEach(el => marbleObs.observe(el));
         function toggleMenu() {
             const nav = document.getElementById('nav');
             nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
@@ -441,6 +328,20 @@
                 if(!nav.querySelector('.mob-close')){var cb=document.createElement('button');cb.className='mob-close';cb.innerHTML='×';cb.style.cssText='position:absolute;top:24px;right:24px;font-size:28px;color:#fff;background:none;border:none;cursor:pointer;z-index:1000';cb.onclick=function(){nav.style.display="none"};nav.appendChild(cb);}
             }
         }
+    </script>
+
+    
+
+    <script>
+    window.addEventListener('DOMContentLoaded', function() {
+        var shopName = 'Hwasa K Beauty 화사케이뷰티';
+        var lat = 21.017912;
+        var lng = 105.7759452;
+        var mapFrame = document.getElementById('shopMap');
+        if (mapFrame) {
+            mapFrame.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(shopName) + '&ll=' + lat + ',' + lng + '&z=17&output=embed&iwloc=near';
+        }
+    });
     </script>
 </body>
 </html>

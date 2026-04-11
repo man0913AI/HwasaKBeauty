@@ -982,7 +982,7 @@ function App() {
   const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
 
   useEffect(()=>{
-    if(!user){window.location.href='erp.html';return;}
+    if(!user){window.location.href='PAGE_ERP.html';return;}
     const t=setInterval(()=>setNow(new Date()),60000);
     const sp=document.getElementById('splash');
     if(sp){sp.style.opacity='0';setTimeout(()=>sp.remove(),500);}
@@ -997,7 +997,7 @@ function App() {
   if(!user) return null;
 
   const go=(id)=>{setMenu(id);setSub(0);};
-  const logout=()=>{sessionStorage.removeItem('hskb_erp_user');window.location.href='erp.html';};
+  const logout=()=>{sessionStorage.removeItem('hskb_erp_user');window.location.href='PAGE_ERP.html';};
 
   const renderContent=()=>{
     switch(menu){

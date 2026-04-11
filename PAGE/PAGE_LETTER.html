@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About | Hwasa K-Beauty</title>
+    <title>Letter | Hwasa K-Beauty</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -150,7 +150,7 @@
         .bg-video-wrap {
             position: fixed;
             inset: 0;
-            z-index: -2;
+            z-index: -1;
             overflow: hidden;
         }
         .bg-video-wrap video {
@@ -158,20 +158,13 @@
             height: 100%;
             object-fit: cover;
         }
-        /* 중앙 눈부심 개선 */
         .bg-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
             background: radial-gradient(ellipse 70% 60% at 50% 45%,
-                rgba(0,0,0,0.82) 0%,
-                rgba(0,0,0,0.6) 35%,
-                rgba(0,0,0,0.35) 60%,
-                rgba(0,0,0,0.18) 80%,
-                rgba(0,0,0,0.08) 100%);
+                rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.6) 35%,
+                rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.18) 80%, rgba(0,0,0,0.08) 100%);
         }
-        
+
         /* Scroll container: content only scrolls below header */
         html, body { overflow: hidden; height: 100%; margin: 0; }
         .scroll-container {
@@ -186,6 +179,16 @@
         }
         .scroll-container::-webkit-scrollbar { display: none; }
         .scroll-container { scrollbar-width: none; }
+        /* ========== FOOTER-SLIM ========== */
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         /* FOOTER */
         
@@ -218,73 +221,184 @@
 </head>
 <body>
     <div class="bg-video-wrap">
-        <video muted playsinline preload="metadata" poster="video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
-            <source src="bg-video.mp4" type="video/mp4">
+        <video muted playsinline preload="metadata" poster="../video-poster.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
+            <source src="../bg-video.mp4" type="video/mp4">
         </video>
     </div>
     <div class="bg-overlay"></div>
 
     <header class="header" id="header">
-        <a href="index.html" class="logo">
-            <img src="logo.png" alt="Hwasa K-Beauty" class="logo-img">
+        <a href="PAGE_MAIN.html" class="logo">
+            <img src="../logo.png" alt="Hwasa K-Beauty" class="logo-img">
         </a>
         <nav class="nav" id="nav">
-            <a href="index.html">Home</a>
-            <a href="diploma.html">Diploma</a>
-            <a href="program.html">Program</a>
-            <a href="selfbeauty.html">Self Beauty</a>
-            <a href="echart.html">E-Chart</a>
-            <a href="letter.html">Letter</a>
-            <a href="about.html" class="active">About</a>
-            <a href="echart.html" class="nav-cta">상담 예약</a>
+            <a href="PAGE_MAIN.html">Home</a>
+            <a href="PAGE_DIPLOMA.html">Diploma</a>
+            <a href="PAGE_PROGRAM.html">Program</a>
+            <a href="PAGE_SELF_BEAUTY.html">Self Beauty</a>
+            <a href="PAGE_E_CHART.html">E-Chart</a>
+            <a href="PAGE_LETTER.html" class="active">Letter</a>
+            <a href="PAGE_ABOUT.html">About</a>
+            <a href="PAGE_E_CHART.html" class="nav-cta">상담 예약</a>
         </nav>
         <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </div>
     </header>
     <div class="side-nav" id="sideNav">
-        <a href="academy.html">ACADEMY</a>
-        <a href="shop.html">SHOP</a>
-        <a href="contact.html">CONTACT</a>
+        <a href="PAGE_ACADEMY.html">ACADEMY</a>
+        <a href="PAGE_MARKET.html">MARKET</a>
+        <a href="PAGE_CONTACT.html">CONTACT</a>
     </div>
     <div class="scroll-container">
 
     <section class="page-hero">
-        <p class="page-hero-label">Our Story</p>
-        <h1 class="page-hero-title">About <em>Hwasa</em></h1>
-        <p class="page-hero-desc">22년 경력의 전문가가 이끄는 <br>프리미엄 한국식 피부관리</p>
+        <p class="page-hero-label">Newsletter</p>
+        <h1 class="page-hero-title">Hwasa <em>Letter</em></h1>
+        <p class="page-hero-desc">Hwasa K-Beauty의 정기 &amp; 비정기 뉴스레터</p>
     </section>
 
+    <style>
+        /* ── 가로형 마블 프레임 ── */
+        .marble-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 48px 80px;
+        }
+        .marble-frame {
+            position: relative;
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+        }
+        .marble-frame.visible { opacity: 1; transform: translateY(0); }
+        .marble-frame:nth-child(1) { transition-delay: 0.05s; }
+        .marble-frame:nth-child(2) { transition-delay: 0.18s; }
 
-    <section class="section">
-        <div class="about-grid reveal">
-            <div class="about-img" style="text-align:center; background:transparent; border:none;">
-                <img src="profile-director.png" alt="원장 홍은하" style="max-width:250px; margin:0 auto; border-radius:50%;">
-            </div>
-            <div class="about-text">
-                <div class="section-label">Director</div>
-                <h3>원장 홍은하</h3>
-                <div class="divider-line"></div>
-                <p>22년간의 피부관리 전문 경력을 바탕으로 한국의 우수한 스킨케어 기술을 하노이에 전달하고 있습니다.</p>
-                <p>메디컬 스킨케어, 두피 트로콜로지, 얼굴윤곽 테라피, 슬리밍 바디 디톡스 등 다양한 전문 분야의 자격을 보유하고 있습니다.</p>
-                <p>Hwasa K-Beauty에서 정통 한국식 프리미엄 피부관리를 경험해 보세요.</p>
+        /* 마블 외부 테두리 */
+        .marble-outer {
+            position: relative;
+            border-radius: 4px;
+            padding: 14px 14px 10px;
+            background:
+                linear-gradient(135deg,
+                    #e8e0d8 0%, #d4ccc4 15%,
+                    #bbb0a8 30%, #ccc4bc 45%,
+                    #ddd6ce 55%, #c8c0b8 70%,
+                    #b8b0a8 80%, #d0c8c0 100%
+                );
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.7) inset,
+                0 -1px 0 rgba(0,0,0,0.25) inset,
+                0 12px 40px rgba(0,0,0,0.5),
+                0 2px 8px rgba(0,0,0,0.3);
+        }
+        /* 마블 결 오버레이 (SVG noise) */
+        .marble-outer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 4px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='200'%3E%3Cdefs%3E%3Cfilter id='m'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.008 0.025' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.18' intercept='0.72'/%3E%3CfeFuncG type='linear' slope='0.15' intercept='0.70'/%3E%3CfeFuncB type='linear' slope='0.12' intercept='0.68'/%3E%3CfeFuncA type='linear' slope='0.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3C/defs%3E%3Crect width='900' height='200' filter='url(%23m)'/%3E%3C/svg%3E") center/cover;
+            pointer-events: none;
+        }
+        /* 안쪽 얇은 금속 테두리 */
+        .marble-outer::after {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border: 1px solid rgba(255,255,255,0.45);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+        /* 영상 화면 */
+        .marble-screen {
+            position: relative;
+            z-index: 1;
+            border-radius: 2px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.8);
+        }
+        .marble-screen video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: #000;
+        }
+        /* 하단 레이블 */
+        .marble-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 2px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .marble-number {
+            font-family: var(--font-nav, 'Instrument Sans', sans-serif);
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: rgba(80,70,60,0.7);
+        }
+        .marble-dots {
+            display: flex;
+            gap: 5px;
+        }
+        .marble-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, #aaa49e, #7a7470);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+
+        @media (max-width: 768px) {
+            .marble-grid { padding: 0 20px 60px; gap: 24px; }
+        }
+    </style>
+
+    <div class="marble-grid">
+
+        <div class="marble-frame">
+            <div class="marble-outer">
+                <div class="marble-screen">
+                    <video controls muted preload="metadata">
+                        <source src="../Letter/Letter_1.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="marble-label">
+                    <span class="marble-number">#1</span>
+                    <div class="marble-dots">
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="about-stats reveal">
-            <div>
-                <div class="about-stat-num">22+</div>
-                <div class="about-stat-label">Years Experience</div>
-            </div>
-            <div>
-                <div class="about-stat-num">3,500+</div>
-                <div class="about-stat-label">Clients Served</div>
-            </div>
-            <div>
-                <div class="about-stat-num">15+</div>
-                <div class="about-stat-label">Certifications</div>
+
+        <div class="marble-frame">
+            <div class="marble-outer">
+                <div class="marble-screen">
+                    <video controls muted preload="metadata">
+                        <source src="../Letter/Letter_2.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="marble-label">
+                    <span class="marble-number">#2</span>
+                    <div class="marble-dots">
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                        <div class="marble-dot"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+
+    </div>
 
     </div><!-- scroll-container -->
 <footer class="footer-slim">
@@ -295,9 +409,9 @@
             <span class="footer-sep">|</span>
             <a href="https://open.kakao.com/o/suDPpihg" target="_blank">KakaoTalk</a>
             <span class="footer-sep">|</span>
-            <a href="contact.html">Contact</a>
+            <a href="PAGE_CONTACT.html">Contact</a>
             <span class="footer-sep">|</span>
-            <a href="erp.html" class="footer-erp-link">ERP</a>
+            <a href="PAGE_ERP.html" class="footer-erp-link">ERP</a>
         </div>
     </footer>
     <script>
@@ -308,6 +422,12 @@
             });
         }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
         revealElements.forEach(el => revealObserver.observe(el));
+
+        // marble frame
+        const marbleObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.marble-frame').forEach(el => marbleObs.observe(el));
         function toggleMenu() {
             const nav = document.getElementById('nav');
             nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';

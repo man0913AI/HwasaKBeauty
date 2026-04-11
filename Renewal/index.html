@@ -168,7 +168,7 @@ const go=(p)=>{location.hash=p;};
 
 /* ═══ DATA ═══ */
 const NAV=[{p:'/',l:'Home'},{p:'/diploma',l:'Diploma'},{p:'/program',l:'Program'},{p:'/selfbeauty',l:'Self Beauty'},{p:'/echart',l:'E-Chart'},{p:'/letter',l:'Letter'},{p:'/about',l:'About'}];
-const SIDE=[{p:'/academy',l:'Academy'},{p:'/shop',l:'Shop'},{p:'/contact',l:'Contact'}];
+const SIDE=[{p:'/academy',l:'Academy'},{p:'/market',l:'Market'},{p:'/contact',l:'Contact'}];
 const ALL_NAV=[...NAV,...SIDE];
 
 /* ═══ SHARED COMPONENTS ═══ */
@@ -212,7 +212,7 @@ function Footer(){
     <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank" rel="noreferrer">Instagram</a><span className="footer-sep">|</span>
     <a href="https://open.kakao.com/o/suDPpihg" target="_blank" rel="noreferrer">KakaoTalk</a><span className="footer-sep">|</span>
     <button className="footer-link" onClick={()=>go('/contact')}>Contact</button><span className="footer-sep">|</span>
-    <a href="../erp.html">ERP</a>
+    <a href="../PAGE/PAGE_ERP.html">ERP</a>
   </div></footer>);
 }
 
@@ -307,12 +307,12 @@ function ProgramPage(){
   </div>);
 }
 
-function ShopPage(){
+function MarketPage(){
   const[tab,setTab]=useState('All');const[modal,setModal]=useState(null);
   const P=[{c:'스킨케어',n:'Hwasa 시그니처 세럼',d:'원장 직접 선별한 고농축 재생 앰플',p:'W58,000',b:'Best',e:'💧'},{c:'스킨케어',n:'딥 모이스처 크림',d:'세라마이드 & 히알루론산 복합체',p:'W42,000',e:'🧴'},{c:'마스크팩',n:'골드 리프팅 마스크',d:'실제 금박 성분 탄력광채',p:'W35,000',b:'New',e:'✨'},{c:'마스크팩',n:'진정 바이오 마스크',d:'EGF 성장인자 홍조자극 즉각 진정',p:'W28,000',e:'🌿'},{c:'디바이스',n:'미니 RF 리프팅 디바이스',d:'가정용 고주파 디바이스',p:'W180,000',b:'Hot',e:'⚡'},{c:'세트',n:'Hwasa 스킨케어 풀 세트',d:'세럼+크림+마스크팩(5매) 구성',p:'W120,000',b:'Set',e:'🎁'}];
   const tabs=['All','스킨케어','마스크팩','디바이스','세트'];const fl=tab==='All'?P:P.filter(x=>x.c===tab);
   return(<div className="scroll-ct">
-    <div className="section"><div className="section-label">Online &amp; Offline</div><h1 className="section-title">Hwasa <em>Shop</em></h1><p className="section-desc">엄선된 한국 스킨케어 제품을 온라인 오프라인에서 만나보세요</p></div>
+    <div className="section"><div className="section-label">Online &amp; Offline</div><h1 className="section-title">Hwasa <em>Market</em></h1><p className="section-desc">엄선된 한국 스킨케어 제품을 온라인 오프라인에서 만나보세요</p></div>
     <div className="section" style={{paddingTop:0}}>
       <div className="prog-tabs">{tabs.map(t=><button key={t} className={`prog-tab${tab===t?' active':''}`} onClick={()=>setTab(t)}>{t}</button>)}</div>
       <div className="product-grid">{fl.map((x,i)=><div key={i} className="product-card"><div className="product-img">{x.e}</div><div className="product-body">{x.b&&<span style={{fontSize:9,background:'var(--accent)',color:'#fff',padding:'2px 8px',borderRadius:10,marginBottom:6,display:'inline-block'}}>{x.b}</span>}<div className="product-name">{x.n}</div><div className="product-desc-text">{x.d}</div><div className="product-price">{x.p}</div><button className="btn-outline" style={{padding:'8px 16px',fontSize:10,marginTop:10}} onClick={()=>setModal(x.n)}>문의하기</button></div></div>)}</div>
@@ -430,7 +430,7 @@ function App(){
   const page=useMemo(()=>{
     switch(route){
       case'/':return<HomePage/>;case'/about':return<AboutPage/>;case'/contact':return<ContactPage/>;
-      case'/diploma':return<DiplomaPage/>;case'/program':return<ProgramPage/>;case'/shop':return<ShopPage/>;
+      case'/diploma':return<DiplomaPage/>;case'/program':return<ProgramPage/>;case'/market':return<MarketPage/>;
       case'/selfbeauty':return<SelfBeautyPage/>;case'/letter':return<LetterPage/>;
       case'/academy':return<AcademyPage/>;case'/echart':return<EChartPage/>;
       default:return<HomePage/>;

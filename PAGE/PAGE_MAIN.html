@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hwasa K-Beauty | 하노이 프리미엄 한국식 피부관리</title>
+    <meta name="description" content="하노이 미딩에 위치한 프리미엄 한국식 피부관리 전문샵. 22년 경력의 전문가가 제공하는 정통 메디컬 스킨케어.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========== CSS VARIABLES ========== */
+        :root {
+            --color-bg: #FAFAF8;
+            --color-bg-dark: #0A0A0A;
+            --color-bg-cream: #F5F0EB;
+            --color-text: #1A1A1A;
+            --color-text-light: #F5F0EB;
+            --color-accent: #B8956A;
+            --color-accent-light: #D4B896;
+            --color-muted: #8A8A8A;
+            --color-border: rgba(26,26,26,0.12);
+            --color-border-light: rgba(245,240,235,0.2);
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Noto Sans KR', sans-serif;
+            --font-nav: 'Instrument Sans', sans-serif;
+            --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ========== RESET & BASE ========== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { 
+            scroll-behavior: smooth; 
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: transparent;
+            color: var(--color-text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+        button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+        /* ========== BACKGROUND VIDEO ========== */
+        .bg-video-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .bg-video-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 2px; }
+
+        /* ========== LOADING SCREEN ========== */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--color-bg-dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
+            transition: opacity 0.8s var(--ease-smooth), visibility 0.8s;
+        }
+        .loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-text {
+            font-family: var(--font-display);
+            font-size: clamp(24px, 4vw, 42px);
+            color: var(--color-text-light);
+            letter-spacing: 8px;
+            font-weight: 300;
+        }
+        .loader-bar {
+            width: 120px;
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-bar::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; height: 100%;
+            width: 0;
+            background: var(--color-accent);
+            animation: loadBar 2.2s var(--ease-smooth) forwards;
+        }
+        @keyframes loadBar { to { width: 100%; } }
+
+        /* ========== HEADER / NAV ========== */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 0 48px 0 20px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: none;
+            border-bottom: none;
+            background: transparent;
+        }
+        .header.scrolled {
+            background: transparent;
+            border-color: transparent;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+         flex-shrink: 0; }
+        .logo-mark {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 300;
+            color: #fff;
+            letter-spacing: 3px;
+        }
+        .logo-sub {
+            font-family: var(--font-nav);
+            font-size: 9px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-top: 2px;
+        }
+        .logo-img {
+            height: 68px;
+            width: auto;
+            filter: invert(1) brightness(2);
+            transition: opacity 0.3s;
+        }
+        .nav { display: flex; align-items: center; gap: 20px; }
+        .nav a {
+            font-family: var(--font-nav);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            transition: color 0.3s;
+            font-weight: 700;
+         white-space: nowrap; }
+        .nav a:hover, .nav a.active { color: var(--color-accent); }
+        .nav-cta {
+            padding: 10px 24px;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent) !important;
+            font-size: 11px !important;
+            letter-spacing: 2px;
+            transition: all 0.3s !important;
+        }
+        .nav-cta:hover {
+            background: var(--color-accent);
+            color: #fff !important;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 28px;
+            height: 1px;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 700px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: transparent;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            z-index: 0;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 24px;
+        }
+        .hero-label {
+            font-family: var(--font-nav);
+            font-size: 11px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--color-accent-light);
+            margin-bottom: 24px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-out) 2.2s forwards;
+        }
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(42px, 7vw, 86px);
+            font-weight: 300;
+            color: #fff;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-out) 2.4s forwards;
+        }
+        .hero-title em {
+            font-style: italic;
+            color: var(--color-accent-light);
+        }
+        .hero-desc {
+            font-size: 15px;
+            color: #fff;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-out) 2.6s forwards;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-out) 2.8s forwards;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 40px;
+            background: var(--color-accent);
+            color: #fff;
+            font-family: var(--font-nav);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: all 0.4s var(--ease-smooth);
+        }
+        .btn-primary:hover { background: #A07D56; transform: translateY(-2px); }
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 40px;
+            border: 1px solid rgba(255,255,255,0.35);
+            color: #fff;
+            font-family: var(--font-nav);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+            transition: all 0.4s var(--ease-smooth);
+        }
+        .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeUp 1s var(--ease-out) 3.2s forwards;
+        }
+        .hero-scroll span {
+            font-family: var(--font-nav);
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-accent);
+            animation: scrollDown 2s ease-in-out infinite;
+        }
+        @keyframes scrollDown { to { top: 100%; } }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* ========== REVEAL ANIMATION ========== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.9s var(--ease-out);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.9s var(--ease-out);
+        }
+        .reveal-left.visible { opacity: 1; transform: translateX(0); }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.9s var(--ease-out);
+        }
+        .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+        /* ========== SECTION COMMON ========== */
+        .section { padding: 140px 48px; position: relative; background: transparent; }
+        .section-dark { background: transparent; color: var(--color-text-light); }
+        .section-cream { background: transparent; color: var(--color-text-light); }
+        .section-label {
+            font-family: var(--font-nav);
+            font-size: 11px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 4.5vw, 56px);
+            font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+        .section-title em { font-style: italic; }
+        .section-desc {
+            font-size: 15px;
+            line-height: 1.9;
+            font-weight: 300;
+            color: #fff;
+            max-width: 520px;
+        }
+        .section-dark .section-desc { color: #fff; }
+        .divider-line {
+            width: 48px;
+            height: 1px;
+            background: var(--color-accent);
+            margin: 28px 0;
+        }
+
+        /* ========== PHILOSOPHY SECTION ========== */
+        .philosophy {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .philosophy-img {
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+        }
+        .philosophy-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 35%;
+            transition: transform 0.8s var(--ease-smooth);
+        }
+        .philosophy-img:hover img { transform: scale(1.05); }
+        .philosophy-img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(255,255,255,0.15);
+            pointer-events: none;
+        }
+
+        /* ========== SERVICES SECTION ========== */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            max-width: 1400px;
+            margin: 60px auto 0;
+        }
+        .service-card {
+            position: relative;
+            height: 500px;
+            overflow: hidden;
+            cursor: pointer;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2520 100%);
+        }
+        .service-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s var(--ease-smooth);
+        }
+        .service-card:hover img { transform: scale(1.08); }
+        .service-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 40px;
+            transition: background 0.5s;
+        }
+        .service-card:hover .service-card-overlay {
+            background: transparent;
+        }
+        .service-card-num {
+            font-family: var(--font-display);
+            font-size: 14px;
+            color: var(--color-accent-light);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .service-card h3 {
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 400;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .service-card p {
+            font-size: 13px;
+            color: #fff;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+        .service-card .arrow {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s var(--ease-smooth);
+        }
+        .service-card:hover .arrow { opacity: 1; transform: translateY(0); }
+
+        /* ========== STATS BAR ========== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 48px;
+            text-align: center;
+        }
+        .stat-item { padding: 20px 0; }
+        .stat-num {
+            font-family: var(--font-display);
+            font-size: clamp(42px, 5vw, 64px);
+            font-weight: 300;
+            color: var(--color-accent);
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+        .stat-label {
+            font-size: 13px;
+            letter-spacing: 1px;
+            color: #fff;
+            font-weight: 300;
+        }
+
+        /* ========== FEATURED BANNER ========== */
+        .featured {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .featured-img {
+            position: relative;
+            overflow: hidden;
+        }
+        .featured-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .featured-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px;
+        }
+        .featured-text .btn-outline {
+            border-color: #fff;
+            color: #fff;
+            margin-top: 32px;
+        }
+        .featured-text .btn-outline:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            background: transparent;
+        }
+
+        /* ========== INSTAGRAM SECTION ========== */
+        .insta-section { text-align: center; }
+        .insta-section .section-label { color: var(--color-accent); }
+        .insta-grid {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 48px;
+            overflow: hidden;
+        }
+        .insta-item {
+            width: 240px;
+            height: 240px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        .insta-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s var(--ease-smooth);
+        }
+        .insta-item:hover img { transform: scale(1.1); }
+        .insta-item::after {
+            content: '↗';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: #fff;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .insta-item:hover::after { opacity: 1; }
+
+        /* ========== CTA SECTION ========== */
+        .cta-section {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .cta-section .section-title { max-width: 700px; }
+        .cta-section .section-desc { text-align: center; margin-bottom: 0; }
+        .cta-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        .cta-buttons .btn-primary { background: #fff; color: var(--color-bg-dark); }
+        .cta-buttons .btn-primary:hover { background: var(--color-accent); color: #fff; }
+
+        /* ========== FOOTER ========== */
+        .footer-brand .logo-mark { font-size: 24px; }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .section { padding: 100px 32px; }
+            .philosophy { grid-template-columns: 1fr; gap: 48px; }
+            .philosophy-img { height: 400px; }
+            .services-grid { grid-template-columns: 1fr 1fr; }
+            .featured-text { padding: 60px 32px; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 0 24px; height: 64px; }
+            .nav { display: none; }
+            .menu-toggle { display: flex; }
+            .section { padding: 80px 20px; }
+            .hero-content { padding: 0 20px; }
+            .services-grid { grid-template-columns: 1fr; }
+            .service-card { height: 380px; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .insta-item { width: 160px; height: 160px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 36px; }
+            .stats-bar { grid-template-columns: 1fr; }
+        }
+        
+        /* Scroll container: content only scrolls below header */
+        html, body { overflow: hidden; height: 100%; margin: 0; }
+        .scroll-container {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 48px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .scroll-container { scrollbar-width: none; }
+        
+        /* FOOTER */
+        
+        
+        
+        
+        
+        
+
+        
+        /* RIGHT SIDEBAR */
+        .side-nav { position:fixed; right:0; top: 80px; transform: none; z-index:100; display:flex; flex-direction:column; align-items:flex-end; gap:0; background:transparent; }
+        .side-nav a { display:block; padding:12px 14px; font-family:var(--font-nav,'Montserrat',sans-serif); font-size:10px; letter-spacing:2px; color: #fff; text-decoration:none; transition:color 0.3s,background 0.3s; text-transform:uppercase; text-align:right; }
+        .side-nav a:hover { color:#B8956A; background:rgba(0,0,0,0.3); }
+        
+        
+        
+
+        
+        /* FOOTER */
+        .footer-slim { background: transparent; border-top: none; padding: 16px 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
+        .footer-inner { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-family: 'Instrument Sans', var(--font-nav, sans-serif); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
+        .footer-inner a { color: #fff; text-decoration: none; transition: color 0.3s; }
+        .footer-inner a:hover { color: #B8956A; }
+        .footer-sep { color: rgba(255,255,255,0.4); }
+        .footer-erp-link { color: #fff !important; }
+        .footer-erp-link:hover { color: #B8956A !important; }
+
+        </style>
+</head>
+<body>
+
+    <!-- BACKGROUND VIDEO (persistent across scroll) -->
+    <div class="bg-video-wrap">
+        <video autoplay muted loop playsinline style="pointer-events:none;">
+            <source src="../bg-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- LOADER -->
+    <div class="loader" id="loader">
+        <div class="loader-text">HWASA <span style="font-size:0.5em; font-style:italic; color:var(--color-accent-light); letter-spacing:3px;">in Hanoi</span></div>
+        <div class="loader-bar"></div>
+        <div class="loader-date" id="loaderDate" style="font-family:var(--font-nav); font-size:12px; color:#fff; letter-spacing:3px; margin-top:8px;">2023.01.01</div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <a href="PAGE_MAIN.html" class="logo">
+            <img src="../logo.png" alt="Hwasa K-Beauty" class="logo-img">
+        </a>
+        <nav class="nav" id="nav">
+            <a href="PAGE_MAIN.html" class="active">Home</a>
+            <a href="PAGE_DIPLOMA.html">Diploma</a>
+            <a href="PAGE_PROGRAM.html">Program</a>
+            <a href="PAGE_SELF_BEAUTY.html">Self Beauty</a>
+            <a href="PAGE_E_CHART.html">E-Chart</a>
+            <a href="PAGE_LETTER.html">Letter</a>
+            <a href="PAGE_ABOUT.html">About</a>
+            <a href="PAGE_E_CHART.html" class="nav-cta">상담 예약</a>
+        </nav>
+        <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+    </header>
+    <div class="side-nav" id="sideNav">
+        <a href="PAGE_ACADEMY.html">ACADEMY</a>
+        <a href="PAGE_MARKET.html">MARKET</a>
+        <a href="PAGE_CONTACT.html">CONTACT</a>
+    </div>
+    <div class="scroll-container">
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <p class="hero-label">Premium Korean Skin Care in Hanoi</p>
+            <h1 class="hero-title">Unveil Your <em>True</em> Beauty</h1>
+            <p class="hero-desc">
+                피부 관리 22년 경력의 전문가가 <br>하노이에서 제공하는 <br>
+                정통 한국식 메디컬 스킨케어
+            </p>
+            <div class="hero-buttons">
+                <a href="PAGE_E_CHART.html" class="btn-primary">상담 예약하기 →</a>
+                <a href="PAGE_PROGRAM.html" class="btn-outline">프로그램 보기</a>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- PHILOSOPHY -->
+    <section class="section section-cream">
+        <div class="philosophy">
+            <div class="reveal-left">
+                <div class="section-label">Our Philosophy</div>
+                <h2 class="section-title">피부 과학과 <em>정성</em>이<br>만나는 곳</h2>
+                <div class="divider-line"></div>
+                <p class="section-desc">
+                    22년간 축적된 피부 관리 노하우와 한국 최신 메디컬 스킨케어 기술을 결합하여,
+                    하노이에서 가장 신뢰할 수 있는 프리미엄 피부관리를 제공합니다.
+                    고객 한 분 한 분의 피부 상태를 정밀하게 분석하고,
+                    맞춤형 솔루션을 제안합니다.
+                </p>
+                <a href="PAGE_ABOUT.html" class="btn-outline" style="border-color: #fff; color: #fff; margin-top: 32px;">
+                    자세히보기 →
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section section-dark">
+        <div style="text-align: center; margin-bottom: 20px;" class="reveal">
+            <div class="section-label">Our Programs</div>
+            <h2 class="section-title" style="color: #fff;">Signature <em>Programs</em></h2>
+        </div>
+        <div class="services-grid">
+            <div class="service-card reveal">
+                <div class="service-card-overlay">
+                    <div class="service-card-num">01</div>
+                    <h3>페이셜 케어</h3>
+                    <p>모공, 주름, 색소 등 피부 고민별 맞춤 관리</p>
+                </div>
+                <div class="arrow">↗</div>
+            </div>
+            <div class="service-card reveal" style="transition-delay: 0.15s;">
+                <div class="service-card-overlay">
+                    <div class="service-card-num">02</div>
+                    <h3>바디 마사지</h3>
+                    <p>한국식 경락 마사지와 아로마 테라피</p>
+                </div>
+                <div class="arrow">↗</div>
+            </div>
+            <div class="service-card reveal" style="transition-delay: 0.3s;">
+                <div class="service-card-overlay">
+                    <div class="service-card-num">03</div>
+                    <h3>특수 관리</h3>
+                    <p>리프팅, 재생, 미백 등 전문 메디컬 케어</p>
+                </div>
+                <div class="arrow">↗</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="section section-dark" style="padding-top: 0; padding-bottom: 100px;">
+        <div class="stats-bar reveal">
+            <div class="stat-item">
+                <div class="stat-num" data-count="22">0</div>
+                <div class="stat-label">Years of Experience</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-count="3500">0</div>
+                <div class="stat-label">Satisfied Clients</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-count="15">0</div>
+                <div class="stat-label">Specialized Treatments</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-count="98">0</div>
+                <div class="stat-label">% Client Satisfaction</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED -->
+    <section class="section">
+        <div class="featured">
+            <div class="featured-text reveal-right">
+                <div class="section-label">E-Chart System</div>
+                <h2 class="section-title">온라인으로 간편하게<br><em>피부 상담</em></h2>
+                <div class="divider-line"></div>
+                <p class="section-desc">
+                    방문 전 온라인 E-Chart를 작성하시면, 피부 상태를 미리 분석하여
+                    최적의 맞춤 관리 프로그램을 준비해 드립니다.
+                    더 정확하고 효율적인 상담이 가능합니다.
+                </p>
+                <a href="PAGE_E_CHART.html" class="btn-outline">E-Chart 작성하기 →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section section-dark cta-section">
+        <div class="reveal">
+            <div class="section-label">Book Now</div>
+            <h2 class="section-title" style="color: #fff;">당신만의 <em>뷰티 플랜</em>을<br>시작하세요</h2>
+            <p class="section-desc" style="color: #fff;">
+                지금 상담을 예약하고, 22년 경력 전문가의<br>
+                프리미엄 피부관리를 경험하세요.
+            </p>
+            <div class="cta-buttons">
+                <a href="PAGE_E_CHART.html" class="btn-primary">상담 예약 →</a>
+                <a href="PAGE_CONTACT.html" class="btn-outline">연락하기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+
+    <!-- SCRIPTS -->
+    </div><!-- scroll-container -->
+<footer class="footer-slim">
+        <div class="footer-inner">
+            <span>© 2026 Hwasa K-Beauty</span>
+            <span class="footer-sep">|</span>
+            <a href="https://www.instagram.com/hwasa_k_beauty/" target="_blank">Instagram</a>
+            <span class="footer-sep">|</span>
+            <a href="https://open.kakao.com/o/suDPpihg" target="_blank">KakaoTalk</a>
+            <span class="footer-sep">|</span>
+            <a href="PAGE_CONTACT.html">Contact</a>
+            <span class="footer-sep">|</span>
+            <a href="PAGE_ERP.html" class="footer-erp-link">ERP</a>
+        </div>
+    </footer>
+    <script>
+        // Loader with date counter
+        window.addEventListener('load', () => {
+            const startDate = new Date('2023-01-01');
+            const endDate = new Date();
+            const totalMs = endDate.getTime() - startDate.getTime();
+            const duration = 2200;
+            const dateEl = document.getElementById('loaderDate');
+            const startTime = performance.now();
+            
+            function animateDate(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentMs = startDate.getTime() + (totalMs * progress);
+                const d = new Date(currentMs);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dateEl.textContent = y + '.' + m + '.' + day;
+                if (progress < 1) {
+                    requestAnimationFrame(animateDate);
+                } else {
+                    setTimeout(() => {
+                        document.getElementById('loader').classList.add('hidden');
+                    }, 300);
+                }
+            }
+            requestAnimationFrame(animateDate);
+        });
+
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            // scroll effect disabled
+        });
+
+        // Scroll reveal
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Counter animation
+        const counters = document.querySelectorAll('[data-count]');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.dataset.count);
+                    let current = 0;
+                    const step = target / 60;
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        entry.target.textContent = Math.floor(current).toLocaleString();
+                        if (target === 98) entry.target.textContent = Math.floor(current) + '%';
+                    }, 25);
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(c => counterObserver.observe(c));
+
+        // Mobile menu
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+            if (window.innerWidth <= 768 && nav.style.display === 'flex') {
+                nav.style.cssText = `
+                    display: flex; flex-direction: column; position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(10,10,10,0.97); z-index: 999;
+                    align-items: center; justify-content: center; gap: 28px;
+                `;
+                nav.querySelectorAll('a').forEach(a => {
+                    a.style.color = '#fff';
+                    a.style.fontSize = '18px';
+                });
+                if(!n.querySelector('.mob-close')){var cb=document.createElement('button');cb.className='mob-close';cb.innerHTML='×';cb.style.cssText='position:absolute;top:24px;right:24px;font-size:28px;color:#fff;background:none;border:none;cursor:pointer;z-index:1000';cb.onclick=function(){n.style.display="none"};n.appendChild(cb);}
+            }
+        }
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@
   <title>HWASA K-Beauty — Shop ERP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
@@ -54,16 +54,69 @@ const getUser = () => {
 /* ════════════════════════════════════════
    CONSTANTS
    ════════════════════════════════════════ */
-const EMPLOYEES = [
-  { id:1, name:'hong', nameKr:'홍', position:'수석 관리사', base:8000000, hourly:35000 },
-  { id:2, name:'thuy', nameKr:'투이', position:'데스크 매니저', base:6500000, hourly:29000 },
-  { id:3, name:'yen',  nameKr:'옌', position:'관리사', base:7500000, hourly:33000 },
-];
-const MEMBER_GRADES = ['','CLUB','BRONZE','SILVER','GOLD','VIP','VVIP','이밴트','무제한'];
-const EXPENSE_ITEMS = ['빨래','택배','직원팁','쿠폰','마트','청소','소모품','기타'];
-const PURCHASE_CATS = ['원재료','소모품','장비','기타'];
+/* ═══ MASTER DATA (마스터정보 — DB 연동 시 교체) ═══ */
+const MASTER = {
+  employees: [
+    { id:1, name:'hong', nameKr:'홍', position:'수석 관리사', base:8000000, hourly:35000, active:true },
+    { id:2, name:'thuy', nameKr:'투이', position:'데스크 매니저', base:6500000, hourly:29000, active:true },
+    { id:3, name:'yen', nameKr:'옌', position:'관리사', base:7500000, hourly:33000, active:true },
+  ],
+  programs: [
+    { id:'pr01', name:'화사케어 A', category:'페이스', price:880000, active:true },
+    { id:'pr02', name:'화사케어 B', category:'페이스', price:660000, active:true },
+    { id:'pr03', name:'화사케어 C', category:'페이스', price:440000, active:true },
+    { id:'pr04', name:'골프케어 A', category:'콤보', price:1320000, active:true },
+    { id:'pr05', name:'골프케어 B', category:'콤보', price:1100000, active:true },
+    { id:'pr06', name:'골프케어 C', category:'콤보', price:880000, active:true },
+    { id:'pr07', name:'탈모케어', category:'특수', price:1100000, active:true },
+    { id:'pr08', name:'VIP케어', category:'특수', price:1650000, active:true },
+    { id:'pr09', name:'기본관리', category:'페이스', price:440000, active:true },
+    { id:'pr10', name:'바디 마사지 60분', category:'바디', price:330000, active:true },
+    { id:'pr11', name:'바디 마사지 90분', category:'바디', price:440000, active:true },
+    { id:'pr12', name:'발 마사지 30분', category:'이벤트', price:165000, active:true },
+    { id:'pr13', name:'발 마사지 60분', category:'이벤트', price:220000, active:true },
+    { id:'pr14', name:'HIFU 리프팅', category:'페이스', price:2200000, active:true },
+    { id:'pr15', name:'RF 고주파', category:'페이스', price:1100000, active:true },
+    { id:'pr16', name:'플라즈마', category:'페이스', price:880000, active:true },
+    { id:'pr17', name:'아쿠아필링', category:'페이스', price:550000, active:true },
+    { id:'pr18', name:'반영구 눈썹', category:'타투', price:3300000, active:true },
+  ],
+  memberGrades: ['','CLUB','BRONZE','SILVER','GOLD','VIP','VVIP','이밴트','무제한'],
+  expenseItems: [
+    { id:'ex01', name:'빨래', active:true },
+    { id:'ex02', name:'택배', active:true },
+    { id:'ex03', name:'직원팁', active:true },
+    { id:'ex04', name:'쿠폰', active:true },
+    { id:'ex05', name:'마트', active:true },
+    { id:'ex06', name:'청소', active:true },
+    { id:'ex07', name:'소모품', active:true },
+    { id:'ex08', name:'기타', active:true },
+  ],
+  purchaseCategories: [
+    { id:'pc01', name:'원재료', active:true },
+    { id:'pc02', name:'소모품', active:true },
+    { id:'pc03', name:'장비', active:true },
+    { id:'pc04', name:'기타', active:true },
+  ],
+  suppliers: [
+    { id:'sp01', name:'화장품 도매', contact:'', active:true },
+    { id:'sp02', name:'포장재 업체', contact:'', active:true },
+    { id:'sp03', name:'의료기기 대리점', contact:'', active:true },
+    { id:'sp04', name:'약품 도매', contact:'', active:true },
+  ],
+  programCategories: ['페이스','바디','콤보','이벤트','특수','타투'],
+};
+
+// 하위 호환 헬퍼
+const EMPLOYEES = MASTER.employees;
+const MEMBER_GRADES = MASTER.memberGrades;
+const EXPENSE_ITEMS = MASTER.expenseItems.filter(e=>e.active).map(e=>e.name);
+const PURCHASE_CATS = MASTER.purchaseCategories.filter(c=>c.active).map(c=>c.name);
+const PROGRAM_NAMES = MASTER.programs.filter(p=>p.active).map(p=>p.name);
+const SUPPLIER_NAMES = MASTER.suppliers.filter(s=>s.active).map(s=>s.name);
 
 const MENUS = [
+  { id:'master', label:'마스터', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06' },
   { id:'sales', label:'매출', icon:'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
   { id:'purchase', label:'매입', icon:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0' },
   { id:'settlement', label:'결산', icon:'M18 20V10 M12 20V4 M6 20v-6' },
@@ -72,6 +125,7 @@ const MENUS = [
   { id:'salary', label:'월급여', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87' },
 ];
 const SUB_TABS = {
+  master:['프로그램','직원','멤버등급','지출항목','매입분류','공급처'],
   sales:['일일 입력','매출 내역','월별 요약'],
   purchase:['매입 입력','매입 내역','통계'],
   settlement:['월말','분기','반기','년간'],
@@ -85,6 +139,7 @@ const SUB_TABS = {
    ════════════════════════════════════════ */
 const DataService = {
   _store: {
+    master: MASTER,
     sales: {},
     purchase: [
       { id:'p001', date:'2026-03-05', supplier:'화장품 도매', item:'앰플 세트', category:'원재료', qty:5, unitPrice:4000000, total:20000000, note:'' },
@@ -171,7 +226,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .hdr-logo .mk{width:28px;height:28px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:#fff;}
 .hdr-logo .nm{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold-light);letter-spacing:0.5px;}
 .hdr-nav{display:flex;gap:1px;flex:1;}
-.hdr-tab{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--rs);cursor:pointer;transition:all .2s;color:var(--text2);font-size:12px;font-weight:500;position:relative;}
+.hdr-tab{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--rs);cursor:pointer;transition:all .2s;color:var(--text2);font-family:'Instrument Sans','Noto Sans KR',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;position:relative;}
 .hdr-tab:hover{color:var(--text);background:var(--ss-hover);}
 .hdr-tab.active{color:var(--gold-light);background:var(--gold-glow);}
 .hdr-tab.active::after{content:'';position:absolute;bottom:-1px;left:13px;right:13px;height:2px;background:var(--gold);border-radius:1px;}
@@ -191,7 +246,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 /* CONTENT */
 .content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 .sub-tabs{display:flex;gap:1px;padding:8px 16px 0;background:var(--bg2);border-bottom:1px solid var(--border);transition:background .3s;}
-.sub-tab{padding:7px 14px;font-size:11px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-weight:500;}
+.sub-tab{padding:7px 14px;font-family:'Instrument Sans','Noto Sans KR',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:0.3px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
 .sub-tab:hover{color:var(--text);}
 .sub-tab.active{color:var(--gold-light);border-bottom-color:var(--gold);}
 .page{flex:1;overflow-y:auto;padding:16px;}
@@ -342,7 +397,7 @@ function SalesDailyInput() {
 
   const cols = [
     {k:'no',l:'No',w:30,t:'ro'},{k:'name',l:'고객명',w:80,t:'tx'},{k:'grade',l:'멤버등급',w:75,t:'sel',opts:MEMBER_GRADES},
-    {k:'service',l:'서비스/프로그램',w:120,t:'tx'},{k:'hair',l:'탈모',w:35,t:'chk'},{k:'event',l:'이벤트',w:40,t:'chk'},
+    {k:'service',l:'서비스/프로그램',w:130,t:'sel',opts:['',...MASTER.programs.filter(p=>p.active).map(p=>p.name)]},{k:'hair',l:'탈모',w:35,t:'chk'},{k:'event',l:'이벤트',w:40,t:'chk'},
     {k:'vip',l:'VIP',w:35,t:'chk'},{k:'deductAmt',l:'차감금액',w:80,t:'num'},{k:'deduct',l:'차감',w:55,t:'num'},
     {k:'tipDeduct',l:'팁차감',w:75,t:'num'},{k:'cash',l:'현금',w:85,t:'num'},{k:'deposit',l:'입금+10%',w:80,t:'num'},
     {k:'card',l:'카드',w:80,t:'num'},{k:'krw',l:'한국돈',w:75,t:'num'},{k:'unpaid',l:'미수',w:65,t:'num'},
@@ -500,7 +555,7 @@ function PurchaseInput() {
   const save = async () => { await DataService.write('purchase', rows); alert('저장 완료'); };
 
   const pCols = [
-    {k:'date',l:'날짜',w:95,t:'date'},{k:'supplier',l:'공급처',w:110,t:'tx'},{k:'item',l:'품목',w:120,t:'tx'},
+    {k:'date',l:'날짜',w:95,t:'date'},{k:'supplier',l:'공급처',w:110,t:'sel',opts:['',...MASTER.suppliers.filter(s=>s.active).map(s=>s.name)]},{k:'item',l:'품목',w:120,t:'tx'},
     {k:'category',l:'분류',w:80,t:'sel',opts:PURCHASE_CATS},{k:'qty',l:'수량',w:55,t:'num'},
     {k:'unitPrice',l:'단가(VND)',w:95,t:'num'},{k:'total',l:'합계',w:100,t:'ro_num'},{k:'note',l:'비고',w:100,t:'tx'},
   ];
@@ -751,6 +806,70 @@ function SalaryPayslip() {
 }
 
 /* ════════════════════════════════════════
+   MASTER — 마스터정보 관리
+   ════════════════════════════════════════ */
+function MasterTable({title,dataKey,columns,initRow}) {
+  const [rows,setRows]=useState([]);
+  useEffect(()=>{DataService.read('master').then(m=>setRows(m[dataKey]||[]));},[dataKey]);
+  const up=(i,f,v)=>setRows(p=>{const r=[...p];r[i]={...r[i],[f]:v};return r;});
+  const add=()=>setRows(p=>[...p,initRow(p.length)]);
+  const del=(i)=>setRows(p=>p.filter((_,j)=>j!==i));
+  const save=async()=>{const m=await DataService.read('master');m[dataKey]=rows;await DataService.write('master',m);
+    // 동기화: MASTER 객체 업데이트
+    MASTER[dataKey]=JSON.parse(JSON.stringify(rows));
+    alert('저장 완료');};
+  return (<div className="fade-in">
+    <div className="toolbar"><span style={{fontSize:12,fontWeight:600}}>{title}</span><span style={{fontSize:10,color:'var(--text3)',marginLeft:8}}>{rows.length}건</span><div className="spacer"/><button className="btn btn-s" onClick={add}>+ 추가</button><button className="btn btn-g" onClick={save}>저장</button></div>
+    <div className="ss-wrap"><table className="ss" style={{minWidth:columns.reduce((a,c)=>a+c.w,0)+60}}>
+      <thead><tr><th style={{width:30}}>No</th>{columns.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
+      <tbody>{rows.map((row,ri)=><tr key={ri}><td className="rn">{ri+1}</td>
+        {columns.map(c=><td key={c.k} className={c.t==='num'?'nc':''}>
+          {c.t==='bool'?<div style={{textAlign:'center'}}><input type="checkbox" checked={!!row[c.k]} onChange={e=>up(ri,c.k,e.target.checked)}/></div>
+          :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>up(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o}</option>)}</select>
+          :c.t==='num'?<input value={row[c.k]||''} onChange={e=>up(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
+          :<input value={row[c.k]||''} onChange={e=>up(ri,c.k,e.target.value)}/>}
+        </td>)}
+        <td><button className="del-btn" onClick={()=>del(ri)}>×</button></td></tr>)}
+      </tbody></table></div>
+  </div>);
+}
+
+function MasterPrograms(){return <MasterTable title="프로그램 관리" dataKey="programs" columns={[
+  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'프로그램명',w:140,t:'tx'},{k:'category',l:'분류',w:80,t:'sel',opts:MASTER.programCategories},
+  {k:'price',l:'가격(VND)',w:100,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'pr'+String(n+1).padStart(2,'0'),name:'',category:'페이스',price:0,active:true})}/>;}
+
+function MasterEmployees(){return <MasterTable title="직원 관리" dataKey="employees" columns={[
+  {k:'name',l:'ID',w:60,t:'tx'},{k:'nameKr',l:'이름',w:60,t:'tx'},{k:'position',l:'직위',w:100,t:'tx'},
+  {k:'base',l:'기본급',w:90,t:'num'},{k:'hourly',l:'시급',w:70,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:n+1,name:'',nameKr:'',position:'',base:0,hourly:0,active:true})}/>;}
+
+function MasterGrades(){
+  const [items,setItems]=useState(MASTER.memberGrades);
+  const save=async()=>{const m=await DataService.read('master');m.memberGrades=items;await DataService.write('master',m);MASTER.memberGrades=[...items];alert('저장 완료');};
+  return (<div className="fade-in">
+    <div className="toolbar"><span style={{fontSize:12,fontWeight:600}}>멤버 등급</span><div className="spacer"/><button className="btn btn-s" onClick={()=>setItems(p=>[...p,''])}>+ 추가</button><button className="btn btn-g" onClick={save}>저장</button></div>
+    <div className="pn" style={{padding:14}}>{items.map((g,i)=><div key={i} style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>
+      <span style={{fontSize:10,color:'var(--text3)',width:24}}>{i+1}</span>
+      <input className="form-inp" value={g} onChange={e=>{const n=[...items];n[i]=e.target.value;setItems(n);}} style={{flex:1}} placeholder={i===0?'(빈 값 = 미지정)':'등급명'}/>
+      <button onClick={()=>setItems(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'var(--err)',cursor:'pointer',fontSize:14}}>×</button>
+    </div>)}</div>
+  </div>);
+}
+
+function MasterExpenseItems(){return <MasterTable title="지출 항목" dataKey="expenseItems" columns={[
+  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'항목명',w:120,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'ex'+String(n+1).padStart(2,'0'),name:'',active:true})}/>;}
+
+function MasterPurchaseCats(){return <MasterTable title="매입 분류" dataKey="purchaseCategories" columns={[
+  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'분류명',w:120,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'pc'+String(n+1).padStart(2,'0'),name:'',active:true})}/>;}
+
+function MasterSuppliers(){return <MasterTable title="공급처 관리" dataKey="suppliers" columns={[
+  {k:'id',l:'코드',w:50,t:'tx'},{k:'name',l:'공급처명',w:140,t:'tx'},{k:'contact',l:'연락처',w:120,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
+]} initRow={(n)=>({id:'sp'+String(n+1).padStart(2,'0'),name:'',contact:'',active:true})}/>;}
+
+/* ════════════════════════════════════════
    MAIN APP
    ════════════════════════════════════════ */
 function App() {
@@ -780,6 +899,7 @@ function App() {
 
   const renderContent=()=>{
     switch(menu){
+      case 'master': return subTab===0?<MasterPrograms/>:subTab===1?<MasterEmployees/>:subTab===2?<MasterGrades/>:subTab===3?<MasterExpenseItems/>:subTab===4?<MasterPurchaseCats/>:<MasterSuppliers/>;
       case 'sales': return subTab===0?<SalesDailyInput/>:subTab===1?<SalesList/>:<SalesMonthlySummary/>;
       case 'purchase': return subTab===0?<PurchaseInput/>:subTab===1?<PurchaseList/>:<PurchaseStats/>;
       case 'settlement': return <Settlement period={['monthly','quarterly','semi','annual'][subTab]}/>;

@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin></script>
   <script src="ERP_COMMON.js"></script>
 </head>
 <body>
@@ -18,26 +19,30 @@
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 const SUB_TABS = ['월별 현황','직원별','근태 요약'];
 
-
-/* ATTENDANCE */
+const COMMUTE_CSS = `
 .att-cal{border-collapse:collapse;font-size:9.5px;width:100%;}
 .att-cal th{background:var(--bg-el);padding:5px 3px;border:1px solid var(--border);text-align:center;color:var(--text2);font-weight:600;position:sticky;top:0;z-index:5;}
-.att-cal td{padding:2px;border:1px solid var(--border);text-align:center;font-variant-numeric:tabular-nums;height:26px;}
-.att-cal .emp-name{background:var(--bg-el);font-weight:600;color:var(--gold-light);text-align:left;padding-left:6px;white-space:nowrap;position:sticky;left:0;z-index:3;}
-.att-cal .in-t{color:var(--ok);font-size:8.5px;}
-.att-cal .out-t{color:var(--info);font-size:8.5px;}
-
-/* PAYSLIP */
+.att-cal td{padding:2px;border:1px solid var(--border);text-align:center;font-variant-numeric:tabular-nums;height:26px;cursor:pointer;}
+.att-cal td:hover{background:var(--gold-glow);}
+.att-cal .emp-name{background:var(--bg-el);font-weight:600;color:var(--gold-light);text-align:left;padding-left:6px;white-space:nowrap;position:sticky;left:0;z-index:3;cursor:default;}
+.att-cal .in-t{color:var(--ok);font-size:8.5px;display:block;}
+.att-cal .out-t{color:var(--info);font-size:8.5px;display:block;}
+.att-cal .late{color:var(--warn)!important;}
+.att-cal .ot{color:#9B59B6!important;}
+.att-cal .no-data{color:var(--border);font-size:8px;}
+.att-cal .weekend{background:rgba(255,255,255,0.02);}
+.att-cal .today-col{background:var(--gold-glow);}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.modal{background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--radius);padding:20px;min-width:280px;max-width:360px;}
+.modal h4{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold-light);margin-bottom:12px;}
+.modal .row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.modal label{font-size:10px;color:var(--text2);width:50px;}
 .payslip{background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--radius);padding:20px;max-width:480px;transition:background .3s;}
 .payslip h3{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold-light);margin-bottom:3px;}
 .payslip .period{font-size:10px;color:var(--text3);margin-bottom:14px;}
 .payslip .row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:11.5px;}
-.payslip .row:last-child{border-bottom:none;}
-.payslip .row .k{color:var(--text2);}
-.payslip .row .v{font-weight:500;font-variant-numeric:tabular-nums;}
 .payslip .total{border-top:2px solid var(--gold);margin-top:6px;padding-top:8px;}
 .payslip .total .v{font-size:15px;font-weight:700;color:var(--gold-light);}
-
 .fade-in{animation:fadeIn .2s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .toolbar{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
@@ -45,6 +50,359 @@ const SUB_TABS = ['월별 현황','직원별','근태 요약'];
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:12px;}
 `;
 
+/* ── 출퇴근 헬퍼 ──────────────────────────────────────────── */
+const STD_IN  = '09:30';  // 지각 기준
+const STD_OUT = '19:00';  // 초과근무 기준
+const STD_WORK_H = 9;     // 기준 근무시간
+
+function calcHours(inT, outT) {
+  if (!inT || !outT) return 0;
+  const toMin = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
+  return Math.max(0, (toMin(outT)-toMin(inT))/60);
+}
+function isLate(inT)    { return inT && inT > STD_IN; }
+function calcOT(outT)   { return outT && outT > STD_OUT ? calcHours(STD_OUT, outT) : 0; }
+function daysInMonth(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m,0).getDate(); }
+function dayOfWeek(ym, d){ const [y,m]=ym.split('-').map(Number); return new Date(y,m-1,d).getDay(); }
+function isWeekend(ym, d){ const dw=dayOfWeek(ym,d); return dw===0||dw===6; }
+function todayYm()      { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`; }
+function currentDay()   { return new Date().getDate(); }
+
+/* ── 시간 입력 모달 ─────────────────────────────────────────── */
+function TimeInputModal({empName, day, ym, current, onSave, onClose}) {
+  const [inT,  setInT]  = useState((current&&current.in)||'09:00');
+  const [outT, setOutT] = useState((current&&current.out)||'19:00');
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <h4>{empName} — {ym}-{pad2(day)}</h4>
+        <div className="row">
+          <label>출근</label>
+          <input type="time" className="form-inp" value={inT}  onChange={e=>setInT(e.target.value)}  style={{flex:1}}/>
+        </div>
+        <div className="row">
+          <label>퇴근</label>
+          <input type="time" className="form-inp" value={outT} onChange={e=>setOutT(e.target.value)} style={{flex:1}}/>
+        </div>
+        <div style={{display:'flex',gap:6,marginTop:12,justifyContent:'flex-end'}}>
+          <button className="btn btn-s" onClick={onClose}>취소</button>
+          <button className="btn btn-s" style={{borderColor:'var(--err)',color:'var(--err)'}} onClick={()=>onSave(null)}>삭제</button>
+          <button className="btn btn-g" onClick={()=>onSave({in:inT,out:outT})}>저장</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   TAB 1 — 월별 현황 (캘린더 그리드)
+   ══════════════════════════════════════ */
+function AttendanceMonthly() {
+  const [ym,   setYm]   = useState(todayYm());
+  const [attAll,setAll] = useState({});
+  const [modal, setModal] = useState(null);  // {emp, day}
+  const fileRef = useRef();
+
+  const load = useCallback(async () => {
+    const all = await DataService.read('attendance');
+    setAll(all);
+  }, []);
+  useEffect(()=>{ load(); },[load]);
+
+  const monthData = attAll[ym] || {};
+  const days      = Array.from({length:daysInMonth(ym)},(_,i)=>i+1);
+  const today     = currentDay();
+  const nowYm     = todayYm();
+
+  const saveCell = async (emp, day, val) => {
+    const all  = {...attAll};
+    if (!all[ym]) all[ym] = {};
+    if (!all[ym][emp]) all[ym][emp] = {};
+    if (val === null) delete all[ym][emp][day];
+    else all[ym][emp][day] = val;
+    await DataService.write('attendance', all);
+    setAll({...all});
+    setModal(null);
+  };
+
+  // XLS 업로드 (지문등록기 파싱)
+  const handleXls = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const wb   = XLSX.read(ev.target.result, {type:'binary'});
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+        const all  = {...attAll};
+        if (!all[ym]) all[ym] = {};
+
+        // 예상 컬럼: [직원명, 날짜(YYYY-MM-DD or DD), 출근시간, 퇴근시간]
+        rows.slice(1).forEach(row => {
+          if (!row[0] || !row[1]) return;
+          const empRaw = String(row[0]).trim().toLowerCase();
+          const emp    = EMPLOYEES.find(e => e.name===empRaw||e.nameKr===row[0]) ?.name;
+          if (!emp) return;
+          const dateStr = String(row[1]).trim();
+          const day     = parseInt(dateStr.includes('-') ? dateStr.split('-')[2] : dateStr, 10);
+          if (!day || day<1 || day>31) return;
+          const inT  = row[2] ? String(row[2]).trim().slice(0,5) : '';
+          const outT = row[3] ? String(row[3]).trim().slice(0,5) : '';
+          if (!all[ym][emp]) all[ym][emp] = {};
+          all[ym][emp][day] = {in:inT, out:outT};
+        });
+
+        await DataService.write('attendance', all);
+        setAll({...all});
+        alert('XLS 업로드 완료');
+      } catch(err) { alert('파싱 오류: ' + err.message); }
+      e.target.value = '';
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <input type="month" className="form-inp" value={ym} onChange={e=>setYm(e.target.value)} style={{width:150}}/>
+        <div className="spacer"/>
+        <span style={{fontSize:10,color:'var(--text3)'}}>셀 클릭 → 수동 입력</span>
+        <button className="btn btn-o" onClick={()=>fileRef.current.click()}>XLS 업로드</button>
+        <input ref={fileRef} type="file" accept=".xls,.xlsx,.csv" style={{display:'none'}} onChange={handleXls}/>
+      </div>
+      <div style={{overflowX:'auto'}}>
+        <table className="att-cal">
+          <thead>
+            <tr>
+              <th style={{minWidth:60}}>직원</th>
+              {days.map(d=>(
+                <th key={d} style={{minWidth:44}} className={isWeekend(ym,d)?'weekend':''}>{d}<br/><span style={{fontSize:7.5,fontWeight:400,color:'var(--text3)'}}>{'일월화수목금토'[dayOfWeek(ym,d)]}</span></th>
+              ))}
+              <th>출근일</th><th>총시간</th><th>지각</th><th>초과</th>
+            </tr>
+          </thead>
+          <tbody>
+            {EMPLOYEES.map(emp=>{
+              const ed   = monthData[emp.name] || {};
+              let days_ok=0, totalH=0, late=0, ot=0;
+              days.forEach(d=>{
+                const r=ed[d]; if(!r)return;
+                days_ok++;
+                const h=calcHours(r.in,r.out); totalH+=h;
+                if(isLate(r.in)) late++;
+                ot+=calcOT(r.out);
+              });
+              return (
+                <tr key={emp.name}>
+                  <td className="emp-name">{emp.nameKr}<span style={{fontSize:8,color:'var(--text3)',display:'block'}}>{emp.name}</span></td>
+                  {days.map(d=>{
+                    const r    = ed[d];
+                    const isTd = ym===nowYm && d===today;
+                    const wknd = isWeekend(ym,d);
+                    return (
+                      <td key={d}
+                        className={(wknd?'weekend':'')+(isTd?' today-col':'')}
+                        onClick={()=>setModal({emp:emp.name,empKr:emp.nameKr,day:d,current:r})}
+                      >
+                        {r ? <>
+                          <span className={'in-t'+(isLate(r.in)?' late':'')}>{r.in}</span>
+                          <span className={'out-t'+(calcOT(r.out)>0?' ot':'')}>{r.out}</span>
+                        </> : <span className="no-data">-</span>}
+                      </td>
+                    );
+                  })}
+                  <td style={{fontWeight:600,color:'var(--text)'}}>{days_ok}일</td>
+                  <td style={{color:'var(--info)'}}>{totalH.toFixed(1)}h</td>
+                  <td style={{color:late>0?'var(--warn)':'var(--text3)'}}>{late}건</td>
+                  <td style={{color:ot>0?'#9B59B6':'var(--text3)'}}>{ot.toFixed(1)}h</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div style={{marginTop:8,fontSize:9.5,color:'var(--text3)'}}>
+        <span style={{color:'var(--warn)',marginRight:12}}>■ 주황 = 지각(09:30 초과)</span>
+        <span style={{color:'#9B59B6',marginRight:12}}>■ 보라 = 초과근무(19:00 초과)</span>
+        <span style={{color:'var(--ok)'}}>■ 녹색 = 출근 · </span>
+        <span style={{color:'var(--info)'}}>■ 파랑 = 퇴근</span>
+      </div>
+      {modal && (
+        <TimeInputModal
+          empName={modal.empKr} day={modal.day} ym={ym} current={modal.current}
+          onSave={(val)=>saveCell(modal.emp, modal.day, val)}
+          onClose={()=>setModal(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   TAB 2 — 직원별 상세
+   ══════════════════════════════════════ */
+function AttendanceByEmployee() {
+  const [ym,  setYm]  = useState(todayYm());
+  const [emp, setEmp] = useState(EMPLOYEES[0]?.name||'');
+  const [attAll,setAll] = useState({});
+  const [modal, setModal] = useState(null);
+
+  const load = useCallback(async()=>{ const all=await DataService.read('attendance'); setAll(all); },[]);
+  useEffect(()=>{ load(); },[load]);
+
+  const ed   = (attAll[ym]||{})[emp] || {};
+  const days = Array.from({length:daysInMonth(ym)},(_,i)=>i+1);
+  const empObj = EMPLOYEES.find(e=>e.name===emp);
+
+  let totalDays=0, totalH=0, lateCount=0, otH=0;
+  days.forEach(d=>{
+    const r=ed[d]; if(!r)return;
+    totalDays++; const h=calcHours(r.in,r.out); totalH+=h;
+    if(isLate(r.in)) lateCount++;
+    otH+=calcOT(r.out);
+  });
+
+  const saveCell = async (day, val) => {
+    const all={...attAll};
+    if(!all[ym])all[ym]={};
+    if(!all[ym][emp])all[ym][emp]={};
+    if(val===null) delete all[ym][emp][day];
+    else all[ym][emp][day]=val;
+    await DataService.write('attendance',all);
+    setAll({...all}); setModal(null);
+  };
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <select className="form-inp" value={emp} onChange={e=>setEmp(e.target.value)} style={{width:120}}>
+          {EMPLOYEES.map(e=><option key={e.name} value={e.name}>{e.nameKr}</option>)}
+        </select>
+        <input type="month" className="form-inp" value={ym} onChange={e=>setYm(e.target.value)} style={{width:150}}/>
+        <div className="spacer"/>
+      </div>
+      <div className="cards" style={{gridTemplateColumns:'repeat(4,1fr)'}}>
+        {[['출근일',totalDays+'일','var(--ok)'],['총 근무',totalH.toFixed(1)+'h','var(--info)'],['지각',lateCount+'건','var(--warn)'],['초과',otH.toFixed(1)+'h','#9B59B6']].map(([lb,vl,c],i)=>(
+          <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl" style={{color:c,fontSize:16}}>{vl}</div></div>
+        ))}
+      </div>
+      <div className="pn">
+        <table className="tbl">
+          <thead><tr><th>날짜</th><th>요일</th><th>출근</th><th>퇴근</th><th className="num">근무시간</th><th className="num">초과</th><th>비고</th><th></th></tr></thead>
+          <tbody>
+            {days.map(d=>{
+              const r  = ed[d];
+              const dw = '일월화수목금토'[dayOfWeek(ym,d)];
+              const wk = isWeekend(ym,d);
+              const h  = r ? calcHours(r.in,r.out) : 0;
+              const ot = r ? calcOT(r.out) : 0;
+              return (
+                <tr key={d} style={wk?{opacity:0.45}:{}}>
+                  <td style={{fontWeight:500}}>{ym}-{pad2(d)}</td>
+                  <td style={{color:wk?'var(--warn)':'var(--text3)'}}>{dw}</td>
+                  <td style={{color:r&&isLate(r.in)?'var(--warn)':'var(--ok)',fontWeight:500}}>{r?.in||'-'}</td>
+                  <td style={{color:r&&ot>0?'#9B59B6':'var(--info)',fontWeight:500}}>{r?.out||'-'}</td>
+                  <td className="num">{r?h.toFixed(1)+'h':'-'}</td>
+                  <td className="num" style={{color:'#9B59B6'}}>{ot>0?'+'+ot.toFixed(1)+'h':'-'}</td>
+                  <td style={{fontSize:9.5,color:'var(--text3)'}}>
+                    {r&&isLate(r.in)?'지각 ':''}{r&&ot>0?'초과근무':''}
+                  </td>
+                  <td><button className="btn btn-s" style={{fontSize:9,padding:'2px 6px'}} onClick={()=>setModal({day:d,current:r})}>수정</button></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {modal && (
+        <TimeInputModal
+          empName={empObj?.nameKr||emp} day={modal.day} ym={ym} current={modal.current}
+          onSave={(val)=>saveCell(modal.day,val)}
+          onClose={()=>setModal(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   TAB 3 — 근태 요약
+   ══════════════════════════════════════ */
+function AttendanceSummary() {
+  const [ym,   setYm]   = useState(todayYm());
+  const [attAll,setAll] = useState({});
+  useEffect(()=>{ DataService.read('attendance').then(setAll); },[]);
+
+  const monthData = attAll[ym] || {};
+  const days      = Array.from({length:daysInMonth(ym)},(_,i)=>i+1);
+  const workDays  = days.filter(d=>!isWeekend(ym,d)).length;
+
+  const empStats = EMPLOYEES.map(emp=>{
+    const ed = monthData[emp.name] || {};
+    let presentDays=0, totalH=0, lateCount=0, otH=0, totalPay=0;
+    days.forEach(d=>{
+      const r=ed[d]; if(!r)return;
+      presentDays++;
+      const h=calcHours(r.in,r.out); totalH+=h;
+      if(isLate(r.in)) lateCount++;
+      otH+=calcOT(r.out);
+    });
+    const absent   = Math.max(0, workDays - presentDays);
+    const avgH     = presentDays>0 ? totalH/presentDays : 0;
+    const otPay    = Math.round(otH * (emp.hourly||0));
+    const basePay  = emp.base||0;
+    totalPay = basePay + otPay;
+    return {emp, presentDays, absent, totalH, avgH, lateCount, otH, otPay, basePay, totalPay};
+  });
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <input type="month" className="form-inp" value={ym} onChange={e=>setYm(e.target.value)} style={{width:150}}/>
+        <div className="spacer"/>
+        <span style={{fontSize:10,color:'var(--text3)'}}>영업일 {workDays}일 ({daysInMonth(ym)}일 중)</span>
+      </div>
+      <div className="cards" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
+        {[['영업일수',workDays+'일','var(--gold)'],['직원수',EMPLOYEES.length+'명','var(--info)'],['총 근무',empStats.reduce((a,s)=>a+s.totalH,0).toFixed(0)+'h','var(--ok)']].map(([lb,vl,c],i)=>(
+          <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl" style={{color:c,fontSize:16}}>{vl}</div></div>
+        ))}
+      </div>
+      <div className="pn">
+        <div className="pn-h"><div className="pn-t">직원별 근태 요약</div></div>
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th>직원</th><th className="num">출근일</th><th className="num">결근</th>
+              <th className="num">총 근무시간</th><th className="num">일 평균</th>
+              <th className="num">지각</th><th className="num">초과시간</th>
+              <th className="num">기본급</th><th className="num">초과수당</th><th className="num">예상지급</th>
+            </tr>
+          </thead>
+          <tbody>
+            {empStats.map(({emp,presentDays,absent,totalH,avgH,lateCount,otH,otPay,basePay,totalPay})=>(
+              <tr key={emp.name}>
+                <td style={{fontWeight:600}}>{emp.nameKr} <span style={{color:'var(--text3)',fontSize:9}}>({emp.position})</span></td>
+                <td className="num">{presentDays}일</td>
+                <td className="num" style={{color:absent>0?'var(--err)':'var(--text3)'}}>{absent}일</td>
+                <td className="num" style={{color:'var(--info)'}}>{totalH.toFixed(1)}h</td>
+                <td className="num" style={{color:'var(--text2)'}}>{avgH.toFixed(1)}h</td>
+                <td className="num" style={{color:lateCount>0?'var(--warn)':'var(--text3)'}}>{lateCount}건</td>
+                <td className="num" style={{color:otH>0?'#9B59B6':'var(--text3)'}}>{otH.toFixed(1)}h</td>
+                <td className="num">{fmt(basePay)}</td>
+                <td className="num" style={{color:'#9B59B6'}}>{otPay>0?'+'+fmt(otPay):'-'}</td>
+                <td className="num" style={{fontWeight:700,color:'var(--gold-light)'}}>{fmt(totalPay)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   APP
+   ══════════════════════════════════════ */
 function App() {
   const [user,setUser]=useState(getUser());
   const [subTab,setSub]=useState(0);
@@ -61,7 +419,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <style>{ CSS }</style>
+      <style>{ CSS }{ COMMUTE_CSS }</style>
       <div className="app">
         <div className="hdr">
           <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>

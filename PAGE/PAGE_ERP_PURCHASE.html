@@ -18,33 +18,8 @@
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 const SUB_TABS = ['매입 입력','매입 내역','통계'];
 
-
 const PURCHASE_CATS = MASTER.purchaseCategories.filter(c=>c.active).map(c=>c.name);
-const MENU_NAMES = MASTER.menuHead.filter(m=>m.active).map(m=>m.name);
 const SUPPLIER_NAMES = MASTER.suppliers.filter(s=>s.active).map(s=>s.name);
-// 프로그램 코드→이름 매핑
-const pgName = (code) => { const p = MASTER.program.find(x=>x.code===code); return p ? p.name : code; };
-
-const MENUS = [
-  { id:'master', label:'마스터', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06' },
-  { id:'customer', label:'고객', icon:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8' },
-  { id:'sales', label:'매출', icon:'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
-  { id:'purchase', label:'매입', icon:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0' },
-  { id:'settlement', label:'결산', icon:'M18 20V10 M12 20V4 M6 20v-6' },
-  { id:'contracts', label:'계약서', icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' },
-  { id:'attendance', label:'출퇴근', icon:'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2' },
-  { id:'salary', label:'월급여', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87' },
-];
-const SUB_TABS = {
-  master:['프로그램','메뉴(HEAD)','��뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'],
-  customer:['고객 목록','고객 상세'],
-  sales:['일일 입력','매출 내역','월별 요약'],
-  purchase:['매입 입력','매입 내역','통계'],
-  settlement:['월말','분기','반기','년간'],
-  contracts:['계약서 목록','추가','만료 내역'],
-  attendance:['월별 현황','직원별','근태 요약'],
-  salary:['급여 계산','지급 이력','명세서'],
-};
 
 /* ════════════════════════════════════════
    DATA SERVICE

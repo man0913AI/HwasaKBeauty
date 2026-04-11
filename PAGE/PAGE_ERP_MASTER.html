@@ -16,7 +16,161 @@
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'];
+const SUB_TABS = ['대시보드','프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'];
+
+const MASTER_CSS = `
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:14px;}
+.dash-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:background .3s;}
+.dash-section h4{font-size:11px;font-weight:600;color:var(--gold-light);margin-bottom:10px;}
+.dash-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.dash-row:last-child{border-bottom:none;}
+.bk-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:var(--rs);font-size:10px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .2s;}
+.fade-in{animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+.toolbar .spacer{flex:1;}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:12px;}
+`;
+
+/* ════════════════════════════════════════
+   대시보드 (Phase 6)
+   ════════════════════════════════════════ */
+function Dashboard() {
+  const [sales,    setSales]    = useState({});
+  const [att,      setAtt]      = useState({});
+  const [customers,setCust]     = useState([]);
+  const todayStr = today();
+  const nowYm    = todayStr.slice(0,7);
+
+  useEffect(()=>{
+    DataService.read('sales').then(setSales);
+    DataService.read('attendance').then(setAtt);
+    DataService.read('customers').then(setCust);
+  },[]);
+
+  // 오늘 매출
+  const todaySales = sales[todayStr] || { rows:[], expenses:[] };
+  const sm = f => (todaySales.rows||[]).reduce((a,x)=>a+(Number(x[f])||0),0);
+  const todayInc = sm('cash')+sm('deposit')+sm('card')+sm('krw');
+  const todayExp = (todaySales.expenses||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+  const todayCnt = (todaySales.rows||[]).length;
+
+  // 이번달 매출
+  const moDates = Object.keys(sales).filter(d=>d.startsWith(nowYm));
+  const moInc = moDates.reduce((a,dt)=>{
+    const d=sales[dt]; const sm2=f=>(d.rows||[]).reduce((b,x)=>b+(Number(x[f])||0),0);
+    return a+sm2('cash')+sm2('deposit')+sm2('card')+sm2('krw');
+  },0);
+
+  // 오늘 출근
+  const todayDay   = new Date().getDate();
+  const monthAtt   = att[nowYm] || {};
+  const presentToday = EMPLOYEES.filter(e=>(monthAtt[e.name]||{})[todayDay]);
+
+  // 활성 이벤트
+  const activeEvs = MASTER.events.filter(ev=>ev.active && todayStr>=ev.startDate && todayStr<=ev.endDate);
+
+  // 최근 고객
+  const recentCust = [...customers].sort((a,b)=>{
+    const la = a.payments[a.payments.length-1]?.date||'';
+    const lb = b.payments[b.payments.length-1]?.date||'';
+    return lb.localeCompare(la);
+  }).slice(0,5);
+
+  const fileRef = useRef();
+  const handleRestore = async (e) => {
+    const file = e.target.files[0]; if(!file) return;
+    if(!confirm('현재 데이터를 덮어씁니다. 계속하시겠습니까?')) return;
+    try {
+      const cnt = await BackupService.importAll(file);
+      alert(`복원 완료 (${cnt}개 테이블). 페이지를 새로고침합니다.`);
+      window.location.reload();
+    } catch(err) { alert('복원 실패: '+err.message); }
+    e.target.value = '';
+  };
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <span style={{fontSize:13,fontWeight:600,color:'var(--gold-light)'}}>오늘 현황</span>
+        <span style={{fontSize:10,color:'var(--text3)'}}>{todayStr}</span>
+        <div className="spacer"/>
+        <button className="bk-btn" style={{background:'var(--ok)',color:'#fff'}} onClick={()=>BackupService.exportAll()}>⬇ JSON 백업</button>
+        <button className="bk-btn" style={{background:'var(--warn)',color:'#fff'}} onClick={()=>fileRef.current.click()}>⬆ 백업 복원</button>
+        <input ref={fileRef} type="file" accept=".json" style={{display:'none'}} onChange={handleRestore}/>
+      </div>
+
+      <div className="dash-grid">
+        {/* 오늘 매출 */}
+        <div className="dash-section">
+          <h4>오늘 매출</h4>
+          <div style={{fontSize:22,fontWeight:700,color:'var(--gold-light)',marginBottom:6}}>{fmt(todayInc)}₫</div>
+          <div className="dash-row"><span style={{color:'var(--text3)'}}>방문 건수</span><span style={{fontWeight:600}}>{todayCnt}건</span></div>
+          <div className="dash-row"><span style={{color:'var(--text3)'}}>지출</span><span style={{color:'var(--err)'}}>{fmt(todayExp)}₫</span></div>
+          <div className="dash-row"><span style={{color:'var(--text3)'}}>순수입</span><span style={{fontWeight:600,color:'var(--ok)'}}>{fmt(todayInc-todayExp)}₫</span></div>
+        </div>
+
+        {/* 월 누적 */}
+        <div className="dash-section">
+          <h4>{nowYm} 월 누적</h4>
+          <div style={{fontSize:22,fontWeight:700,color:'var(--gold-light)',marginBottom:6}}>{fmt(moInc)}₫</div>
+          <div className="dash-row"><span style={{color:'var(--text3)'}}>영업일</span><span>{moDates.length}일</span></div>
+          <div className="dash-row"><span style={{color:'var(--text3)'}}>총 방문</span><span>{moDates.reduce((a,d)=>a+(sales[d]?.rows?.length||0),0)}건</span></div>
+        </div>
+
+        {/* 오늘 출근 */}
+        <div className="dash-section">
+          <h4>오늘 출근</h4>
+          {EMPLOYEES.map(emp=>{
+            const rec = (monthAtt[emp.name]||{})[todayDay];
+            return (
+              <div key={emp.name} className="dash-row">
+                <span style={{fontWeight:500}}>{emp.nameKr}</span>
+                {rec
+                  ? <span style={{color:'var(--ok)'}}>{rec.in} ~ {rec.out||'근무중'}</span>
+                  : <span style={{color:'var(--text3)'}}>미출근</span>}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 활성 이벤트 */}
+        <div className="dash-section">
+          <h4>활성 이벤트</h4>
+          {activeEvs.length===0
+            ? <div style={{fontSize:11,color:'var(--text3)'}}>진행중인 이벤트 없음</div>
+            : activeEvs.map((ev,i)=>(
+                <div key={i} className="dash-row">
+                  <span style={{fontSize:10}}>{ev.name}</span>
+                  <span style={{color:'var(--warn)',fontSize:10}}>{ev.discountType==='%'?ev.discountValue+'%':fmt(ev.discountValue)+'₫'} 할인</span>
+                </div>
+              ))}
+        </div>
+      </div>
+
+      {/* 최근 방문 고객 */}
+      <div className="pn">
+        <div className="pn-h"><div className="pn-t">최근 방문 고객</div></div>
+        <table className="tbl">
+          <thead><tr><th>고객</th><th>등급</th><th>최근 방문</th><th>최근 메뉴</th><th className="num">총 결제</th></tr></thead>
+          <tbody>{recentCust.map(c=>{
+            const last = c.payments[c.payments.length-1];
+            const tot  = c.payments.reduce((a,p)=>a+p.amount,0);
+            return (
+              <tr key={c.id}>
+                <td style={{fontWeight:500}}>{c.name}</td>
+                <td>{c.grade?<span className={`sts ${c.grade==='VIP'||c.grade==='VVIP'?'sts-warn':'sts-info'}`}>{c.grade}</span>:'-'}</td>
+                <td>{last?.date||'-'}</td>
+                <td style={{color:'var(--text2)'}}>{last?.menu||'-'}</td>
+                <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(tot)}</td>
+              </tr>
+            );
+          })}</tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 
 /* ════════════════════════════════════════
@@ -264,11 +418,11 @@ function App() {
   if(!user) return null;
   const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
 
-  const renderContent=()=>{ return subTab===0?<MasterProgram/>:subTab===1?<MasterMenuHead/>:subTab===2?<MasterMenuBody/>:subTab===3?<MasterEvents/>:subTab===4?<MasterEmployees/>:subTab===5?<MasterGrades/>:subTab===6?<MasterExpenseItems/>:subTab===7?<MasterPurchaseCats/>:subTab===8?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
+  const renderContent=()=>{ return subTab===0?<Dashboard/>:subTab===1?<MasterProgram/>:subTab===2?<MasterMenuHead/>:subTab===3?<MasterMenuBody/>:subTab===4?<MasterEvents/>:subTab===5?<MasterEmployees/>:subTab===6?<MasterGrades/>:subTab===7?<MasterExpenseItems/>:subTab===8?<MasterPurchaseCats/>:subTab===9?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
 
   return (
     <React.Fragment>
-      <style>{ CSS }</style>
+      <style>{ CSS }{ MASTER_CSS }</style>
       <div className="app">
         <div className="hdr">
           <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>

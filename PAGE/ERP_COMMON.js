@@ -131,7 +131,7 @@ const MENUS = [
   { id:'salary', label:'월급여', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87' },
 ];
 const SUB_TABS = {
-  master:['프로그램','메뉴(HEAD)','��뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'],
+  master:['프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'],
   customer:['고객 목록','고객 상세'],
   sales:['일일 입력','매출 내역','월별 요약'],
   purchase:['매입 입력','매입 내역','통계'],
@@ -143,7 +143,12 @@ const SUB_TABS = {
 
 /* ════════════════════════════════════════
    DATA SERVICE
+   ════════════════════════════════════════
+   APPS_SCRIPT_URL: Apps Script 웹앱 배포 후 URL 을 여기에 붙여넣으세요.
+   빈 문자열이면 인메모리 목업 데이터로 동작합니다.
    ════════════════════════════════════════ */
+const APPS_SCRIPT_URL = '';  // TODO: 'https://script.google.com/macros/s/YOUR_ID/exec'
+
 const DataService = {
   _store: {
     master: MASTER,
@@ -221,8 +226,52 @@ const DataService = {
       { id:'s003', employee:'yen', year:2026, month:2, workDays:22, workHours:228, baseSalary:7500000, overtime:150000, tip:1500000, deduction:260000, netSalary:8890000, paid:true, paidDate:'2026-03-05' },
     ],
   },
-  async read(t) { return JSON.parse(JSON.stringify(this._store[t] || (Array.isArray(this._store[t]) ? [] : {}))); },
-  async write(t, d) { this._store[t] = JSON.parse(JSON.stringify(d)); },
+  // ── API 호출 (APPS_SCRIPT_URL 설정 시) ──────────────────────
+  async _apiGet(table, month) {
+    let url = APPS_SCRIPT_URL + '?table=' + table;
+    if (month) url += '&month=' + month;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'API error');
+    return json.data;
+  },
+  async _apiPost(table, data, month) {
+    const body = { table, data };
+    if (month) body.month = month;
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'API error');
+    return json.data;
+  },
+
+  // ── read / write (API 우선, 실패 시 in-memory 폴백) ──────────
+  async read(t, month) {
+    if (APPS_SCRIPT_URL) {
+      try {
+        const data = await this._apiGet(t, month);
+        this._store[t] = data;  // 캐시 업데이트
+        return JSON.parse(JSON.stringify(data));
+      } catch(err) {
+        console.warn('[DataService] API read 실패, 목업 사용:', err.message);
+      }
+    }
+    const raw = this._store[t];
+    return JSON.parse(JSON.stringify(raw != null ? raw : (t === 'sales' || t === 'attendance' ? {} : [])));
+  },
+  async write(t, d, month) {
+    if (APPS_SCRIPT_URL) {
+      try {
+        await this._apiPost(t, d, month);
+      } catch(err) {
+        console.warn('[DataService] API write 실패, 목업에만 저장:', err.message);
+      }
+    }
+    this._store[t] = JSON.parse(JSON.stringify(d));
+  },
 };
 
 // Mock sales
@@ -429,4 +478,44 @@ const ERP_PAGES = [
 // 인증 체크
 const getUser = () => {
   try { const s = sessionStorage.getItem("hskb_erp_user"); return s ? JSON.parse(s) : null; } catch { return null; }
+};
+
+/* ════════════════════════════════════════
+   BACKUP / RESTORE (Phase 6)
+   ════════════════════════════════════════ */
+const BackupService = {
+  // 전체 데이터를 JSON 파일로 다운로드
+  async exportAll() {
+    const tables = ['master','customers','sales','purchase','attendance','salary','contracts'];
+    const snapshot = { exportedAt: new Date().toISOString(), version: '1.0', data: {} };
+    for (const t of tables) {
+      snapshot.data[t] = await DataService.read(t);
+    }
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], {type:'application/json'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `HSKB_ERP_backup_${today()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  // JSON 파일에서 복원
+  async importAll(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const snapshot = JSON.parse(e.target.result);
+          if (!snapshot.data) throw new Error('유효하지 않은 백업 파일');
+          const tables = Object.keys(snapshot.data);
+          for (const t of tables) {
+            await DataService.write(t, snapshot.data[t]);
+          }
+          resolve(tables.length);
+        } catch(err) { reject(err); }
+      };
+      reader.readAsText(file, 'utf-8');
+    });
+  },
 };

@@ -18,53 +18,314 @@
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 const SUB_TABS = ['급여 계산','지급 이력','명세서'];
 
+const SALARY_CSS = `
+.wf-steps{display:flex;gap:0;margin-bottom:14px;}
+.wf-step{display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:10px;font-weight:600;border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+.wf-step:first-child{border-radius:var(--rs) 0 0 var(--rs);}
+.wf-step:last-child{border-radius:0 var(--rs) var(--rs) 0;border-left-width:0;}
+.wf-step+.wf-step{border-left-width:0;}
+.wf-step.done{background:var(--ok);color:#fff;border-color:var(--ok);}
+.wf-step.active{background:var(--gold);color:#fff;border-color:var(--gold);}
+.wf-step.pending{color:var(--text3);}
+.receipt-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:300;}
+.receipt{background:#fff;color:#111;padding:24px;min-width:320px;max-width:420px;font-family:'Noto Sans KR',sans-serif;font-size:12px;border-radius:4px;}
+.receipt h2{font-family:'Cormorant Garamond',serif;font-size:20px;text-align:center;margin-bottom:4px;}
+.receipt .sub{text-align:center;font-size:10px;color:#666;margin-bottom:14px;}
+.receipt .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;font-size:11px;}
+.receipt .total-row{display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid #111;font-weight:700;font-size:14px;margin-top:4px;}
+.receipt .footer{text-align:center;font-size:9px;color:#999;margin-top:12px;}
+.fade-in{animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+.toolbar .spacer{flex:1;}
+`;
+
+const WF_STEPS = ['계산','검토','확정','지급'];
+
+/* ── 팁 집계 헬퍼 ──────────────────────────────────────────── */
+function calcTipsByEmp(salesData, ym) {
+  const byEmp = {};
+  EMPLOYEES.forEach(e => { byEmp[e.name] = 0; });
+  Object.entries(salesData).forEach(([date, dayData]) => {
+    if (!date.startsWith(ym)) return;
+    (dayData.rows||[]).forEach(row => {
+      // 담당자 매핑 없으므로 팁을 균등 분배 (실제는 메뉴별 담당자 필드 추가 후 개선)
+      // 현재 구조상 tipDeduct만 존재, 균등 분배
+      if (Number(row.tipDeduct) > 0) {
+        const perEmp = Math.round(Number(row.tipDeduct) / EMPLOYEES.length);
+        EMPLOYEES.forEach(e => { byEmp[e.name] = (byEmp[e.name]||0) + perEmp; });
+      }
+    });
+  });
+  return byEmp;
+}
+
+/* ── 급여 계산 ────────────────────────────────────────────── */
+function calcEmpSalary(emp, attMonth, contract, tipAmt) {
+  const ed   = attMonth[emp.name] || {};
+  const days  = Object.keys(ed);
+  let totalH  = 0;
+  let otH     = 0;
+  days.forEach(d => {
+    const r = ed[d]; if(!r) return;
+    const h = Math.max(0, timeToH(r.out) - timeToH(r.in));
+    totalH += h;
+    const ot = Math.max(0, timeToH(r.out) - 19);
+    otH += ot;
+  });
+  const base     = contract?.baseSalary || emp.base;
+  const hourly   = contract?.hourlyRate  || emp.hourly;
+  const otPay    = Math.round(otH * hourly);
+  const deduction= Math.round(base * 0.035);
+  const netSalary= base + otPay + tipAmt - deduction;
+  return {
+    workDays:  days.length,
+    workHours: Math.round(totalH),
+    baseSalary:base, overtime:otPay,
+    tip:tipAmt, deduction, netSalary,
+    otH: Math.round(otH * 10) / 10,
+  };
+}
+
+function timeToH(t) {
+  if (!t) return 0;
+  const [h,m] = t.split(':').map(Number);
+  return h + m/60;
+}
 
 /* ════════════════════════════════════════
-   SALARY
+   TAB 1 — 급여 계산
    ════════════════════════════════════════ */
 function SalaryCalc() {
-  const [att,setAtt]=useState({});const [con,setCon]=useState([]);const [mo,setMo]=useState('2026-03');
-  useEffect(()=>{DataService.read('attendance').then(setAtt);DataService.read('contracts').then(setCon);},[]);
-  const md=att[mo]||{};
-  return (<div className="fade-in">
-    <div className="toolbar"><input type="month" className="form-inp" value={mo} onChange={e=>setMo(e.target.value)} style={{width:150}}/><div className="spacer"/><button className="btn btn-g">급여 확정</button></div>
-    <div className="pn"><div className="pn-h"><div><div className="pn-t">급여 계산</div><div className="pn-st">{mo}</div></div></div>
-    <table className="tbl"><thead><tr><th>직원</th><th className="num">출근일</th><th className="num">근무시간</th><th className="num">기본급</th><th className="num">시간급</th><th className="num">공제</th><th className="num">지급액</th></tr></thead>
-    <tbody>{EMPLOYEES.map(emp=>{const ed=md[emp.name]||{};const days=Object.keys(ed);
-      const totH=days.reduce((a,d)=>{const r=ed[d];if(!r)return a;const [ih,im]=r.in.split(':').map(Number);const [oh,om]=r.out.split(':').map(Number);return a+(oh+om/60)-(ih+im/60);},0);
-      const ct=con.find(c=>c.employee===emp.name);const base=ct?.baseSalary||emp.base;const hPay=Math.round(totH*emp.hourly);const ded=Math.round(base*0.035);const net=base-ded;
-      return (<tr key={emp.name}><td style={{fontWeight:500}}>{emp.nameKr} <span style={{color:'var(--text3)',fontSize:9}}>({emp.name})</span></td>
-        <td className="num">{days.length}일</td><td className="num">{totH.toFixed(1)}h</td><td className="num">{fmt(base)}</td><td className="num">{fmt(hPay)}</td>
-        <td className="num" style={{color:'var(--err)'}}>-{fmt(ded)}</td><td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:12}}>{fmt(net)}</td></tr>);
-    })}</tbody></table></div></div>);
+  const [mo,     setMo]    = useState(() => { const d=new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`; });
+  const [attAll, setAttAll]= useState({});
+  const [sales,  setSales] = useState({});
+  const [cons,   setCons]  = useState([]);
+  const [wfStep, setWfStep]= useState(0);  // 0=계산 1=검토 2=확정 3=지급
+  const [salaryList, setSalaryList] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    DataService.read('attendance').then(setAttAll);
+    DataService.read('sales').then(setSales);
+    DataService.read('contracts').then(setCons);
+    DataService.read('salary').then(setSalaryList);
+  }, []);
+
+  const attMonth = attAll[mo] || {};
+  const tips     = calcTipsByEmp(sales, mo);
+
+  const empCalcs = EMPLOYEES.map(emp => {
+    const con = cons.find(c => c.employee===emp.name);
+    const tip = tips[emp.name] || 0;
+    return { emp, con, ...calcEmpSalary(emp, attMonth, con, tip) };
+  });
+
+  const alreadyPaid = salaryList.some(s => s.year===parseInt(mo.split('-')[0]) && s.month===parseInt(mo.split('-')[1]));
+
+  const confirmSalary = async () => {
+    if (wfStep < 2) { alert('검토 단계까지 완료 후 확정하세요.'); return; }
+    if (alreadyPaid) { alert('이미 처리된 월입니다.'); return; }
+    setSaving(true);
+    const [year, month] = mo.split('-').map(Number);
+    const newEntries = empCalcs.map((c,i) => ({
+      id: `s${Date.now()}_${i}`, employee:c.emp.name, year, month,
+      workDays:c.workDays, workHours:c.workHours,
+      baseSalary:c.baseSalary, overtime:c.overtime, tip:c.tip,
+      deduction:c.deduction, netSalary:c.netSalary,
+      paid:false, paidDate:'',
+    }));
+    const updated = [...salaryList, ...newEntries];
+    await DataService.write('salary', updated);
+    setSalaryList(updated);
+    setSaving(false);
+    setWfStep(3);
+    alert('급여 확정 완료. 지급 이력에 저장되었습니다.');
+  };
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <input type="month" className="form-inp" value={mo} onChange={e=>{setMo(e.target.value);setWfStep(0);}} style={{width:150}}/>
+        <div className="spacer"/>
+      </div>
+      <div className="wf-steps">
+        {WF_STEPS.map((s,i)=>(
+          <div key={i} className={`wf-step ${i<wfStep?'done':i===wfStep?'active':'pending'}`}
+            onClick={()=>setWfStep(Math.min(i, wfStep<=i ? wfStep+1 : i))}>
+            {i<wfStep?'✓ ':''}{s}
+          </div>
+        ))}
+        {wfStep===2 && !alreadyPaid && (
+          <button className="btn btn-g" onClick={confirmSalary} disabled={saving} style={{marginLeft:10}}>
+            {saving?'저장중...':'확정 저장'}
+          </button>
+        )}
+        {alreadyPaid && <span style={{fontSize:10,color:'var(--ok)',marginLeft:10}}>✓ {mo} 급여 확정 완료</span>}
+      </div>
+      <div className="pn">
+        <div className="pn-h"><div><div className="pn-t">{mo} 급여 계산</div><div className="pn-st">매출 팁 자동 집계 · 초과근무 자동 반영</div></div></div>
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th>직원</th>
+              <th className="num">출근일</th><th className="num">근무시간</th><th className="num">초과시간</th>
+              <th className="num">기본급</th><th className="num">초과수당</th>
+              <th className="num">팁</th><th className="num">공제</th>
+              <th className="num">지급액</th>
+            </tr>
+          </thead>
+          <tbody>
+            {empCalcs.map(c=>(
+              <tr key={c.emp.name}>
+                <td style={{fontWeight:500}}>{c.emp.nameKr} <span style={{fontSize:9,color:'var(--text3)'}}>({c.emp.position})</span></td>
+                <td className="num">{c.workDays}일</td>
+                <td className="num">{c.workHours}h</td>
+                <td className="num" style={{color:c.otH>0?'#9B59B6':'var(--text3)'}}>{c.otH>0?'+'+c.otH+'h':'-'}</td>
+                <td className="num">{fmt(c.baseSalary)}</td>
+                <td className="num" style={{color:'#9B59B6'}}>{c.overtime>0?'+'+fmt(c.overtime):'-'}</td>
+                <td className="num" style={{color:'var(--ok)'}}>{c.tip>0?'+'+fmt(c.tip):'-'}</td>
+                <td className="num" style={{color:'var(--err)'}}>-{fmt(c.deduction)}</td>
+                <td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:12}}>{fmt(c.netSalary)}</td>
+              </tr>
+            ))}
+            <tr style={{background:'var(--gold-glow)'}}>
+              <td style={{fontWeight:600}}>합계</td>
+              <td colSpan={7}></td>
+              <td className="num" style={{fontWeight:700,color:'var(--gold-light)',fontSize:13}}>{fmt(empCalcs.reduce((a,c)=>a+c.netSalary,0))}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style={{fontSize:9.5,color:'var(--text3)',marginTop:6}}>
+        * 팁은 매출 데이터의 팁차감 항목을 직원 수로 균등 분배 | 공제율 3.5% | 초과: 19시 이후
+      </div>
+    </div>
+  );
 }
 
+/* ════════════════════════════════════════
+   TAB 2 — 지급 이력
+   ════════════════════════════════════════ */
 function SalaryHistory() {
-  const [list,setList]=useState([]);useEffect(()=>{DataService.read('salary').then(setList);},[]);
-  return (<div className="fade-in"><div className="pn"><div className="pn-h"><div className="pn-t">지급 이력</div></div>
-    <table className="tbl"><thead><tr><th>직원</th><th>기간</th><th className="num">출근일</th><th className="num">기본급</th><th className="num">추가수당</th><th className="num">팁</th><th className="num">공제</th><th className="num">지급액</th><th>지급일</th><th>상태</th></tr></thead>
-    <tbody>{list.map((s,i)=>{const emp=EMPLOYEES.find(e=>e.name===s.employee);
-      return (<tr key={i}><td style={{fontWeight:500}}>{emp?.nameKr||s.employee}</td><td>{s.year}.{pad2(s.month)}</td><td className="num">{s.workDays}일</td><td className="num">{fmt(s.baseSalary)}</td>
-        <td className="num">{fmt(s.overtime)}</td><td className="num" style={{color:'var(--ok)'}}>{fmt(s.tip)}</td><td className="num" style={{color:'var(--err)'}}>-{fmt(s.deduction)}</td>
-        <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(s.netSalary)}</td><td>{s.paidDate||'-'}</td>
-        <td><span className={`sts ${s.paid?'sts-ok':'sts-warn'}`}>{s.paid?'지급완료':'대기'}</span></td></tr>);})}</tbody></table></div></div>);
+  const [list,    setList]    = useState([]);
+  const [editing, setEditing] = useState(null);
+
+  useEffect(()=>{ DataService.read('salary').then(setList); },[]);
+
+  const markPaid = async (id) => {
+    const updated = list.map(s =>
+      s.id===id ? {...s, paid:true, paidDate:today()} : s
+    );
+    await DataService.write('salary', updated);
+    setList(updated);
+  };
+
+  return (
+    <div className="fade-in">
+      <div className="pn">
+        <div className="pn-h"><div className="pn-t">지급 이력</div></div>
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th>직원</th><th>기간</th><th className="num">출근일</th>
+              <th className="num">기본급</th><th className="num">초과수당</th>
+              <th className="num">팁</th><th className="num">공제</th>
+              <th className="num">지급액</th><th>지급일</th><th>상태</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...list].reverse().map((s,i)=>{
+              const emp=EMPLOYEES.find(e=>e.name===s.employee);
+              return (
+                <tr key={i}>
+                  <td style={{fontWeight:500}}>{emp?.nameKr||s.employee}</td>
+                  <td>{s.year}.{pad2(s.month)}</td>
+                  <td className="num">{s.workDays}일</td>
+                  <td className="num">{fmt(s.baseSalary)}</td>
+                  <td className="num">{fmt(s.overtime)}</td>
+                  <td className="num" style={{color:'var(--ok)'}}>{fmt(s.tip)}</td>
+                  <td className="num" style={{color:'var(--err)'}}>-{fmt(s.deduction)}</td>
+                  <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(s.netSalary)}</td>
+                  <td>{s.paidDate||'-'}</td>
+                  <td><span className={`sts ${s.paid?'sts-ok':'sts-warn'}`}>{s.paid?'지급완료':'대기'}</span></td>
+                  <td>
+                    {!s.paid && (
+                      <button className="btn btn-s" style={{fontSize:9,padding:'2px 7px'}} onClick={()=>markPaid(s.id)}>지급처리</button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
+/* ════════════════════════════════════════
+   TAB 3 — 명세서 (인쇄 지원)
+   ════════════════════════════════════════ */
 function SalaryPayslip() {
-  const [list,setList]=useState([]);const [idx,setIdx]=useState(0);
-  useEffect(()=>{DataService.read('salary').then(setList);},[]);
+  const [list,    setList]   = useState([]);
+  const [idx,     setIdx]    = useState(0);
+  const [showPrint,setShow]  = useState(false);
+  useEffect(()=>{ DataService.read('salary').then(l=>{ setList(l); }); },[]);
+
   if(list.length===0) return <div className="empty">지급 이력이 없습니다</div>;
-  const s=list[idx]||list[0];const emp=EMPLOYEES.find(e=>e.name===s.employee);
-  return (<div className="fade-in">
-    <div className="toolbar"><select className="form-inp" value={idx} onChange={e=>setIdx(Number(e.target.value))} style={{width:200}}>{list.map((s,i)=>{const e=EMPLOYEES.find(x=>x.name===s.employee);return <option key={i} value={i}>{e?.nameKr||s.employee} - {s.year}.{pad2(s.month)}</option>;})}</select></div>
-    <div className="payslip">
-      <h3>급여 명세서</h3><div className="period">{s.year}년 {s.month}월 · {emp?.nameKr||s.employee} ({emp?.position||''})</div>
-      {[['기본급',fmt(s.baseSalary)+'₫'],['추가수당',fmt(s.overtime)+'₫'],['팁',fmt(s.tip)+'₫','var(--ok)'],['공제액','-'+fmt(s.deduction)+'₫','var(--err)'],['근무일',s.workDays+'일'],['근무시간',s.workHours+'h']].map(([k,v,c],i)=>(
-        <div key={i} className="row"><span className="k">{k}</span><span className="v" style={c?{color:c}:{}}>{v}</span></div>
+  const s   = list[idx] || list[0];
+  const emp = EMPLOYEES.find(e=>e.name===s.employee);
+
+  const PayslipContent = () => (
+    <>
+      <h2>급여 명세서</h2>
+      <div className="sub">{s.year}년 {s.month}월 | {emp?.nameKr||s.employee} ({emp?.position||''})</div>
+      {[
+        ['근무일수', s.workDays+'일'],
+        ['근무시간', s.workHours+'h'],
+        ['기본급',   fmt(s.baseSalary)+'₫'],
+        ['초과수당', fmt(s.overtime)+'₫', s.overtime>0?'#9B59B6':undefined],
+        ['팁',       fmt(s.tip)+'₫',       s.tip>0?'green':undefined],
+        ['공제액',   '-'+fmt(s.deduction)+'₫', 'red'],
+      ].map(([k,v,c],i)=>(
+        <div key={i} className="row">
+          <span>{k}</span><span style={c?{color:c}:{}}>{v}</span>
+        </div>
       ))}
-      <div className="row total"><span className="k" style={{fontSize:13,fontWeight:600}}>실지급액</span><span className="v">{fmt(s.netSalary)}₫</span></div>
-      <div style={{marginTop:10,fontSize:9.5,color:'var(--text3)'}}>지급일: {s.paidDate||'미정'} · 상태: {s.paid?'지급완료':'대기'}</div>
-    </div></div>);
+      <div className="total-row"><span>실지급액</span><span>{fmt(s.netSalary)}₫</span></div>
+      <div className="footer">
+        지급일: {s.paidDate||'미정'} · 상태: {s.paid?'지급완료':'대기'}<br/>
+        HWASA K-Beauty — 급여 명세서
+      </div>
+    </>
+  );
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <select className="form-inp" value={idx} onChange={e=>setIdx(Number(e.target.value))} style={{width:220}}>
+          {list.map((s,i)=>{ const e=EMPLOYEES.find(x=>x.name===s.employee); return <option key={i} value={i}>{e?.nameKr||s.employee} — {s.year}.{pad2(s.month)}</option>; })}
+        </select>
+        <div className="spacer"/>
+        <button className="btn btn-o" onClick={()=>setShow(true)}>인쇄 / PDF</button>
+      </div>
+      <div className="payslip" style={{maxWidth:420}}>
+        <PayslipContent/>
+      </div>
+      {showPrint && (
+        <div className="receipt-bg" onClick={()=>setShow(false)}>
+          <div className="receipt" onClick={e=>e.stopPropagation()}>
+            <PayslipContent/>
+            <div style={{textAlign:'center',marginTop:12}}>
+              <button onClick={()=>window.print()} style={{padding:'5px 14px',background:'#222',color:'#fff',border:'none',borderRadius:4,cursor:'pointer',fontSize:11}}>인쇄</button>
+              <button onClick={()=>setShow(false)} style={{marginLeft:8,padding:'5px 14px',background:'#ddd',border:'none',borderRadius:4,cursor:'pointer',fontSize:11}}>닫기</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function App() {
@@ -83,7 +344,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <style>{ CSS }</style>
+      <style>{ CSS }{ SALARY_CSS }</style>
       <div className="app">
         <div className="hdr">
           <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>

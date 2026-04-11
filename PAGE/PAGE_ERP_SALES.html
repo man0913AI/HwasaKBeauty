@@ -18,21 +18,167 @@
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 const SUB_TABS = ['일일 입력','매출 내역','월별 요약'];
 
+const SALES_CSS = `
+.ac-wrap{position:relative;width:100%;height:100%;}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--rs);z-index:50;max-height:120px;overflow-y:auto;}
+.ac-item{padding:5px 8px;font-size:10.5px;cursor:pointer;}
+.ac-item:hover{background:var(--gold-glow);}
+.menu-popup-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:200;}
+.menu-popup{background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--radius);padding:18px;min-width:300px;max-width:420px;}
+.menu-popup h4{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold-light);margin-bottom:10px;}
+.menu-popup .pg-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.menu-popup .pg-num{width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;}
+.receipt-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:300;}
+.receipt{background:#fff;color:#111;padding:24px;min-width:320px;max-width:400px;font-family:'Noto Sans KR',sans-serif;font-size:12px;border-radius:4px;}
+.receipt h2{font-family:'Cormorant Garamond',serif;font-size:22px;text-align:center;margin-bottom:4px;}
+.receipt .sub{text-align:center;font-size:10px;color:#666;margin-bottom:14px;}
+.receipt .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;}
+.receipt .total-row{display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid #111;font-weight:700;font-size:14px;margin-top:4px;}
+.receipt .footer{text-align:center;font-size:9px;color:#999;margin-top:14px;}
+.fade-in{animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+.toolbar .spacer{flex:1;}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:12px;}
+`;
+
+/* ── 이벤트 헬퍼 ──────────────────────────────────────────── */
+function getActiveEvents(date, menuName) {
+  const menuHead = MASTER.menuHead.find(m=>m.name===menuName);
+  return MASTER.events.filter(ev => {
+    if (!ev.active) return false;
+    if (date < ev.startDate || date > ev.endDate) return false;
+    if (ev.menuCode && menuHead && ev.menuCode !== menuHead.code) return false;
+    return true;
+  });
+}
+function applyDiscount(price, events) {
+  let p = price;
+  events.forEach(ev => {
+    if (ev.discountType === '%')   p = Math.round(p * (1 - ev.discountValue/100));
+    if (ev.discountType === 'amt') p = Math.max(0, p - ev.discountValue);
+  });
+  return p;
+}
+
+/* ── 고객 자동완성 ────────────────────────────────────────── */
+function CustomerAC({value, onChange, customers}) {
+  const [open, setOpen]   = useState(false);
+  const [query, setQuery] = useState(value||'');
+  const wrapRef           = useRef();
+
+  useEffect(()=>{ setQuery(value||''); },[value]);
+  useEffect(()=>{
+    const handler = e => { if(wrapRef.current&&!wrapRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return ()=>document.removeEventListener('mousedown', handler);
+  },[]);
+
+  const hits = query.length>=1
+    ? customers.filter(c=>(c.name+c.phone+(c.nameEn||'')).toLowerCase().includes(query.toLowerCase())).slice(0,8)
+    : [];
+
+  return (
+    <div className="ac-wrap" ref={wrapRef}>
+      <input
+        value={query}
+        onChange={e=>{ setQuery(e.target.value); onChange(e.target.value); setOpen(true); }}
+        onFocus={()=>setOpen(true)}
+        placeholder="고객명"
+        style={{width:'100%',height:'100%',background:'transparent',border:'none',outline:'none',color:'var(--text)',fontSize:10.5,padding:'3px 5px',fontFamily:'inherit'}}
+      />
+      {open && hits.length>0 && (
+        <div className="ac-list">
+          {hits.map(c=>(
+            <div key={c.id} className="ac-item"
+              onMouseDown={e=>{e.preventDefault();setQuery(c.name);onChange(c.name,c);setOpen(false);}}>
+              {c.name}{c.nameEn?` (${c.nameEn})`:''} <span style={{color:'var(--text3)',fontSize:9}}>{c.grade||''}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── 메뉴 구성 팝업 ───────────────────────────────────────── */
+function MenuCompositionPopup({menuName, onClose}) {
+  const head = MASTER.menuHead.find(m=>m.name===menuName);
+  const body = head ? MASTER.menuBody.filter(b=>b.menuCode===head.code&&b.active).sort((a,b)=>a.seq-b.seq) : [];
+  const pgName = code => { const p=MASTER.program.find(x=>x.code===code); return p?p.name:code; };
+  if(!head) return null;
+  return (
+    <div className="menu-popup-bg" onClick={onClose}>
+      <div className="menu-popup" onClick={e=>e.stopPropagation()}>
+        <h4>{head.name}</h4>
+        <div style={{fontSize:10,color:'var(--text3)',marginBottom:8}}>{head.desc} · {head.totalTime}분 · {fmt(head.price)}₫</div>
+        {body.length===0 ? <div style={{color:'var(--text3)',fontSize:11}}>구성 없음</div> :
+          body.map((b,i)=>(
+            <div key={i} className="pg-row">
+              <div className="pg-num">{b.seq}</div>
+              <div style={{flex:1}}>{pgName(b.pgCode)}</div>
+              <div style={{color:'var(--text3)',fontSize:10}}>{b.time}</div>
+            </div>
+          ))
+        }
+        <button className="btn btn-s" onClick={onClose} style={{marginTop:12}}>닫기</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── 영수증 팝업 ──────────────────────────────────────────── */
+function ReceiptPopup({row, date, onClose}) {
+  const head     = MASTER.menuHead.find(m=>m.name===row.service);
+  const events   = row.service ? getActiveEvents(date, row.service) : [];
+  const basePrice= head?.price||0;
+  const disced   = applyDiscount(basePrice, events);
+  const total    = (Number(row.cash)||0)+(Number(row.deposit)||0)+(Number(row.card)||0)+(Number(row.krw)||0);
+  return (
+    <div className="receipt-bg" onClick={onClose}>
+      <div className="receipt" onClick={e=>e.stopPropagation()}>
+        <h2>HWASA K-Beauty</h2>
+        <div className="sub">하노이 뷰티 살롱 · {date}</div>
+        <div className="row"><span>고객명</span><span>{row.name||'-'}</span></div>
+        <div className="row"><span>등급</span><span>{row.grade||'-'}</span></div>
+        <div className="row"><span>메뉴</span><span>{row.service||'-'}</span></div>
+        {basePrice>0&&<div className="row"><span>정가</span><span>{fmt(basePrice)}₫</span></div>}
+        {events.length>0&&events.map((ev,i)=>(<div key={i} className="row" style={{color:'#c00'}}><span>이벤트: {ev.name}</span><span>{ev.discountType==='%'?`-${ev.discountValue}%`:`-${fmt(ev.discountValue)}₫`}</span></div>))}
+        {events.length>0&&<div className="row"><span>할인가</span><span>{fmt(disced)}₫</span></div>}
+        {Number(row.cash)>0&&<div className="row"><span>현금</span><span>{fmt(row.cash)}₫</span></div>}
+        {Number(row.deposit)>0&&<div className="row"><span>이체+10%</span><span>{fmt(row.deposit)}₫</span></div>}
+        {Number(row.card)>0&&<div className="row"><span>카드</span><span>{fmt(row.card)}₫</span></div>}
+        {Number(row.krw)>0&&<div className="row"><span>한국돈</span><span>{fmt(row.krw)}₫</span></div>}
+        {Number(row.tipDeduct)>0&&<div className="row"><span>팁</span><span>{fmt(row.tipDeduct)}₫</span></div>}
+        <div className="total-row"><span>합계</span><span>{fmt(total)}₫</span></div>
+        <div className="footer">HWASA K-Beauty — 감사합니다 · Cảm ơn quý khách</div>
+        <div style={{textAlign:'center',marginTop:10}}>
+          <button onClick={()=>window.print()} style={{padding:'5px 14px',background:'#222',color:'#fff',border:'none',borderRadius:4,cursor:'pointer',fontSize:11}}>인쇄</button>
+          <button onClick={onClose} style={{marginLeft:8,padding:'5px 14px',background:'#ddd',border:'none',borderRadius:4,cursor:'pointer',fontSize:11}}>닫기</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ════════════════════════════════════════
    SALES DAILY INPUT — SPREADSHEET
    ════════════════════════════════════════ */
 function SalesDailyInput() {
   const [selDate, setSelDate] = useState(today());
-  const [data, setData] = useState({ rows: [], expenses: [] });
+  const [data,    setData]    = useState({ rows: [], expenses: [] });
+  const [customers, setCust]  = useState([]);
+  const [menuPopup, setMenuPop] = useState(null);
+  const [receipt,   setReceipt] = useState(null);
 
   const loadData = useCallback(async (date) => {
-    const all = await DataService.read('sales');
-    const d = all[date] || { rows: [], expenses: [] };
+    const all  = await DataService.read('sales');
+    const d    = all[date] || { rows: [], expenses: [] };
     if (d.rows.length === 0) d.rows = [mkSaleRow(1, date)];
     setData(d);
   }, []);
   useEffect(() => { loadData(selDate); }, [selDate, loadData]);
+  useEffect(() => { DataService.read('customers').then(setCust); }, []);
 
   const mkSaleRow = (no, date) => ({
     no, date, name:'', grade:'', service:'',
@@ -45,12 +191,40 @@ function SalesDailyInput() {
   const upRow = (i, f, v) => setData(p => {
     const rows = [...p.rows]; rows[i] = { ...rows[i], [f]: v }; return { ...p, rows };
   });
+
+  // 메뉴 선택 시 자동가격 + 이벤트 할인
+  const onMenuChange = (ri, menuName) => {
+    const head   = MASTER.menuHead.find(m=>m.name===menuName);
+    if (!head) { upRow(ri, 'service', menuName); return; }
+    const events = getActiveEvents(selDate, menuName);
+    const discPrice = applyDiscount(head.price, events);
+    setData(p => {
+      const rows = [...p.rows];
+      rows[ri] = { ...rows[ri], service: menuName, cash: discPrice, event: events.length>0, deductAmt: events.length>0 ? head.price - discPrice : 0 };
+      return { ...p, rows };
+    });
+  };
+
+  // 고객 선택 시 등급 자동 채우기
+  const onCustomerSelect = (ri, name, cust) => {
+    setData(p => {
+      const rows = [...p.rows];
+      rows[ri] = { ...rows[ri], name, grade: cust?.grade||rows[ri].grade };
+      return { ...p, rows };
+    });
+  };
+
   const addRow = () => setData(p => ({ ...p, rows: [...p.rows, mkSaleRow(p.rows.length+1, selDate)] }));
   const delRow = (i) => setData(p => ({ ...p, rows: p.rows.filter((_,j)=>j!==i).map((r,j)=>({...r,no:j+1})) }));
   const addExp = () => setData(p => ({ ...p, expenses: [...p.expenses, {item:'기타',amount:0,note:''}] }));
   const upExp = (i,f,v) => setData(p => { const e=[...p.expenses]; e[i]={...e[i],[f]:v}; return {...p,expenses:e}; });
   const delExp = (i) => setData(p => ({ ...p, expenses: p.expenses.filter((_,j)=>j!==i) }));
-  const save = async () => { const all=await DataService.read('sales'); all[selDate]=data; await DataService.write('sales',all); alert('저장 완료'); };
+  const save = async () => {
+    const all = await DataService.read('sales');
+    all[selDate] = data;
+    await DataService.write('sales', all);
+    alert('저장 완료');
+  };
 
   const totals = useMemo(() => {
     const r=data.rows; const sm=(f)=>r.reduce((a,x)=>a+(Number(x[f])||0),0);
@@ -61,14 +235,7 @@ function SalesDailyInput() {
       male:r.filter(x=>x.male).length, female:r.filter(x=>x.female).length, expT, inc, net:inc-expT };
   }, [data]);
 
-  const cols = [
-    {k:'no',l:'No',w:30,t:'ro'},{k:'name',l:'고객명',w:80,t:'tx'},{k:'grade',l:'멤버등급',w:75,t:'sel',opts:MEMBER_GRADES},
-    {k:'service',l:'메뉴',w:130,t:'sel',opts:['',...MASTER.menuHead.filter(m=>m.active).map(m=>m.name)]},{k:'hair',l:'탈모',w:35,t:'chk'},{k:'event',l:'이벤트',w:40,t:'chk'},
-    {k:'vip',l:'VIP',w:35,t:'chk'},{k:'deductAmt',l:'차감금액',w:80,t:'num'},{k:'deduct',l:'차감',w:55,t:'num'},
-    {k:'tipDeduct',l:'팁차감',w:75,t:'num'},{k:'cash',l:'현금',w:85,t:'num'},{k:'deposit',l:'입금+10%',w:80,t:'num'},
-    {k:'card',l:'카드',w:80,t:'num'},{k:'krw',l:'한국돈',w:75,t:'num'},{k:'unpaid',l:'미수',w:65,t:'num'},
-    {k:'male',l:'남',w:30,t:'tx'},{k:'female',l:'여',w:30,t:'tx'},{k:'ticket',l:'TICKET',w:55,t:'tx'},
-  ];
+  const menuOpts = ['',...MASTER.menuHead.filter(m=>m.active).map(m=>m.name)];
 
   return (
     <div className="fade-in">
@@ -80,19 +247,63 @@ function SalesDailyInput() {
         <button className="btn btn-g" onClick={save}>저장</button>
       </div>
       <div className="ss-wrap">
-        <table className="ss" style={{minWidth:1500}}>
-          <thead><tr>{cols.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
+        <table className="ss" style={{minWidth:1550}}>
+          <thead>
+            <tr>
+              <th style={{minWidth:30}}>No</th>
+              <th style={{minWidth:90}}>고객명</th>
+              <th style={{minWidth:75}}>멤버등급</th>
+              <th style={{minWidth:140}}>메뉴</th>
+              <th style={{minWidth:30}}>탈모</th><th style={{minWidth:40}}>이벤트</th><th style={{minWidth:30}}>VIP</th>
+              <th style={{minWidth:80}}>차감금액</th><th style={{minWidth:55}}>차감</th>
+              <th style={{minWidth:75}}>팁차감</th>
+              <th style={{minWidth:85}}>현금</th><th style={{minWidth:80}}>입금+10%</th>
+              <th style={{minWidth:80}}>카드</th><th style={{minWidth:75}}>한국돈</th><th style={{minWidth:65}}>미수</th>
+              <th style={{minWidth:30}}>남</th><th style={{minWidth:30}}>여</th><th style={{minWidth:55}}>TICKET</th>
+              <th style={{width:28}}>영수증</th>
+              <th style={{width:28}}>×</th>
+            </tr>
+          </thead>
           <tbody>
             {data.rows.map((row,ri)=>(
-              <tr key={ri}>{cols.map(c=>(
-                <td key={c.k} className={c.t==='num'?'nc':''}>
-                  {c.t==='ro'?<div className="rn">{row.no}</div>
-                  :c.t==='chk'?<div style={{textAlign:'center'}}><input type="checkbox" checked={!!row[c.k]} onChange={e=>upRow(ri,c.k,e.target.checked)}/></div>
-                  :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o||'-'}</option>)}</select>
-                  :c.t==='num'?<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
-                  :<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>}
+              <tr key={ri}>
+                <td><div className="rn">{row.no}</div></td>
+                {/* 고객명 자동완성 */}
+                <td>
+                  <CustomerAC
+                    value={row.name}
+                    onChange={(name,cust)=>cust ? onCustomerSelect(ri,name,cust) : upRow(ri,'name',name)}
+                    customers={customers}
+                  />
                 </td>
-              ))}<td><button className="del-btn" onClick={()=>delRow(ri)}>×</button></td></tr>
+                {/* 멤버등급 */}
+                <td><select value={row.grade||''} onChange={e=>upRow(ri,'grade',e.target.value)}>{MEMBER_GRADES.map(o=><option key={o} value={o}>{o||'-'}</option>)}</select></td>
+                {/* 메뉴 */}
+                <td>
+                  <div style={{display:'flex',alignItems:'center',height:'100%'}}>
+                    <select value={row.service||''} onChange={e=>onMenuChange(ri,e.target.value)} style={{flex:1,height:'100%',background:'transparent',border:'none',outline:'none',color:'var(--text)',fontSize:10.5,padding:'3px 5px',fontFamily:'inherit'}}>
+                      {menuOpts.map(o=><option key={o} value={o}>{o||'-'}</option>)}
+                    </select>
+                    {row.service && <button onClick={()=>setMenuPop(row.service)} style={{background:'none',border:'none',color:'var(--gold)',cursor:'pointer',fontSize:11,padding:'0 3px',flexShrink:0}} title="메뉴 구성 보기">☰</button>}
+                  </div>
+                </td>
+                <td><div style={{textAlign:'center'}}><input type="checkbox" checked={!!row.hair}    onChange={e=>upRow(ri,'hair',e.target.checked)}/></div></td>
+                <td><div style={{textAlign:'center'}}><input type="checkbox" checked={!!row.event}   onChange={e=>upRow(ri,'event',e.target.checked)}/></div></td>
+                <td><div style={{textAlign:'center'}}><input type="checkbox" checked={!!row.vip}     onChange={e=>upRow(ri,'vip',e.target.checked)}/></div></td>
+                <td className="nc"><input value={row.deductAmt||''} onChange={e=>upRow(ri,'deductAmt',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td className="nc"><input value={row.deduct||''}    onChange={e=>upRow(ri,'deduct',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td className="nc"><input value={row.tipDeduct||''} onChange={e=>upRow(ri,'tipDeduct',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td className="nc"><input value={row.cash||''}      onChange={e=>upRow(ri,'cash',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td className="nc"><input value={row.deposit||''}   onChange={e=>upRow(ri,'deposit',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td className="nc"><input value={row.card||''}      onChange={e=>upRow(ri,'card',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td className="nc"><input value={row.krw||''}       onChange={e=>upRow(ri,'krw',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td className="nc"><input value={row.unpaid||''}    onChange={e=>upRow(ri,'unpaid',Number(e.target.value.replace(/,/g,''))||0)} placeholder="0"/></td>
+                <td><input value={row.male||''}   onChange={e=>upRow(ri,'male',e.target.value)}/></td>
+                <td><input value={row.female||''} onChange={e=>upRow(ri,'female',e.target.value)}/></td>
+                <td><input value={row.ticket||''} onChange={e=>upRow(ri,'ticket',e.target.value)}/></td>
+                <td><button className="del-btn" onClick={()=>setReceipt(row)} title="영수증">🧾</button></td>
+                <td><button className="del-btn" onClick={()=>delRow(ri)}>×</button></td>
+              </tr>
             ))}
             <tr className="ss-total">
               <td colSpan={7} style={{textAlign:'right',paddingRight:8}}>합계</td>
@@ -106,7 +317,7 @@ function SalesDailyInput() {
               <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.unpaid)}</td>
               <td style={{textAlign:'center'}}>{totals.male}</td>
               <td style={{textAlign:'center'}}>{totals.female}</td>
-              <td></td><td></td>
+              <td colSpan={3}></td>
             </tr>
           </tbody>
         </table>
@@ -141,6 +352,8 @@ function SalesDailyInput() {
           </div>
         </div>
       </div>
+      {menuPopup && <MenuCompositionPopup menuName={menuPopup} onClose={()=>setMenuPop(null)}/>}
+      {receipt    && <ReceiptPopup row={receipt} date={selDate} onClose={()=>setReceipt(null)}/>}
     </div>
   );
 }
@@ -202,94 +415,6 @@ function SalesMonthlySummary() {
       </tbody></table></div></div>);
 }
 
-/* ════════════════════════════════════════
-   PURCHASE — SPREADSHEET
-   ════════════════════════════════════════ */
-function PurchaseInput() {
-  const [rows, setRows] = useState([]);
-  useEffect(()=>{DataService.read('purchase').then(setRows);},[]);
-
-  const mkRow = () => ({id:'p'+String(rows.length+1).padStart(3,'0'),date:today(),supplier:'',item:'',category:'원재료',qty:1,unitPrice:0,total:0,note:''});
-
-  const upRow = (i,f,v) => setRows(p=>{
-    const r=[...p]; r[i]={...r[i],[f]:v};
-    if(f==='qty'||f==='unitPrice') r[i].total = (Number(r[i].qty)||0) * (Number(r[i].unitPrice)||0);
-    return r;
-  });
-  const addRow = () => setRows(p=>[...p, mkRow()]);
-  const delRow = (i) => setRows(p=>p.filter((_,j)=>j!==i));
-  const save = async () => { await DataService.write('purchase', rows); alert('저장 완료'); };
-
-  const pCols = [
-    {k:'date',l:'날짜',w:95,t:'date'},{k:'supplier',l:'공급처',w:110,t:'sel',opts:['',...MASTER.suppliers.filter(s=>s.active).map(s=>s.name)]},{k:'item',l:'품목',w:120,t:'tx'},
-    {k:'category',l:'분류',w:80,t:'sel',opts:PURCHASE_CATS},{k:'qty',l:'수량',w:55,t:'num'},
-    {k:'unitPrice',l:'단가(VND)',w:95,t:'num'},{k:'total',l:'합계',w:100,t:'ro_num'},{k:'note',l:'비고',w:100,t:'tx'},
-  ];
-
-  const grandTotal = rows.reduce((a,x)=>a+(x.total||0),0);
-
-  return (<div className="fade-in">
-    <div className="toolbar">
-      <span style={{fontSize:12,fontWeight:600}}>매입 입력</span>
-      <div className="spacer"/>
-      <button className="btn btn-s" onClick={addRow}>+ 행 추가</button>
-      <button className="btn btn-g" onClick={save}>저장</button>
-    </div>
-    <div className="ss-wrap">
-      <table className="ss" style={{minWidth:900}}>
-        <thead><tr><th style={{width:30}}>No</th>{pCols.map(c=><th key={c.k} style={{minWidth:c.w}}>{c.l}</th>)}<th style={{width:28}}>×</th></tr></thead>
-        <tbody>
-          {rows.map((row,ri)=>(
-            <tr key={ri}>
-              <td className="rn">{ri+1}</td>
-              {pCols.map(c=>(
-                <td key={c.k} className={c.t==='num'||c.t==='ro_num'?'nc':''}>
-                  {c.t==='ro_num'?<div style={{padding:'3px 5px',textAlign:'right',color:'var(--gold-light)',fontWeight:600,fontSize:10.5}}>{fmt(row[c.k])}</div>
-                  :c.t==='date'?<input type="date" value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>
-                  :c.t==='sel'?<select value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}>{c.opts.map(o=><option key={o} value={o}>{o}</option>)}</select>
-                  :c.t==='num'?<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} placeholder="0"/>
-                  :<input value={row[c.k]||''} onChange={e=>upRow(ri,c.k,e.target.value)}/>}
-                </td>
-              ))}
-              <td><button className="del-btn" onClick={()=>delRow(ri)}>×</button></td>
-            </tr>
-          ))}
-          {rows.length>0 && <tr className="ss-total">
-            <td colSpan={6} style={{textAlign:'right',paddingRight:8}}>합계</td>
-            <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(grandTotal)}</td>
-            <td></td><td></td>
-          </tr>}
-        </tbody>
-      </table>
-    </div>
-  </div>);
-}
-
-function PurchaseList() {
-  const [list,setList]=useState([]);
-  useEffect(()=>{DataService.read('purchase').then(setList);},[]);
-  return (<div className="fade-in"><div className="pn">
-    <div className="pn-h"><div><div className="pn-t">매입 내역</div><div className="pn-st">총 {list.length}건 · {fmt(list.reduce((a,x)=>a+(x.total||0),0))}₫</div></div></div>
-    <table className="tbl"><thead><tr><th>날짜</th><th>공급처</th><th>품목</th><th>분류</th><th className="num">수량</th><th className="num">단가</th><th className="num">합계</th><th>비고</th></tr></thead>
-    <tbody>{[...list].reverse().map((p,i)=>(<tr key={i}><td>{p.date}</td><td>{p.supplier}</td><td>{p.item}</td>
-      <td><span className={`sts ${p.category==='원재료'?'sts-info':p.category==='소모품'?'sts-warn':'sts-ok'}`}>{p.category}</span></td>
-      <td className="num">{p.qty}</td><td className="num">{fmt(p.unitPrice)}</td><td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.total)}</td><td style={{color:'var(--text2)'}}>{p.note}</td></tr>))}</tbody>
-  </table></div></div>);
-}
-
-function PurchaseStats() {
-  const [list,setList]=useState([]);
-  useEffect(()=>{DataService.read('purchase').then(setList);},[]);
-  const byCat={};list.forEach(p=>{byCat[p.category]=(byCat[p.category]||0)+(p.total||0);});
-  const total=list.reduce((a,x)=>a+(x.total||0),0);
-  return (<div className="fade-in"><div className="cards">
-    {Object.entries(byCat).map(([cat,amt])=>(<div className="card" key={cat}><div className="card-lb">{cat}</div><div className="card-vl">{fmt(amt)}</div><div className="card-sub">{total>0?Math.round(amt/total*100):0}%</div></div>))}
-    <div className="card"><div className="card-bar" style={{background:'var(--gold)'}}/><div className="card-lb">총 매입</div><div className="card-vl">{fmt(total)}</div></div>
-  </div></div>);
-}
-
-
-
 function App() {
   const [user,setUser]=useState(getUser());
   const [subTab,setSub]=useState(0);
@@ -306,7 +431,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <style>{ CSS }</style>
+      <style>{ CSS }{ SALES_CSS }</style>
       <div className="app">
         <div className="hdr">
           <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>

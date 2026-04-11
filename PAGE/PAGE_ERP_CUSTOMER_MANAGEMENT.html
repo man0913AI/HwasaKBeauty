@@ -17,7 +17,6 @@
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 const SUB_TABS = ['고객 목록','고객 상세'];
-const [selCustomer,setSelCustomer]=useState(null);
 
 /* ════════════════════════════════════════
    CUSTOMER MANAGEMENT — 고객관리
@@ -147,6 +146,7 @@ function CustomerDetail({customer,onBack}) {
 function App() {
   const [user,setUser]=useState(getUser());
   const [subTab,setSub]=useState(0);
+  const [selCustomer,setSelCustomer]=useState(null);
   const [now,setNow]=useState(new Date());
   const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
 

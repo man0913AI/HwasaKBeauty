@@ -18,35 +18,190 @@
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 const SUB_TABS = ['월말','분기','반기','년간'];
 
+const CLOSING_CSS = `
+.bar-wrap{background:var(--bg-el);border-radius:4px;height:8px;overflow:hidden;margin-top:3px;}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+.month-bar-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);}
+.month-label{font-size:10px;color:var(--text2);width:60px;flex-shrink:0;}
+.month-val{font-size:10px;font-weight:600;width:80px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;}
+.fade-in{animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
+.toolbar .spacer{flex:1;}
+`;
+
+/* ── 날짜 범위 계산 ──────────────────────────────────────── */
+function getDateRange(period, year, month, quarter) {
+  const y = parseInt(year);
+  const m = parseInt(month);
+  const q = parseInt(quarter);
+  switch(period) {
+    case 'monthly':
+      return { start:`${year}-${pad2(m)}`, end:`${year}-${pad2(m)}`, label:`${year}년 ${m}월` };
+    case 'quarterly': {
+      const qStart = (q-1)*3+1;
+      return { start:`${year}-${pad2(qStart)}`, end:`${year}-${pad2(qStart+2)}`, label:`${year}년 ${q}분기 (${qStart}~${qStart+2}월)` };
+    }
+    case 'semi': {
+      const half = parseInt(month); // 1 or 2
+      return half===1
+        ? { start:`${year}-01`, end:`${year}-06`, label:`${year}년 상반기 (1~6월)` }
+        : { start:`${year}-07`, end:`${year}-12`, label:`${year}년 하반기 (7~12월)` };
+    }
+    case 'annual':
+      return { start:`${year}-01`, end:`${year}-12`, label:`${year}년 연간` };
+    default:
+      return { start:'', end:'', label:'' };
+  }
+}
+
+function filterSalesByRange(sales, start, end) {
+  return Object.entries(sales).filter(([dt]) => {
+    const ym = dt.slice(0,7);
+    return ym >= start && ym <= end;
+  });
+}
+function filterPurchaseByRange(purchase, start, end) {
+  return purchase.filter(p => {
+    const ym = p.date?.slice(0,7)||'';
+    return ym >= start && ym <= end;
+  });
+}
+
+/* ── 월별 합산 ─────────────────────────────────────────────── */
+function aggregateByMonth(entries) {
+  const byMo = {};
+  entries.forEach(([dt, dayData]) => {
+    const ym = dt.slice(0,7);
+    if (!byMo[ym]) byMo[ym] = { sales:0, exp:0 };
+    const sm = f => (dayData.rows||[]).reduce((a,x)=>a+(Number(x[f])||0),0);
+    byMo[ym].sales += sm('cash')+sm('deposit')+sm('card')+sm('krw');
+    byMo[ym].exp   += (dayData.expenses||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+  });
+  return byMo;
+}
 
 /* ════════════════════════════════════════
-   SETTLEMENT
+   결산 컴포넌트
    ════════════════════════════════════════ */
 function Settlement({period}) {
-  const [sales,setSales]=useState({});const [purchase,setPurchase]=useState([]);
-  useEffect(()=>{DataService.read('sales').then(setSales);DataService.read('purchase').then(setPurchase);},[]);
-  const dates=Object.keys(sales).sort();
-  const salesT=dates.reduce((a,d)=>{const rows=sales[d]?.rows||[];return a+rows.reduce((b,r)=>b+(Number(r.cash)||0)+(Number(r.deposit)||0)+(Number(r.card)||0)+(Number(r.krw)||0),0);},0);
-  const expT=dates.reduce((a,d)=>a+(sales[d]?.expenses||[]).reduce((b,e)=>b+(Number(e.amount)||0),0),0);
-  const purT=purchase.reduce((a,p)=>a+(p.total||0),0);const net=salesT-expT-purT;
-  const labels={monthly:'월말 결산',quarterly:'분기 결산',semi:'반기 결산',annual:'년간 결산'};
-  return (<div className="fade-in">
-    <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,marginBottom:14,color:'var(--gold-light)'}}>{labels[period]}</h3>
-    <div className="cards">
-      {[['총 매출',fmt(salesT),'var(--ok)'],['영업 지출',fmt(expT),'var(--warn)'],['매입 비용',fmt(purT),'var(--err)'],['순이익',fmt(net),net>=0?'var(--ok)':'var(--err)']].map(([lb,vl,c],i)=>(
-        <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl" style={{color:c}}>{vl}</div></div>
-      ))}
+  const now   = new Date();
+  const curY  = String(now.getFullYear());
+  const curM  = pad2(now.getMonth()+1);
+  const curQ  = String(Math.ceil((now.getMonth()+1)/3));
+  const curH  = now.getMonth()+1 <= 6 ? '1' : '2';
+
+  const [year,  setYear]  = useState(curY);
+  const [month, setMonth] = useState(curM);
+  const [qtr,   setQtr]   = useState(curQ);
+  const [half,  setHalf]  = useState(curH);
+
+  const [sales,    setSales]    = useState({});
+  const [purchase, setPurchase] = useState([]);
+  const [prevSales,setPrevSales]= useState({});
+  useEffect(()=>{
+    DataService.read('sales').then(setSales);
+    DataService.read('purchase').then(setPurchase);
+  },[]);
+
+  const { start, end, label } = getDateRange(period, year,
+    period==='monthly' ? month : period==='quarterly' ? qtr : half, qtr);
+
+  const filteredSales    = filterSalesByRange(sales,    start, end);
+  const filteredPurchase = filterPurchaseByRange(purchase, start, end);
+
+  const salesT = filteredSales.reduce((a,[,d])=>{
+    const sm=f=>(d.rows||[]).reduce((b,x)=>b+(Number(x[f])||0),0);
+    return a+sm('cash')+sm('deposit')+sm('card')+sm('krw');
+  },0);
+  const expT   = filteredSales.reduce((a,[,d])=>a+(d.expenses||[]).reduce((b,e)=>b+(Number(e.amount)||0),0),0);
+  const purT   = filteredPurchase.reduce((a,p)=>a+(p.total||0),0);
+  const net    = salesT - expT - purT;
+
+  const byMo   = aggregateByMonth(filteredSales);
+  const months = Object.keys(byMo).sort();
+  const maxMoSales = Math.max(1,...months.map(m=>byMo[m].sales));
+
+  // 전년 대비
+  const prevYear = String(parseInt(year)-1);
+  const { start:ps, end:pe } = getDateRange(period, prevYear,
+    period==='monthly' ? month : period==='quarterly' ? qtr : half, qtr);
+  const prevFiltered = filterSalesByRange(sales, ps, pe);
+  const prevSalesT   = prevFiltered.reduce((a,[,d])=>{
+    const sm=f=>(d.rows||[]).reduce((b,x)=>b+(Number(x[f])||0),0);
+    return a+sm('cash')+sm('deposit')+sm('card')+sm('krw');
+  },0);
+  const yoyRate = prevSalesT > 0 ? Math.round((salesT-prevSalesT)/prevSalesT*100) : null;
+
+  return (
+    <div className="fade-in">
+      <div className="toolbar">
+        <input type="number" className="form-inp" value={year} onChange={e=>setYear(e.target.value)} min="2020" max="2030" style={{width:80}}/>
+        {period==='monthly'   && <select className="form-inp" value={month} onChange={e=>setMonth(e.target.value)} style={{width:80}}>{['01','02','03','04','05','06','07','08','09','10','11','12'].map(m=><option key={m} value={m}>{m}월</option>)}</select>}
+        {period==='quarterly' && <select className="form-inp" value={qtr} onChange={e=>setQtr(e.target.value)} style={{width:80}}>{[1,2,3,4].map(q=><option key={q} value={q}>{q}분기</option>)}</select>}
+        {period==='semi'      && <select className="form-inp" value={half} onChange={e=>setHalf(e.target.value)} style={{width:100}}><option value="1">상반기</option><option value="2">하반기</option></select>}
+        <div className="spacer"/>
+        <span style={{fontSize:10,color:'var(--text3)'}}>{label}</span>
+      </div>
+
+      <div className="cards">
+        {[
+          ['총 매출', fmt(salesT),  'var(--ok)'],
+          ['영업 지출', fmt(expT),  'var(--warn)'],
+          ['매입 비용', fmt(purT),  'var(--err)'],
+          ['순이익',    fmt(net),   net>=0?'var(--ok)':'var(--err)'],
+          ...(yoyRate!=null ? [['전년 대비', (yoyRate>=0?'+':'')+yoyRate+'%', yoyRate>=0?'var(--ok)':'var(--err)']] : []),
+        ].map(([lb,vl,c],i)=>(
+          <div className="card" key={i}><div className="card-bar" style={{background:c}}/><div className="card-lb">{lb}</div><div className="card-vl" style={{color:c,fontSize:16}}>{vl}</div></div>
+        ))}
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+        <div className="pn" style={{padding:16}}>
+          <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>손익 내역</div>
+          <table className="tbl">
+            <thead><tr><th>항목</th><th className="num">금액 (VND)</th><th className="num">비율</th></tr></thead>
+            <tbody>
+              <tr><td>매출 합계</td><td className="num" style={{color:'var(--ok)'}}>{fmt(salesT)}</td><td className="num">100%</td></tr>
+              <tr><td>(-) 영업 지출</td><td className="num" style={{color:'var(--err)'}}>-{fmt(expT)}</td><td className="num">{salesT>0?Math.round(expT/salesT*100):0}%</td></tr>
+              <tr><td>(-) 매입 비용</td><td className="num" style={{color:'var(--err)'}}>-{fmt(purT)}</td><td className="num">{salesT>0?Math.round(purT/salesT*100):0}%</td></tr>
+              <tr style={{background:'var(--gold-glow)'}}><td style={{fontWeight:600}}>순이익</td><td className="num" style={{fontWeight:700,fontSize:13,color:net>=0?'var(--ok)':'var(--err)'}}>{fmt(net)}</td><td className="num" style={{fontWeight:600}}>{salesT>0?Math.round(net/salesT*100):0}%</td></tr>
+            </tbody>
+          </table>
+          {filteredPurchase.length>0 && <>
+            <div style={{fontSize:11,fontWeight:600,margin:'12px 0 6px',color:'var(--gold-light)'}}>매입 내역</div>
+            <table className="tbl">
+              <thead><tr><th>날짜</th><th>품목</th><th>분류</th><th className="num">금액</th></tr></thead>
+              <tbody>{filteredPurchase.map((p,i)=>(
+                <tr key={i}><td>{p.date}</td><td>{p.item}</td><td>{p.category}</td><td className="num">{fmt(p.total)}</td></tr>
+              ))}</tbody>
+            </table>
+          </>}
+        </div>
+        {months.length>0 && (
+          <div className="pn" style={{padding:16}}>
+            <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>월별 매출 현황</div>
+            {months.map(m=>(
+              <div key={m} className="month-bar-row">
+                <div className="month-label">{m}</div>
+                <div style={{flex:1}}>
+                  <div className="bar-wrap">
+                    <div className="bar-fill" style={{width:Math.round(byMo[m].sales/maxMoSales*100)+'%',background:'var(--gold)'}}/>
+                  </div>
+                </div>
+                <div className="month-val" style={{color:'var(--gold-light)'}}>{fmt(byMo[m].sales)}</div>
+                <div className="month-val" style={{color:'var(--err)',fontSize:9}}>-{fmt(byMo[m].exp)}</div>
+              </div>
+            ))}
+            <div style={{marginTop:12,padding:'8px 0',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-between',fontSize:11}}>
+              <span style={{color:'var(--text2)'}}>총 {months.length}개월 합계</span>
+              <span style={{fontWeight:700,color:'var(--gold-light)'}}>{fmt(salesT)}</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-    <div className="pn" style={{padding:16}}>
-      <div style={{fontSize:11,color:'var(--text2)',marginBottom:10}}>기간: {dates[0]||'-'} ~ {dates[dates.length-1]||'-'} ({dates.length}일)</div>
-      <table className="tbl"><thead><tr><th>항목</th><th className="num">금액 (VND)</th><th className="num">비율</th></tr></thead>
-      <tbody>
-        <tr><td>매출 합계</td><td className="num" style={{color:'var(--ok)'}}>{fmt(salesT)}</td><td className="num">100%</td></tr>
-        <tr><td>(-) 영업 지출</td><td className="num" style={{color:'var(--err)'}}>-{fmt(expT)}</td><td className="num">{salesT>0?Math.round(expT/salesT*100):0}%</td></tr>
-        <tr><td>(-) 매입 비용</td><td className="num" style={{color:'var(--err)'}}>-{fmt(purT)}</td><td className="num">{salesT>0?Math.round(purT/salesT*100):0}%</td></tr>
-        <tr style={{background:'var(--gold-glow)'}}><td style={{fontWeight:600}}>순이익</td><td className="num" style={{fontWeight:700,fontSize:13,color:net>=0?'var(--ok)':'var(--err)'}}>{fmt(net)}</td><td className="num" style={{fontWeight:600}}>{salesT>0?Math.round(net/salesT*100):0}%</td></tr>
-      </tbody></table>
-    </div></div>);
+  );
 }
 
 function App() {
@@ -65,7 +220,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <style>{ CSS }</style>
+      <style>{ CSS }{ CLOSING_CSS }</style>
       <div className="app">
         <div className="hdr">
           <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>

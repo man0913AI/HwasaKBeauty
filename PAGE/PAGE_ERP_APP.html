@@ -175,6 +175,7 @@ const pgName = (code) => { const p = MASTER.program.find(x=>x.code===code); retu
 
 const MENUS = [
   { id:'master', label:'마스터', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06' },
+  { id:'customer', label:'고객', icon:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8' },
   { id:'sales', label:'매출', icon:'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
   { id:'purchase', label:'매입', icon:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0' },
   { id:'settlement', label:'결산', icon:'M18 20V10 M12 20V4 M6 20v-6' },
@@ -183,7 +184,8 @@ const MENUS = [
   { id:'salary', label:'월급여', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87' },
 ];
 const SUB_TABS = {
-  master:['프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처'],
+  master:['프로그램','메뉴(HEAD)','��뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'],
+  customer:['고객 목록','고객 상세'],
   sales:['일일 입력','매출 내역','월별 요약'],
   purchase:['매입 입력','매입 내역','통계'],
   settlement:['월말','분기','반기','년간'],
@@ -198,6 +200,61 @@ const SUB_TABS = {
 const DataService = {
   _store: {
     master: MASTER,
+    customers: [
+      { id:'C001', name:'김민준', nameEn:'', phone:'0912-345-6789', gender:'남', birth:'1994-05-12', grade:'GOLD', firstVisit:'2025-08-15', area:'미딩', memo:'탈모 관심', mileage:125000,
+        payments:[
+          {date:'2026-03-02',menu:'화사케어 A',amount:880000,method:'현금',tip:100000},
+          {date:'2026-03-15',menu:'탈모케어',amount:1100000,method:'카드',tip:100000},
+          {date:'2026-04-01',menu:'화사케어 B',amount:660000,method:'현금',tip:100000},
+        ],
+        history:[
+          {date:'2026-03-02',menu:'화사케어 A',therapist:'홍',note:'첫 방문, 복합성 피부'},
+          {date:'2026-03-15',menu:'탈모케어',therapist:'홍',note:'두피 상태 양호'},
+          {date:'2026-04-01',menu:'화사케어 B',therapist:'옌',note:'색소 개선 중'},
+        ]},
+      { id:'C002', name:'Nguyễn Mai', nameEn:'Nguyen Mai', phone:'0987-654-3210', gender:'여', birth:'1990-11-03', grade:'VIP', firstVisit:'2025-06-01', area:'꺼우저이', memo:'정기 관리 고객', mileage:350000,
+        payments:[
+          {date:'2026-02-20',menu:'VIP케어',amount:1650000,method:'카드',tip:100000},
+          {date:'2026-03-10',menu:'HIFU 리프팅',amount:2200000,method:'카드',tip:100000},
+          {date:'2026-03-28',menu:'화사케어 A',amount:880000,method:'현금',tip:100000},
+          {date:'2026-04-05',menu:'VIP케어',amount:1650000,method:'카드',tip:100000},
+        ],
+        history:[
+          {date:'2026-02-20',menu:'VIP케어',therapist:'홍',note:'전신 관리, 만족'},
+          {date:'2026-03-10',menu:'HIFU 리프팅',therapist:'홍',note:'리프팅 1회차'},
+          {date:'2026-03-28',menu:'화사케어 A',therapist:'투이',note:'수분 부족'},
+          {date:'2026-04-05',menu:'VIP케어',therapist:'홍',note:'리프팅 후 관리'},
+        ]},
+      { id:'C003', name:'박서연', nameEn:'', phone:'0968-111-2222', gender:'여', birth:'1988-02-28', grade:'CLUB', firstVisit:'2026-01-10', area:'동다', memo:'', mileage:55000,
+        payments:[
+          {date:'2026-01-10',menu:'기본관리',amount:440000,method:'현금',tip:100000},
+          {date:'2026-02-14',menu:'아쿠아필링',amount:550000,method:'카드',tip:100000},
+        ],
+        history:[
+          {date:'2026-01-10',menu:'기본관리',therapist:'옌',note:'첫 방문'},
+          {date:'2026-02-14',menu:'아쿠아필링',therapist:'옌',note:'모공 관리 시작'},
+        ]},
+      { id:'C004', name:'Trần Hùng', nameEn:'Tran Hung', phone:'0945-333-4444', gender:'남', birth:'1985-07-20', grade:'', firstVisit:'2026-03-20', area:'미딩', memo:'골프 후 관리', mileage:0,
+        payments:[
+          {date:'2026-03-20',menu:'골프케어 A',amount:1320000,method:'카드',tip:100000},
+        ],
+        history:[
+          {date:'2026-03-20',menu:'골프케어 A',therapist:'홍',note:'골프 후 바디+페이스'},
+        ]},
+      { id:'C005', name:'이수진', nameEn:'', phone:'0932-555-6666', gender:'여', birth:'1992-09-15', grade:'BRONZE', firstVisit:'2025-11-05', area:'떠이호', memo:'민감성 피부 주의', mileage:88000,
+        payments:[
+          {date:'2025-11-05',menu:'기본관리',amount:440000,method:'현금',tip:100000},
+          {date:'2025-12-10',menu:'화사케어 C',amount:440000,method:'현금',tip:100000},
+          {date:'2026-01-20',menu:'화사케어 B',amount:660000,method:'카드',tip:100000},
+          {date:'2026-03-05',menu:'RF 고주파',amount:1100000,method:'카드',tip:100000},
+        ],
+        history:[
+          {date:'2025-11-05',menu:'기본관리',therapist:'옌',note:'첫 방문, 민감성'},
+          {date:'2025-12-10',menu:'화사케어 C',therapist:'옌',note:'자극 없이 진행'},
+          {date:'2026-01-20',menu:'화사케어 B',therapist:'투이',note:'피부결 개선'},
+          {date:'2026-03-05',menu:'RF 고주파',therapist:'홍',note:'탄력 개선 시작'},
+        ]},
+    ],
     sales: {},
     purchase: [
       { id:'p001', date:'2026-03-05', supplier:'화장품 도매', item:'앰플 세트', category:'원재료', qty:5, unitPrice:4000000, total:20000000, note:'' },
@@ -410,6 +467,131 @@ body{font-family:'Instrument Sans','Noto Sans KR',sans-serif;background:var(--bg
 .toolbar .spacer{flex:1;}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:12px;}
 `;
+
+/* ════════════════════════════════════════
+   CUSTOMER MANAGEMENT — 고객관리
+   ════════════════════════════════════════ */
+function CustomerList({onSelect}) {
+  const [list,setList]=useState([]);const [search,setSearch]=useState('');
+  useEffect(()=>{DataService.read('customers').then(setList);},[]);
+  const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
+  return (<div className="fade-in">
+    <div className="toolbar">
+      <input className="form-inp" placeholder="고객 검색 (이름/코드/연락처)" value={search} onChange={e=>setSearch(e.target.value)} style={{width:250}}/>
+      <div className="spacer"/>
+      <span style={{fontSize:10,color:'var(--text3)'}}>총 {filtered.length}명</span>
+    </div>
+    <div className="pn"><table className="tbl">
+      <thead><tr><th>코드</th><th>이름</th><th>연락처</th><th>등급</th><th>첫방문</th><th className="num">마일리지</th><th className="num">방문횟수</th><th className="num">총 결제</th></tr></thead>
+      <tbody>{filtered.map(c=>{const totalPay=c.payments.reduce((a,p)=>a+p.amount,0);return(
+        <tr key={c.id} onClick={()=>onSelect(c)} style={{cursor:'pointer'}}>
+          <td style={{color:'var(--text3)'}}>{c.id}</td>
+          <td style={{fontWeight:600}}>{c.name}{c.nameEn?<span style={{color:'var(--text3)',fontSize:10,marginLeft:4}}>({c.nameEn})</span>:''}</td>
+          <td>{c.phone}</td>
+          <td>{c.grade?<span className={`sts ${c.grade==='VIP'||c.grade==='VVIP'?'sts-warn':c.grade==='GOLD'?'sts-ok':'sts-info'}`}>{c.grade}</span>:'-'}</td>
+          <td>{c.firstVisit}</td>
+          <td className="num" style={{color:'var(--gold-light)'}}>{fmt(c.mileage)}</td>
+          <td className="num">{c.history.length}회</td>
+          <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(totalPay)}</td>
+        </tr>);})}
+      </tbody>
+    </table></div>
+  </div>);
+}
+
+function CustomerRegister({onDone}) {
+  const [form,setForm]=useState({name:'',nameEn:'',phone:'',gender:'여',birth:'',grade:'',area:'',memo:''});
+  const up=(k,v)=>setForm(p=>({...p,[k]:v}));
+  const save=async()=>{
+    if(!form.name||!form.phone){alert('이름과 연락처는 필수입니다.');return;}
+    const list=await DataService.read('customers');
+    const maxId=list.reduce((a,c)=>Math.max(a,parseInt(c.id.replace('C',''))||0),0);
+    const newC={...form,id:'C'+String(maxId+1).padStart(3,'0'),firstVisit:today(),mileage:0,payments:[],history:[]};
+    list.push(newC);await DataService.write('customers',list);
+    alert(newC.name+' 고객이 등록되었습니다.');if(onDone)onDone(newC);
+  };
+  return (<div className="fade-in">
+    <div className="pn" style={{padding:18}}>
+      <div style={{fontSize:13,fontWeight:600,marginBottom:14}}>신규 고객 등록</div>
+      <div className="form-grid">
+        <div className="form-g"><label className="form-l">이름 *</label><input className="form-inp" value={form.name} onChange={e=>up('name',e.target.value)} placeholder="홍길동"/></div>
+        <div className="form-g"><label className="form-l">영문/베트남명</label><input className="form-inp" value={form.nameEn} onChange={e=>up('nameEn',e.target.value)} placeholder="Hong Gildong"/></div>
+        <div className="form-g"><label className="form-l">연락처 *</label><input className="form-inp" value={form.phone} onChange={e=>up('phone',e.target.value)} placeholder="0912-345-6789"/></div>
+        <div className="form-g"><label className="form-l">성별</label><select className="form-inp" value={form.gender} onChange={e=>up('gender',e.target.value)}><option>여</option><option>남</option></select></div>
+        <div className="form-g"><label className="form-l">생년월일</label><input type="date" className="form-inp" value={form.birth} onChange={e=>up('birth',e.target.value)}/></div>
+        <div className="form-g"><label className="form-l">멤버 등급</label><select className="form-inp" value={form.grade} onChange={e=>up('grade',e.target.value)}>{MEMBER_GRADES.map(g=><option key={g} value={g}>{g||'(없음)'}</option>)}</select></div>
+        <div className="form-g"><label className="form-l">거주 지역</label><input className="form-inp" value={form.area} onChange={e=>up('area',e.target.value)} placeholder="미딩"/></div>
+        <div className="form-g"><label className="form-l">메모</label><input className="form-inp" value={form.memo} onChange={e=>up('memo',e.target.value)}/></div>
+      </div>
+      <button className="btn btn-g" onClick={save}>등록</button>
+    </div>
+  </div>);
+}
+
+function CustomerDetail({customer,onBack}) {
+  const c=customer;if(!c) return <div className="empty">고객을 선택해주세요</div>;
+  const totalPay=c.payments.reduce((a,p)=>a+p.amount,0);
+  const totalTip=c.payments.reduce((a,p)=>a+(p.tip||0),0);
+  return (<div className="fade-in">
+    <div className="toolbar"><button className="btn btn-s" onClick={onBack}>← 목록</button><span style={{fontSize:13,fontWeight:600}}>{c.name}</span><span style={{fontSize:10,color:'var(--text3)',marginLeft:8}}>{c.id}</span></div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+      {/* 좌측: 기초정보 + 마일리지 + 관리이력 */}
+      <div>
+        <div className="pn" style={{padding:16}}>
+          <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>기초 정보</div>
+          {[['코드',c.id],['이름',c.name+(c.nameEn?' ('+c.nameEn+')':'')],['연락처',c.phone],['성별',c.gender],['생년월일',c.birth||'-'],['등급',c.grade||'-'],['첫 방문일',c.firstVisit],['지역',c.area||'-'],['메모',c.memo||'-']].map(([k,v],i)=>(
+            <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid var(--border)',fontSize:11}}>
+              <span style={{color:'var(--text2)'}}>{k}</span><span style={{fontWeight:500}}>{v}</span>
+            </div>
+          ))}
+        </div>
+        <div className="pn" style={{padding:16,marginTop:0}}>
+          <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>마일리지</div>
+          <div style={{fontSize:24,fontWeight:700,color:'var(--gold-light)',marginBottom:6}}>{fmt(c.mileage)}₫</div>
+          <div style={{fontSize:10,color:'var(--text3)'}}>총 결제: {fmt(totalPay)}₫ · 총 팁: {fmt(totalTip)}₫ · 방문: {c.history.length}회</div>
+        </div>
+        <div className="pn" style={{padding:0,marginTop:0}}>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>관리 이력 ({c.history.length}건)</div>
+          <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th>담당</th><th>메모</th></tr></thead>
+          <tbody>{[...c.history].reverse().map((h,i)=>(
+            <tr key={i}><td style={{color:'var(--gold-light)',fontWeight:500}}>{h.date}</td><td>{h.menu}</td><td>{h.therapist}</td><td style={{color:'var(--text2)'}}>{h.note}</td></tr>
+          ))}</tbody></table>
+        </div>
+      </div>
+      {/* 우측: 결제정보 */}
+      <div>
+        <div className="cards" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
+          <div className="card"><div className="card-bar" style={{background:'var(--gold)'}}/><div className="card-lb">총 결제</div><div className="card-vl" style={{fontSize:16}}>{fmt(totalPay)}</div></div>
+          <div className="card"><div className="card-bar" style={{background:'var(--ok)'}}/><div className="card-lb">총 팁</div><div className="card-vl" style={{fontSize:16}}>{fmt(totalTip)}</div></div>
+          <div className="card"><div className="card-bar" style={{background:'var(--info)'}}/><div className="card-lb">방문</div><div className="card-vl" style={{fontSize:16}}>{c.history.length}회</div></div>
+        </div>
+        <div className="pn" style={{padding:0}}>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>결제 내역 ({c.payments.length}건)</div>
+          <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th className="num">금액</th><th>결제</th><th className="num">팁</th></tr></thead>
+          <tbody>{[...c.payments].reverse().map((p,i)=>(
+            <tr key={i}>
+              <td style={{fontWeight:500}}>{p.date}</td><td>{p.menu}</td>
+              <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.amount)}</td>
+              <td><span className={`sts ${p.method==='현금'?'sts-ok':'sts-info'}`}>{p.method}</span></td>
+              <td className="num" style={{color:'var(--ok)'}}>{fmt(p.tip)}</td>
+            </tr>
+          ))}</tbody></table>
+        </div>
+        <div className="pn" style={{padding:16,marginTop:0}}>
+          <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>결제 수단별 합계</div>
+          {(() => {
+            const byMethod={};c.payments.forEach(p=>{byMethod[p.method]=(byMethod[p.method]||0)+p.amount;});
+            return Object.entries(byMethod).map(([m,a],i)=>(
+              <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',fontSize:11}}>
+                <span>{m}</span><span style={{fontWeight:600}}>{fmt(a)}₫</span>
+              </div>
+            ));
+          })()}
+        </div>
+      </div>
+    </div>
+  </div>);
+}
 
 /* ════════════════════════════════════════
    SALES DAILY INPUT — SPREADSHEET
@@ -908,7 +1090,7 @@ function MasterMenuBody(){
   return (<div className="fade-in">
     <MasterTable title="메뉴 구성 (MENU_BODY) — 프로그램 라우트" dataKey="menuBody" columns={[
       {k:'id',l:'ID',w:55,t:'tx'},
-      {k:'menuCode',l:'메뉴',w:70,t:'sel',opts:MASTER.menuHead.map(m=>m.code)},
+      {k:'menuCode',l:'메뉴',w:130,t:'sel',opts:MASTER.menuHead.map(m=>m.code+' '+m.name)},
       {k:'pgCode',l:'프로그램',w:70,t:'sel',opts:pgOpts},
       {k:'time',l:'시간',w:65,t:'sel',opts:TIME_OPTS},
       {k:'seq',l:'순서',w:45,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
@@ -980,6 +1162,7 @@ function App() {
   const [subTab,setSub]=useState(0);
   const [now,setNow]=useState(new Date());
   const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
+  const [selCustomer,setSelCustomer]=useState(null);
 
   useEffect(()=>{
     if(!user){window.location.href='PAGE_ERP.html';return;}
@@ -1001,7 +1184,8 @@ function App() {
 
   const renderContent=()=>{
     switch(menu){
-      case 'master': return subTab===0?<MasterProgram/>:subTab===1?<MasterMenuHead/>:subTab===2?<MasterMenuBody/>:subTab===3?<MasterEvents/>:subTab===4?<MasterEmployees/>:subTab===5?<MasterGrades/>:subTab===6?<MasterExpenseItems/>:subTab===7?<MasterPurchaseCats/>:<MasterSuppliers/>;
+      case 'master': return subTab===0?<MasterProgram/>:subTab===1?<MasterMenuHead/>:subTab===2?<MasterMenuBody/>:subTab===3?<MasterEvents/>:subTab===4?<MasterEmployees/>:subTab===5?<MasterGrades/>:subTab===6?<MasterExpenseItems/>:subTab===7?<MasterPurchaseCats/>:subTab===8?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>;
+      case 'customer': return subTab===0?<CustomerList onSelect={c=>{setSelCustomer(c);setSub(1);}}/>:<CustomerDetail customer={selCustomer} onBack={()=>setSub(0)}/>;
       case 'sales': return subTab===0?<SalesDailyInput/>:subTab===1?<SalesList/>:<SalesMonthlySummary/>;
       case 'purchase': return subTab===0?<PurchaseInput/>:subTab===1?<PurchaseList/>:<PurchaseStats/>;
       case 'settlement': return <Settlement period={['monthly','quarterly','semi','annual'][subTab]}/>;

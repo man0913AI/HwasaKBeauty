@@ -49,12 +49,16 @@ function calcTipsByEmp(salesData, ym) {
   Object.entries(salesData).forEach(([date, dayData]) => {
     if (!date.startsWith(ym)) return;
     (dayData.rows||[]).forEach(row => {
-      // 담당자 매핑 없으므로 팁을 균등 분배 (실제는 메뉴별 담당자 필드 추가 후 개선)
-      // 현재 구조상 tipDeduct만 존재, 균등 분배
-      if (Number(row.tipDeduct) > 0) {
-        const perEmp = Math.round(Number(row.tipDeduct) / EMPLOYEES.length);
-        EMPLOYEES.forEach(e => { byEmp[e.name] = (byEmp[e.name]||0) + perEmp; });
+      const tip = Number(row.tipDeduct) || 0;
+      if (!tip) return;
+      // therapist 필드가 있으면 해당 직원에게 전액 집계
+      if (row.therapist) {
+        const emp = EMPLOYEES.find(e => e.nameKr === row.therapist);
+        if (emp) { byEmp[emp.name] = (byEmp[emp.name]||0) + tip; return; }
       }
+      // therapist 없으면 균등 분배
+      const perEmp = Math.round(tip / EMPLOYEES.length);
+      EMPLOYEES.forEach(e => { byEmp[e.name] = (byEmp[e.name]||0) + perEmp; });
     });
   });
   return byEmp;

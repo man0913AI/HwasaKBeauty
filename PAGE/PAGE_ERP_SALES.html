@@ -181,7 +181,7 @@ function SalesDailyInput() {
   useEffect(() => { DataService.read('customers').then(setCust); }, []);
 
   const mkSaleRow = (no, date) => ({
-    no, date, name:'', grade:'', service:'',
+    no, date, name:'', grade:'', service:'', therapist:'',
     hair:false, event:false, vip:false,
     deductAmt:0, deduct:0, tipDeduct:0,
     cash:0, deposit:0, card:0, krw:0, unpaid:0,
@@ -253,6 +253,7 @@ function SalesDailyInput() {
               <th style={{minWidth:30}}>No</th>
               <th style={{minWidth:90}}>고객명</th>
               <th style={{minWidth:75}}>멤버등급</th>
+              <th style={{minWidth:70}}>담당자</th>
               <th style={{minWidth:140}}>메뉴</th>
               <th style={{minWidth:30}}>탈모</th><th style={{minWidth:40}}>이벤트</th><th style={{minWidth:30}}>VIP</th>
               <th style={{minWidth:80}}>차감금액</th><th style={{minWidth:55}}>차감</th>
@@ -278,6 +279,8 @@ function SalesDailyInput() {
                 </td>
                 {/* 멤버등급 */}
                 <td><select value={row.grade||''} onChange={e=>upRow(ri,'grade',e.target.value)}>{MEMBER_GRADES.map(o=><option key={o} value={o}>{o||'-'}</option>)}</select></td>
+                {/* 담당자 */}
+                <td><select value={row.therapist||''} onChange={e=>upRow(ri,'therapist',e.target.value)} style={{width:'100%',height:'100%',background:'transparent',border:'none',outline:'none',color:'var(--text)',fontSize:10.5,padding:'3px 5px',fontFamily:'inherit'}}><option value=''>-</option>{EMPLOYEES.map(e=><option key={e.name} value={e.nameKr}>{e.nameKr}</option>)}</select></td>
                 {/* 메뉴 */}
                 <td>
                   <div style={{display:'flex',alignItems:'center',height:'100%'}}>
@@ -306,7 +309,7 @@ function SalesDailyInput() {
               </tr>
             ))}
             <tr className="ss-total">
-              <td colSpan={7} style={{textAlign:'right',paddingRight:8}}>합계</td>
+              <td colSpan={8} style={{textAlign:'right',paddingRight:8}}>합계</td>
               <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.dAmt)}</td>
               <td style={{padding:'5px 6px',textAlign:'right'}}>{totals.dCnt}</td>
               <td style={{padding:'5px 6px',textAlign:'right'}}>{fmt(totals.tip)}</td>

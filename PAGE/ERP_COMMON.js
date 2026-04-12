@@ -481,6 +481,61 @@ const getUser = () => {
 };
 
 /* ════════════════════════════════════════
+   권한 관리 (Phase 6)
+   ════════════════════════════════════════ */
+const ROLE_MAP = {
+  admin      : 'admin',    // 전체 접근
+  galaxy0219 : 'director', // 원장: 매출/출퇴근/급여/결산
+  manager    : 'manager',  // 매니저: 매출/출퇴근
+};
+
+// NAV_ITEMS ID 기준 (closing/contract/commute)
+// ERP_PAGES ID 별칭 (settlement/contracts/attendance) 도 포함
+const ROLE_MENUS = {
+  admin    : ['master','customer','sales','purchase','closing','contract','commute','salary',
+              'settlement','contracts','attendance'],
+  director : ['sales','commute','salary','closing','settlement','attendance'],
+  manager  : ['sales','commute','attendance'],
+};
+
+const AuthService = {
+  // 현재 로그인 사용자의 role 반환
+  getRole() {
+    const objUser = getUser();
+    if (!objUser) return null;
+    return ROLE_MAP[objUser.id] || 'manager';
+  },
+
+  // 특정 메뉴 접근 가능 여부
+  bCanAccess(strMenuId) {
+    const strRole = this.getRole();
+    if (!strRole) return false;
+    return (ROLE_MENUS[strRole] || []).includes(strMenuId);
+  },
+
+  // 현재 페이지 접근 권한 체크 — 차단 시 메시지 표시 후 false 반환
+  bCheckPageAccess(strMenuId) {
+    if (!getUser()) { window.location.href = 'PAGE_ERP.html'; return false; }
+    if (!this.bCanAccess(strMenuId)) {
+      document.body.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a0a;color:#B8956A;font-family:'Noto Sans KR',sans-serif;flex-direction:column;gap:16px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#B8956A" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <h2 style="margin:0;font-size:18px;">접근 권한이 없습니다</h2>
+          <p style="margin:0;color:#888;font-size:13px;">이 페이지는 ${this.getRole() === 'manager' ? '원장 이상' : '관리자'}만 접근 가능합니다.</p>
+          <button onclick="history.back()" style="margin-top:8px;padding:8px 24px;background:#B8956A;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">돌아가기</button>
+        </div>`;
+      return false;
+    }
+    return true;
+  },
+
+  // 네비게이션에서 접근 불가 메뉴 숨김 처리용 필터
+  lstFilteredNav(lstNavItems) {
+    return lstNavItems.filter(item => this.bCanAccess(item.id));
+  },
+};
+
+/* ════════════════════════════════════════
    BACKUP / RESTORE (Phase 6)
    ════════════════════════════════════════ */
 const BackupService = {

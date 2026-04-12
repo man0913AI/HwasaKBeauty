@@ -149,3 +149,15 @@ function _fail(msg) {
     .createTextOutput(JSON.stringify({ ok: false, error: msg }))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+// ── 배포 가이드 (참고용) ────────────────────────────────────────
+// 1. https://script.google.com → 새 프로젝트
+// 2. Code.gs, Init.gs 파일 붙여넣기
+// 3. SPREADSHEET_ID 값을 실제 스프레드시트 ID로 교체
+//    (스프레드시트 URL: https://docs.google.com/spreadsheets/d/[여기가 ID]/edit)
+// 4. 편집기 상단 ▶ 버튼 클릭 → initializeAll() 실행 (한 번만)
+// 5. 배포 → 새 배포 → 유형: 웹 앱
+//    - 실행 계정: 나
+//    - 액세스: 모든 사용자 (익명 포함)
+// 6. 배포 URL 복사 → ERP_COMMON.js 의 APPS_SCRIPT_URL 변수에 붙여넣기
+//    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/[ID]/exec';

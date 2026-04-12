@@ -16,7 +16,7 @@
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['고객 목록','고객 상세'];
+const SUB_TABS = ['고객 목록','고객 상세','고객 등록'];
 
 /* ════════════════════════════════════════
    CUSTOMER MANAGEMENT — 고객관리
@@ -156,7 +156,11 @@ function App() {
   if(!user) return null;
   const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
 
-  const renderContent=()=>{ return subTab===0?<CustomerList onSelect={c=>{setSelCustomer(c);setSub(1);}}/>:<CustomerDetail customer={selCustomer} onBack={()=>setSub(0)}/>; };
+  const renderContent=()=>{
+    if(subTab===0) return <CustomerList onSelect={c=>{setSelCustomer(c);setSub(1);}}/>;
+    if(subTab===1) return <CustomerDetail customer={selCustomer} onBack={()=>setSub(0)}/>;
+    return <CustomerRegister onDone={c=>{setSelCustomer(c);setSub(1);}}/>;
+  };
 
   return (
     <React.Fragment>

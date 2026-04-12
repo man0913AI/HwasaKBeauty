@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" crossorigin></script>
   <script src="ERP_COMMON.js"></script>
 </head>
 <body>
@@ -28,6 +29,8 @@ const CLOSING_CSS = `
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .toolbar{display:flex;align-items:center;gap:7px;margin-bottom:10px;flex-wrap:wrap;}
 .toolbar .spacer{flex:1;}
+.btn-export{background:var(--gold);color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;}
+.btn-export:hover{background:#d4a017;}
 `;
 
 /* ── 날짜 범위 계산 ──────────────────────────────────────── */
@@ -133,6 +136,45 @@ function Settlement({period}) {
   },0);
   const yoyRate = prevSalesT > 0 ? Math.round((salesT-prevSalesT)/prevSalesT*100) : null;
 
+  // 엑셀 내보내기 함수
+  const exportToExcel = useCallback(() => {
+    try {
+      if (!window.XLSX) { alert('SheetJS 라이브러리 로드 실패. 새로고침 후 다시 시도하세요.'); return; }
+      const strFileName = `HSKB_결산_${year}${month}.xlsx`;
+      const objWb = XLSX.utils.book_new();
+
+      // 손익 내역 시트
+      const lstProfitData = [
+        { 항목: '매출 합계', 금액: salesT, 비율: '100%' },
+        { 항목: '(-) 영업 지출', 금액: -expT, 비율: salesT>0 ? Math.round(expT/salesT*100)+'%' : '0%' },
+        { 항목: '(-) 매입 비용', 금액: -purT, 비율: salesT>0 ? Math.round(purT/salesT*100)+'%' : '0%' },
+        { 항목: '순이익', 금액: net, 비율: salesT>0 ? Math.round(net/salesT*100)+'%' : '0%' },
+      ];
+      if (yoyRate != null) {
+        lstProfitData.push({ 항목: '전년 대비', 금액: (yoyRate>=0?'+':'')+yoyRate+'%', 비율: yoyRate>=0?'증':'감' });
+      }
+      XLSX.utils.book_append_sheet(objWb, XLSX.utils.json_to_sheet(lstProfitData), '손익내역');
+
+      // 월별 매출 시트
+      const lstMonthlyData = months.map(m => {
+        const objMo = byMo[m];
+        return { 월: m, 매출: objMo.sales, 지출: objMo.exp, 순이익: objMo.sales - objMo.exp };
+      });
+      XLSX.utils.book_append_sheet(objWb, XLSX.utils.json_to_sheet(lstMonthlyData), '월별매출');
+
+      // 매입 내역 시트
+      const lstPurchaseData = filteredPurchase.map(p => ({
+        날짜: p.date, 품목: p.item, 분류: p.category, 금액: p.total
+      }));
+      XLSX.utils.book_append_sheet(objWb, XLSX.utils.json_to_sheet(lstPurchaseData), '매입내역');
+
+      XLSX.writeFile(objWb, strFileName);
+    } catch (objErr) {
+      console.error('엑셀 내보내기 오류:', objErr);
+      alert('엑셀 파일 생성 중 오류가 발생했습니다.');
+    }
+  }, [year, month, salesT, expT, purT, net, yoyRate, months, byMo, filteredPurchase]);
+
   return (
     <div className="fade-in">
       <div className="toolbar">
@@ -142,6 +184,7 @@ function Settlement({period}) {
         {period==='semi'      && <select className="form-inp" value={half} onChange={e=>setHalf(e.target.value)} style={{width:100}}><option value="1">상반기</option><option value="2">하반기</option></select>}
         <div className="spacer"/>
         <span style={{fontSize:10,color:'var(--text3)'}}>{label}</span>
+        <button className="btn-export" onClick={exportToExcel}>엑셀 내보내기</button>
       </div>
 
       <div className="cards">

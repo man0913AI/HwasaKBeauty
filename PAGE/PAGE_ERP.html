@@ -204,9 +204,7 @@
       sessionStorage.setItem("hskb_erp_user", JSON.stringify({ id, ...acc }));
 
       setTimeout(() => {
-        window.open("PAGE_ERP_SALES.html", "_blank");
-        btn.disabled = false;
-        btn.classList.remove("loading");
+        window.location.href = "PAGE_ERP_SALES.html";
       }, 700);
     }
 

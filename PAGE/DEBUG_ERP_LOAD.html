@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERP Load Debug</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans KR', monospace;
+      background: #0D0D0F;
+      color: #F0ECE6;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .log-section {
+      margin-bottom: 20px;
+      background: #1A1A1F;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 3px solid #B8956A;
+    }
+    .log-section h3 {
+      color: #D4B896;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .log-item {
+      font-size: 12px;
+      margin-bottom: 5px;
+      padding: 5px;
+      background: #0D0D0F;
+      border-radius: 4px;
+    }
+    .ok { color: #6BCB77; }
+    .err { color: #FF6B6B; }
+    .warn { color: #FFB347; }
+    .info { color: #4D96FF; }
+    button {
+      background: #B8956A;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    button:hover { background: #A07D56; }
+  </style>
+</head>
+<body>
+  <h1>🔍 ERP 페이지 로딩 디버그</h1>
+
+  <div class="log-section">
+    <h3>1️⃣ 세션 스토리지 상태</h3>
+    <div id="session-log"></div>
+  </div>
+
+  <div class="log-section">
+    <h3>2️⃣ ERP_COMMON.js 로드 상태</h3>
+    <div id="common-log"></div>
+  </div>
+
+  <div class="log-section">
+    <h3>3️⃣ React & Babel 로드 상태</h3>
+    <div id="react-log"></div>
+  </div>
+
+  <div class="log-section">
+    <h3>4️⃣ MASTER 데이터</h3>
+    <div id="master-log"></div>
+  </div>
+
+  <div class="log-section">
+    <h3>5️⃣ ERP_PAGES 네비게이션</h3>
+    <div id="pages-log"></div>
+  </div>
+
+  <div class="log-section">
+    <h3>🔧 테스트 액션</h3>
+    <button onclick="testLogin()">1. 로그인 시뮬레이션</button>
+    <button onclick="goToSales()">2. 매출 페이지로 이동</button>
+    <button onclick="checkAllPages()">3. 모든 페이지 체크</button>
+    <button onclick="location.href='PAGE_ERP_SALES.html'">4. 실제 매출 페이지</button>
+  </div>
+
+  <script>
+    const log = (id, msg, type = 'info') => {
+      const el = document.getElementById(id);
+      const item = document.createElement('div');
+      item.className = `log-item ${type}`;
+      item.textContent = msg;
+      el.appendChild(item);
+    };
+
+    // 1️⃣ 세션 스토리지 확인
+    const user = sessionStorage.getItem('hskb_erp_user');
+    if (user) {
+      try {
+        const obj = JSON.parse(user);
+        log('session-log', `✓ 사용자 저장됨: ${obj.name} (${obj.id})`, 'ok');
+      } catch(e) {
+        log('session-log', `✗ JSON 파싱 실패: ${e.message}`, 'err');
+      }
+    } else {
+      log('session-log', '⚠ 사용자 정보 없음 (미로그인)', 'warn');
+    }
+
+    // 2️⃣ ERP_COMMON.js 로드
+    if (typeof MASTER !== 'undefined') {
+      log('common-log', `✓ MASTER 객체 로드됨`, 'ok');
+      log('common-log', `  - 프로그램: ${MASTER.program.length}개`, 'info');
+      log('common-log', `  - 메뉴HEAD: ${MASTER.menuHead.length}개`, 'info');
+      log('common-log', `  - 메뉴BODY: ${MASTER.menuBody?.length || 0}개`, 'info');
+      log('common-log', `  - 이벤트: ${MASTER.events?.length || 0}개`, 'info');
+      log('common-log', `  - 직원: ${MASTER.employees?.length || 0}개`, 'info');
+      log('common-log', `  - 고객: ${MASTER.customers?.length || 0}개`, 'info');
+    } else {
+      log('common-log', '✗ MASTER 객체 로드 실패', 'err');
+    }
+
+    if (typeof DataService !== 'undefined') {
+      log('common-log', `✓ DataService 로드됨`, 'ok');
+    } else {
+      log('common-log', '✗ DataService 로드 실패', 'err');
+    }
+
+    if (typeof getUser === 'function') {
+      log('common-log', `✓ getUser 함수 로드됨`, 'ok');
+    } else {
+      log('common-log', '✗ getUser 함수 로드 실패', 'err');
+    }
+
+    // 3️⃣ React 확인
+    if (typeof React !== 'undefined') {
+      log('react-log', `✓ React 로드됨 (v${React.version})`, 'ok');
+    } else {
+      log('react-log', '✗ React 로드 실패', 'err');
+    }
+
+    if (typeof ReactDOM !== 'undefined') {
+      log('react-log', `✓ ReactDOM 로드됨`, 'ok');
+    } else {
+      log('react-log', '✗ ReactDOM 로드 실패', 'err');
+    }
+
+    if (typeof Babel !== 'undefined') {
+      log('react-log', `✓ Babel 로드됨`, 'ok');
+    } else {
+      log('react-log', '✗ Babel 로드 실패', 'err');
+    }
+
+    // 4️⃣ MASTER 데이터 세부
+    if (MASTER) {
+      log('master-log', `📦 MASTER 데이터 구조:`, 'info');
+      Object.keys(MASTER).forEach(key => {
+        const val = MASTER[key];
+        if (Array.isArray(val)) {
+          log('master-log', `  ${key}: ${val.length}개 항목`, 'ok');
+        } else if (typeof val === 'object') {
+          log('master-log', `  ${key}: 객체`, 'ok');
+        }
+      });
+    }
+
+    // 5️⃣ ERP_PAGES 확인
+    if (typeof ERP_PAGES !== 'undefined') {
+      log('pages-log', `✓ ERP_PAGES 로드됨 (${ERP_PAGES.length}개)`, 'ok');
+      ERP_PAGES.forEach((p, i) => {
+        log('pages-log', `  [${i}] ${p.label} (${p.id}) → ${p.href}`, 'info');
+      });
+    } else {
+      log('pages-log', '✗ ERP_PAGES 로드 실패', 'err');
+    }
+
+    // 테스트 함수들
+    function testLogin() {
+      const testUser = {
+        id: 'admin',
+        name: '테스트 관리자',
+        role: '관리자',
+        initial: '테',
+        color: '#B8956A',
+        pw: 'hwasa2023'
+      };
+      sessionStorage.setItem('hskb_erp_user', JSON.stringify(testUser));
+      log('session-log', `✓ 테스트 로그인: ${testUser.name}`, 'ok');
+    }
+
+    function goToSales() {
+      testLogin(); // 먼저 로그인
+      setTimeout(() => {
+        log('session-log', '→ 2초 후 매출 페이지로 이동...', 'info');
+        setTimeout(() => {
+          window.location.href = 'PAGE_ERP_SALES.html';
+        }, 2000);
+      }, 100);
+    }
+
+    function checkAllPages() {
+      log('pages-log', '🔄 모든 ERP 페이지 체크 중...', 'info');
+      const pages = [
+        'PAGE_ERP.html',
+        'PAGE_ERP_SALES.html',
+        'PAGE_ERP_PURCHASE.html',
+        'PAGE_ERP_COMMUTE.html',
+        'PAGE_ERP_MEMBER_SALARY.html',
+        'PAGE_ERP_CLOSING.html',
+        'PAGE_ERP_EMPLOYEE_CONTRACT.html',
+        'PAGE_ERP_CUSTOMER_MANAGEMENT.html',
+        'PAGE_ERP_MASTER.html'
+      ];
+
+      pages.forEach((page) => {
+        fetch(page)
+          .then(r => {
+            if (r.ok) {
+              log('pages-log', `✓ ${page}`, 'ok');
+            } else {
+              log('pages-log', `✗ ${page} (HTTP ${r.status})`, 'err');
+            }
+          })
+          .catch(e => {
+            log('pages-log', `✗ ${page} (${e.message})`, 'err');
+          });
+      });
+    }
+  </script>
+
+  <script src="ERP_COMMON.js"></script>
+</body>
+</html>

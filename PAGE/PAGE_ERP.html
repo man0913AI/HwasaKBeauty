@@ -201,7 +201,7 @@
       btn.disabled = true;
       btn.classList.add("loading");
 
-      sessionStorage.setItem("hskb_erp_user", JSON.stringify({ id, ...acc }));
+      localStorage.setItem("hskb_erp_user", JSON.stringify({ id, ...acc }));
 
       setTimeout(() => {
         window.location.href = "PAGE_ERP_SALES.html";

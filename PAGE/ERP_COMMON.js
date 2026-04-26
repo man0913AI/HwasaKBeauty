@@ -477,7 +477,7 @@ const ERP_PAGES = [
 
 // 인증 체크
 const getUser = () => {
-  try { const s = sessionStorage.getItem("hskb_erp_user"); return s ? JSON.parse(s) : null; } catch { return null; }
+  try { const s = localStorage.getItem("hskb_erp_user"); return s ? JSON.parse(s) : null; } catch { return null; }
 };
 
 /* ════════════════════════════════════════

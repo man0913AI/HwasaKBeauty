@@ -48,7 +48,7 @@ const useTheme = () => useContext(ThemeCtx);
    AUTH
    ════════════════════════════════════════ */
 const getUser = () => {
-  try { const s = sessionStorage.getItem("hskb_erp_user"); return s ? JSON.parse(s) : null; } catch { return null; }
+  try { const s = localStorage.getItem("hskb_erp_user"); return s ? JSON.parse(s) : null; } catch { return null; }
 };
 
 /* ════════════════════════════════════════
@@ -1180,7 +1180,7 @@ function App() {
   if(!user) return null;
 
   const go=(id)=>{setMenu(id);setSub(0);};
-  const logout=()=>{sessionStorage.removeItem('hskb_erp_user');window.location.href='PAGE_ERP.html';};
+  const logout=()=>{localStorage.removeItem('hskb_erp_user');window.location.href='PAGE_ERP.html';};
 
   const renderContent=()=>{
     switch(menu){

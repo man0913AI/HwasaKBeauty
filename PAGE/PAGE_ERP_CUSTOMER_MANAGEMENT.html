@@ -154,7 +154,7 @@ function App() {
   useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
 
   if(!user) return null;
-  const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
+  const logout=()=>{ localStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
 
   const renderContent=()=>{
     if(subTab===0) return <CustomerList onSelect={c=>{setSelCustomer(c);setSub(1);}}/>;

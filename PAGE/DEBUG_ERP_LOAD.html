@@ -95,7 +95,7 @@
     };
 
     // 1️⃣ 세션 스토리지 확인
-    const user = sessionStorage.getItem('hskb_erp_user');
+    const user = localStorage.getItem('hskb_erp_user');
     if (user) {
       try {
         const obj = JSON.parse(user);
@@ -184,7 +184,7 @@
         color: '#B8956A',
         pw: 'hwasa2023'
       };
-      sessionStorage.setItem('hskb_erp_user', JSON.stringify(testUser));
+      localStorage.setItem('hskb_erp_user', JSON.stringify(testUser));
       log('session-log', `✓ 테스트 로그인: ${testUser.name}`, 'ok');
     }
 

@@ -416,7 +416,7 @@ function App() {
   useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
 
   if(!user) return null;
-  const logout=()=>{ sessionStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
+  const logout=()=>{ localStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
 
   const renderContent=()=>{ return subTab===0?<Dashboard/>:subTab===1?<MasterProgram/>:subTab===2?<MasterMenuHead/>:subTab===3?<MasterMenuBody/>:subTab===4?<MasterEvents/>:subTab===5?<MasterEmployees/>:subTab===6?<MasterGrades/>:subTab===7?<MasterExpenseItems/>:subTab===8?<MasterPurchaseCats/>:subTab===9?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
 

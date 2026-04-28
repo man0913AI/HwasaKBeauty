@@ -1,0 +1,110 @@
+[
+  {
+    "id": "EXP-1월-0001",
+    "date": "2026-01-01",
+    "month": "1월",
+    "rawMaterial": 0,
+    "subMaterial": 0,
+    "infrastructure": 0,
+    "labor": 0,
+    "tips": 0,
+    "other": 0,
+    "note": ""
+  },
+  {
+    "id": "EXP-1월-0002",
+    "date": "2026-01-02",
+    "month": "1월",
+    "rawMaterial": 550000,
+    "subMaterial": 0,
+    "infrastructure": 0,
+    "labor": 0,
+    "tips": 1150000,
+    "other": 171000,
+    "note": "화재기 배터리, 머미팩, 통+판"
+  },
+  {
+    "id": "EXP-1월-0003",
+    "date": "2026-01-03",
+    "month": "1월",
+    "rawMaterial": 346000,
+    "subMaterial": 263000,
+    "infrastructure": 0,
+    "labor": 0,
+    "tips": 1950000,
+    "other": 155000,
+    "note": "사과주스6박스,면봉,모델링1KG,프디신2개"
+  },
+  {
+    "id": "EXP-1월-0004",
+    "date": "2026-01-04",
+    "month": "1월",
+    "rawMaterial": 0,
+    "subMaterial": 0,
+    "infrastructure": 0,
+    "labor": 0,
+    "tips": 1250000,
+    "other": 125000,
+    "note": "물세"
+  },
+  {
+    "id": "EXP-1월-0005",
+    "date": "2026-01-05",
+    "month": "1월",
+    "rawMaterial": 0,
+    "subMaterial": 0,
+    "infrastructure": 0,
+    "labor": 0,
+    "tips": 2350000,
+    "other": 1292000,
+    "note": "커피씨5KG"
+  },
+  {
+    "id": "EXP-2월-0001",
+    "date": "2026-02-01",
+    "month": "2월",
+    "rawMaterial": 0,
+    "subMaterial": 213000,
+    "infrastructure": 0,
+    "labor": 100000000,
+    "tips": 3000000,
+    "other": 363000,
+    "note": "상담거울213k,원장님월급,빨래비150+명찬120K+화재교육택시93K"
+  },
+  {
+    "id": "EXP-2월-0002",
+    "date": "2026-02-02",
+    "month": "2월",
+    "rawMaterial": 0,
+    "subMaterial": 215000,
+    "infrastructure": 0,
+    "labor": 0,
+    "tips": 2000000,
+    "other": 406000,
+    "note": "샵신발215,프린트51+빨래355"
+  },
+  {
+    "id": "EXP-3월-0001",
+    "date": "2026-03-01",
+    "month": "3월",
+    "rawMaterial": 0,
+    "subMaterial": 0,
+    "infrastructure": 62000000,
+    "labor": 100000000,
+    "tips": 2520000,
+    "other": 155000,
+    "note": "월세,원장님월급,빨래비"
+  },
+  {
+    "id": "EXP-3월-0002",
+    "date": "2026-03-02",
+    "month": "3월",
+    "rawMaterial": 13701000,
+    "subMaterial": 0,
+    "infrastructure": 0,
+    "labor": 0,
+    "tips": 0,
+    "other": 2450000,
+    "note": "재생녹색11개,재생보라색11개,보라앰플500ML3개,썬크림11개"
+  }
+]

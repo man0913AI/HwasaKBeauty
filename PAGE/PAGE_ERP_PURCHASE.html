@@ -16,7 +16,7 @@
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['매입 입력','매입 내역','통계'];
+const PAGE_TABS = ['매입 입력','매입 내역','통계'];
 
 const PURCHASE_CATS  = MASTER.purchaseCategories.filter(c=>c.active).map(c=>c.name);
 const SUPPLIER_NAMES = MASTER.suppliers.filter(s=>s.active).map(s=>s.name);
@@ -241,7 +241,7 @@ function App() {
           </div>
         </div>
         <div className="content">
-          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+          <div className="sub-tabs">{PAGE_TABS.map((tab,i)=>(
             <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
           ))}</div>
           <div className="page" key={subTab}>{renderContent()}</div>

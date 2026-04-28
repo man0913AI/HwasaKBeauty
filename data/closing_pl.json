@@ -1,0 +1,57 @@
+[
+  {
+    "id": "PL-2025-01",
+    "year": 2025,
+    "month": 1,
+    "revenue": 245655000,
+    "cogs": 0,
+    "grossProfit": 245655000,
+    "operatingExpense": 136500000,
+    "operatingIncome": 109155000,
+    "netIncome": 0
+  },
+  {
+    "id": "PL-2025-02",
+    "year": 2025,
+    "month": 2,
+    "revenue": 278695000,
+    "cogs": 0,
+    "grossProfit": 278695000,
+    "operatingExpense": 136500000,
+    "operatingIncome": 142195000,
+    "netIncome": 0
+  },
+  {
+    "id": "PL-2025-03",
+    "year": 2025,
+    "month": 3,
+    "revenue": 360210000,
+    "cogs": 0,
+    "grossProfit": 360210000,
+    "operatingExpense": 136500000,
+    "operatingIncome": 223710000,
+    "netIncome": 0
+  },
+  {
+    "id": "PL-2025-04",
+    "year": 2025,
+    "month": 4,
+    "revenue": 278220000,
+    "cogs": 0,
+    "grossProfit": 278220000,
+    "operatingExpense": 136500000,
+    "operatingIncome": 141720000,
+    "netIncome": 0
+  },
+  {
+    "id": "PL-2025-05",
+    "year": 2025,
+    "month": 5,
+    "revenue": 315015000,
+    "cogs": 0,
+    "grossProfit": 315015000,
+    "operatingExpense": 136500000,
+    "operatingIncome": 178515000,
+    "netIncome": 0
+  }
+]

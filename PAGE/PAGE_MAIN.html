@@ -88,7 +88,7 @@
             font-size: clamp(24px, 4vw, 42px);
             color: var(--color-text-light);
             letter-spacing: 8px;
-            font-weight: 300;
+            font-weight: 700;
         }
         .loader-bar {
             width: 120px;
@@ -246,7 +246,7 @@
         .hero-desc {
             font-size: 15px;
             color: #fff;
-            font-weight: 300;
+            font-weight: 700;
             line-height: 1.8;
             margin-bottom: 40px;
             opacity: 0;
@@ -471,7 +471,7 @@
         .service-card p {
             font-size: 13px;
             color: #fff;
-            font-weight: 300;
+            font-weight: 700;
             line-height: 1.6;
         }
         .service-card .arrow {
@@ -515,7 +515,7 @@
             font-size: 13px;
             letter-spacing: 1px;
             color: #fff;
-            font-weight: 300;
+            font-weight: 700;
         }
 
         /* ========== FEATURED BANNER ========== */
@@ -684,7 +684,29 @@
         .footer-erp-link { color: #fff !important; }
         .footer-erp-link:hover { color: #B8956A !important; }
 
-        </style>
+        
+        /* ===== 흰색 텍스트 볼드 강화 ===== */
+        .hero-title, .hero-desc, .hero-label, .hero-sub, .hero-subtitle,
+        .section-title, .section-desc, .section-label, .section-sub,
+        .stat-label, .stat-num, .stat-unit, .stat-sub,
+        .service-card h3, .service-card p, .service-name, .service-desc,
+        .loader-text, .intro-title, .intro-text, .intro-sub,
+        .feature-title, .feature-desc, .feature-text,
+        .testimonial-text, .author-name, .author-role,
+        .footer-logo, .footer-copyright, .footer-link,
+        .logo-mark, .logo-sub, .nav-logo,
+        .about-text, .about-title, .about-desc,
+        .page-title, .page-desc, .page-label,
+        .card-title, .card-desc, .card-text,
+        .review-text, .review-author,
+        h1, h2, h3, h4, h5, h6, p, span, a, li, label {
+            font-weight: 700 !important;
+        }
+        /* rgba 텍스트 색상 불투명하게 */
+        .footer-link, .footer-copyright, .nav a, .side-nav a {
+            color: #fff !important;
+            opacity: 1 !important;
+        }</style>
 </head>
 <body>
 

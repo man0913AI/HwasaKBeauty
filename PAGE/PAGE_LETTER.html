@@ -158,12 +158,6 @@
             height: 100%;
             object-fit: cover;
         }
-        .bg-overlay {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
-            background: radial-gradient(ellipse 70% 60% at 50% 45%,
-                rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.6) 35%,
-                rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.18) 80%, rgba(0,0,0,0.08) 100%);
-        }
 
         /* Scroll container: content only scrolls below header */
         html, body { overflow: hidden; height: 100%; margin: 0; }
@@ -243,8 +237,8 @@
 </head>
 <body>
     <div class="bg-video-wrap">
-        <img src="../IMAGE/배경화면_숲.png" alt="배경" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.7);">    </div>
-    <div class="bg-overlay"></div>
+        <img src="../IMAGE/배경화면_숲.png" alt="배경" style="width:100%;height:100%;object-fit:cover;">    </div>
+    
 
     <header class="header" id="header">
         <a href="PAGE_MAIN.html" class="logo">

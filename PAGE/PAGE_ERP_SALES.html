@@ -105,7 +105,6 @@ function CustomerAC({value, onChange, customers}) {
 function MenuCompositionPopup({menuName, onClose}) {
   const head = MASTER.menuHead.find(m=>m.name===menuName);
   const body = head ? MASTER.menuBody.filter(b=>b.menuCode===head.code&&b.active).sort((a,b)=>a.seq-b.seq) : [];
-  const pgName = code => { const p=MASTER.program.find(x=>x.code===code); return p?p.name:code; };
   if(!head) return null;
   return (
     <div className="menu-popup-bg" onClick={onClose}>

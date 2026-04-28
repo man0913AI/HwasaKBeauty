@@ -38,19 +38,6 @@
             height: 100%;
             object-fit: cover;
         }
-        /* 눈부심 개선: 중앙 빛나는 원만 자연스럽게 눌러줌 */
-        .bg-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            background: radial-gradient(ellipse 70% 60% at 50% 45%,
-                rgba(0,0,0,0.82) 0%,
-                rgba(0,0,0,0.6) 35%,
-                rgba(0,0,0,0.35) 60%,
-                rgba(0,0,0,0.18) 80%,
-                rgba(0,0,0,0.08) 100%);
-        }
 
         /* ========== HEADER ========== */
         .logo-img { height: 68px; width: auto; filter: invert(1) brightness(2); transition: opacity 0.3s; }
@@ -374,9 +361,9 @@
 <body>
     <!-- BACKGROUND VIDEO -->
     <div class="bg-video-wrap">
-        <img src="../IMAGE/배경화면_숲.png" alt="배경" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.7);">    </div>
+        <img src="../IMAGE/배경화면_숲.png" alt="배경" style="width:100%;height:100%;object-fit:cover;">    </div>
     <!-- 눈부심 개선 오버레이 -->
-    <div class="bg-overlay"></div>
+    
     <!-- CLIPBOARD FRAME -->
     
 

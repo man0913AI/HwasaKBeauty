@@ -25,7 +25,19 @@ const PAGE_TABS = ['고객 목록','고객 상세','고객 등록'];
    ════════════════════════════════════════ */
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
-  useEffect(()=>{HSKB_DATA.getCustomers().then(setList);},[]);
+  useEffect(()=>{
+      // GitHub 실제 데이터 자동 로드
+      if(typeof HSKB_DATA !== 'undefined') {
+        HSKB_DATA.getCustomers().then(custs => {
+          if(custs && custs.length > 0) setCustomers(custs);
+        }).catch(()=>{});
+        HSKB_DATA.getSales().then(s => {
+          if(s && s.length > 0) setSales && setSales(s);
+        }).catch(()=>{});
+        HSKB_DATA.getExpenses().then(e => {
+          if(e && e.length > 0) setPurchases && setPurchases(e);
+        }).catch(()=>{});
+      }DataService.read('customers').then(setList);},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">
@@ -56,7 +68,7 @@ function CustomerRegister({onDone}) {
   const up=(k,v)=>setForm(p=>({...p,[k]:v}));
   const save=async()=>{
     if(!form.name||!form.phone){alert('이름과 연락처는 필수입니다.');return;}
-    const list=await HSKB_DATA.getCustomers();
+    const list=await DataService.read('customers');
     const maxId=list.reduce((a,c)=>Math.max(a,parseInt(c.id.replace('C',''))||0),0);
     const newC={...form,id:'C'+String(maxId+1).padStart(3,'0'),firstVisit:today(),mileage:0,payments:[],history:[]};
     list.push(newC);await HSKB_DATA.addCustomer(list);

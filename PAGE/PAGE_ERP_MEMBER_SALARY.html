@@ -16,7 +16,7 @@
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['급여 계산','지급 이력','명세서'];
+const PAGE_TABS = ['급여 계산','지급 이력','명세서'];
 
 const SALARY_CSS = `
 .wf-steps{display:flex;gap:0;margin-bottom:14px;}
@@ -475,7 +475,7 @@ function App() {
           </div>
         </div>
         <div className="content">
-          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+          <div className="sub-tabs">{PAGE_TABS.map((tab,i)=>(
             <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
           ))}</div>
           <div className="page" key={subTab}>{renderContent()}</div>

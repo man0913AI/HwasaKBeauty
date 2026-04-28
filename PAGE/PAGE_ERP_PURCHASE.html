@@ -18,8 +18,6 @@
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 const PAGE_TABS = ['매입 입력','매입 내역','통계'];
 
-const PURCHASE_CATS  = MASTER.purchaseCategories.filter(c=>c.active).map(c=>c.name);
-const SUPPLIER_NAMES = MASTER.suppliers.filter(s=>s.active).map(s=>s.name);
 
 /* ════════════════════════════════════════
    매입 입력 (PurchaseInput)

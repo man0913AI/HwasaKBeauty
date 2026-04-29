@@ -473,7 +473,7 @@ body{font-family:'Instrument Sans','Noto Sans KR',sans-serif;background:var(--bg
    ════════════════════════════════════════ */
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
-  useEffect(()=>{DataService.read('customers').then(setList);},[]);
+  useEffect(()=>{DataService.loadCustomersFromGitHub().then(() => DataService.read('customers')).then(setList);},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">

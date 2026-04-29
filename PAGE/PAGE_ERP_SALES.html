@@ -179,7 +179,7 @@ function SalesDailyInput() {
     setData(d);
   }, []);
   useEffect(() => { loadData(selDate); }, [selDate, loadData]);
-  useEffect(() => { DataService.read('customers').then(setCust); }, []);
+  useEffect(() => { DataService.loadCustomersFromGitHub().then(() => DataService.read('customers')).then(setCust); }, []);
 
   const mkSaleRow = (no, date) => ({
     no, date, name:'', grade:'', service:'', therapist:'',

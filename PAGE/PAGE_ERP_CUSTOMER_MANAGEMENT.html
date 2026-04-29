@@ -37,7 +37,7 @@ function CustomerList({onSelect}) {
         HSKB_DATA.getExpenses().then(e => {
           if(e && e.length > 0) setPurchases && setPurchases(e);
         }).catch(()=>{});
-      }DataService.read('customers').then(setList);},[]);
+      }DataService.loadCustomersFromGitHub().then(() => DataService.read('customers')).then(setList);},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">

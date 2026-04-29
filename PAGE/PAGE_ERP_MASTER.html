@@ -47,7 +47,7 @@ function Dashboard() {
   useEffect(()=>{
     DataService.read('sales').then(setSales);
     DataService.read('attendance').then(setAtt);
-    DataService.read('customers').then(setCust);
+    DataService.loadCustomersFromGitHub().then(() => DataService.read('customers')).then(setCust);
   },[]);
 
   // 오늘 매출
@@ -288,7 +288,7 @@ function MasterSuppliers(){return <MasterTable title="공급처 관리" dataKey=
    ════════════════════════════════════════ */
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
-  useEffect(()=>{DataService.read('customers').then(setList);},[]);
+  useEffect(()=>{DataService.loadCustomersFromGitHub().then(() => DataService.read('customers')).then(setList);},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">

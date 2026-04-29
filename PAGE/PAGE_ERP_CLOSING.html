@@ -66,7 +66,7 @@ function filterSalesByRange(sales, start, end) {
   });
 }
 function filterPurchaseByRange(purchase, start, end) {
-  return purchase.filter(p => {
+  return (Array.isArray(purchase)?purchase:[]).filter(p => {
     const ym = p.date?.slice(0,7)||'';
     return ym >= start && ym <= end;
   });

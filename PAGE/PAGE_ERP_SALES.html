@@ -439,9 +439,22 @@ function App() {
         <div className="hdr">
           <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
           <div className="hdr-nav">
-            { ERP_PAGES.map(p=>(
-              <a key={p.id} href={p.href} className={'hdr-tab'+(p.id==='sales'?' active':'')} style={{ textDecoration:'none' }}> <Ic d={p.icon} size={14}/>{ p.label }</a>
-            )) }
+            { ERP_PAGES.map(p=>{
+              const isActive = p.id==='sales' || (p.children && p.children.some(c=>c.id==='sales'));
+              if(p.children && p.children.length > 0) {
+                return (
+                  <div key={p.id} className="hdr-tab-wrap">
+                    <a href={p.href} className={'hdr-tab'+(isActive?' active':'')} style={{textDecoration:'none'}}><Ic d={p.icon} size={14}/>{p.label}</a>
+                    <div className="hdr-dropdown">
+                      {p.children.map(c=>(
+                        <a key={c.id} href={c.href} className={'hdr-dropdown-item'+(c.id==='sales'?' active':'')} style={{textDecoration:'none'}}><Ic d={c.icon} size={13}/>{c.label}</a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return <a key={p.id} href={p.href} className={'hdr-tab'+(isActive?' active':'')} style={{textDecoration:'none'}}><Ic d={p.icon} size={14}/>{p.label}</a>;
+            }) }
           </div>
           <div className="hdr-right">
             <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>

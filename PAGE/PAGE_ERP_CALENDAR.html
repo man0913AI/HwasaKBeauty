@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HWASA K-Beauty ERP - 캘린더</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="ERP_COMMON.js"></script>
+  <script src="DATA_CONNECTOR.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useEffect, useCallback, useMemo, useRef } = React;
+
+function App() {
+  const user = getUser();
+  const [dark, setDark] = useState(localStorage.getItem('hskb_theme') === 'dark');
+  useEffect(() => {
+    document.body.classList.toggle('light', !dark);
+    localStorage.setItem('hskb_theme', dark ? 'dark' : 'light');
+  }, [dark]);
+  if (!user) return null;
+  const logout = () => { localStorage.removeItem('hskb_erp_user'); window.location.href = 'PAGE_ERP.html'; };
+
+  return (
+    <div style={{minHeight:'100vh', color:'var(--text)', fontFamily:'var(--font-body)'}}>
+      {/* 헤더 */}
+      <header className="hdr">
+        <a href="PAGE_MAIN.html" className="hdr-logo" style={{textDecoration:'none'}}>
+          <span className="hdr-logo-h">H</span>
+          <span className="hdr-logo-t">HWASA</span>
+        </a>
+        <nav className="hdr-nav">
+          { ERP_PAGES.map(p=>{
+              const isActive = p.id==='calendar' || (p.children && p.children.some(c=>c.id==='calendar'));
+              if(p.children && p.children.length > 0) {
+                return (
+                  <div key={p.id} className="hdr-tab-wrap">
+                    <a href={p.href} className={'hdr-tab'+(isActive?' active':'')} style={{textDecoration:'none'}}><Ic d={p.icon} size={14}/>{p.label}</a>
+                    <div className="hdr-dropdown">
+                      {p.children.map(c=>(
+                        <a key={c.id} href={c.href} className={'hdr-dropdown-item'+(c.id==='calendar'?' active':'')} style={{textDecoration:'none'}}><Ic d={c.icon} size={13}/>{c.label}</a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return <a key={p.id} href={p.href} className={'hdr-tab'+(isActive?' active':'')} style={{textDecoration:'none'}}><Ic d={p.icon} size={14}/>{p.label}</a>;
+            }) }
+        </nav>
+        <div className="hdr-right">
+          <div className="hdr-date">{new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+          <button className="theme-btn" onClick={()=>setDark(!dark)}>
+            {dark ? <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707" size={16}/> : <Ic d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" size={16}/>}
+          </button>
+          <div className="hdr-user" style={{display:'flex',alignItems:'center',gap:6}}>
+            <div style={{width:28,height:28,borderRadius:'50%',background:user.color||'var(--gold-light)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff'}}>{user.initial||user.name?.[0]}</div>
+            <div style={{fontSize:11}}>
+              <div style={{fontWeight:600,color:'var(--text)'}}>{user.name}</div>
+              <div style={{color:'var(--text2)',fontSize:10}}>{user.role}</div>
+            </div>
+          </div>
+          <button onClick={logout} style={{background:'none',border:'1px solid var(--border-gold)',color:'var(--gold-light)',padding:'4px 10px',borderRadius:4,fontSize:11,cursor:'pointer'}}>로그아웃</button>
+        </div>
+      </header>
+
+      {/* 메인 콘텐츠 */}
+      <main style={{padding:'32px 24px', maxWidth:1200, margin:'0 auto'}}>
+        <div style={{
+          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+          minHeight:400, gap:24, color:'var(--text2)', textAlign:'center'
+        }}>
+          <div style={{
+            width:80, height:80, borderRadius:'50%',
+            background:'var(--gold-glow)', border:'2px solid var(--border-gold)',
+            display:'flex', alignItems:'center', justifyContent:'center'
+          }}>
+            <Ic d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" size={36} color="var(--gold-light)"/>
+          </div>
+          <div>
+            <div style={{fontSize:20, fontWeight:700, color:'var(--text)', marginBottom:8}}>캘린더</div>
+            <div style={{fontSize:13, color:'var(--text2)', lineHeight:1.7}}>
+              Google Calendar 연동 예정<br/>
+              일정 관리, 예약 현황, 직원 스케줄을 한눈에 확인할 수 있습니다.
+            </div>
+          </div>
+          <div style={{
+            display:'flex', gap:12, flexWrap:'wrap', justifyContent:'center'
+          }}>
+            {['월간 예약 현황', '직원 근무 일정', 'VIP 고객 방문 일정', '이벤트 / 프로모션'].map(item => (
+              <div key={item} style={{
+                padding:'10px 20px', borderRadius:8,
+                border:'1px solid var(--border-gold)',
+                background:'var(--bg-card)', color:'var(--text2)',
+                fontSize:12, opacity:0.6
+              }}>
+                {item}
+              </div>
+            ))}
+          </div>
+          <div style={{
+            marginTop:8, padding:'12px 24px', borderRadius:8,
+            background:'rgba(184,149,106,0.1)', border:'1px solid var(--border-gold)',
+            fontSize:12, color:'var(--gold-light)'
+          }}>
+            🔗 Google Calendar API 연동 후 활성화됩니다
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

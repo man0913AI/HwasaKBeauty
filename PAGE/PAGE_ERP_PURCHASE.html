@@ -35,7 +35,7 @@ function PurchaseInput() {
   const save = async () => {
     if (!form.item) { alert('품목을 입력하세요'); return; }
     const list = await DataService.read('purchase');
-    const maxId = list.reduce((a,p) => Math.max(a, parseInt((p.id||'p000').replace('p',''))||0), 0);
+    const maxId = (Array.isArray(list)?list:[]).reduce((a,p) => Math.max(a, parseInt((p.id||'p000').replace('p',''))||0), 0);
     list.push({ ...form, id:'p'+String(maxId+1).padStart(3,'0'), qty:Number(form.qty), unitPrice:Number(form.unitPrice), total:Number(form.total) });
     await DataService.write('purchase', list);
     alert('매입 등록 완료');
@@ -90,14 +90,14 @@ function PurchaseList() {
   const load = () => DataService.read('purchase').then(setList);
   useEffect(()=>{ load(); },[]);
 
-  const filtered = list.filter(p =>
+  const filtered = (Array.isArray(list)?list:[]).filter(p =>
     (!catFilter || p.category===catFilter) &&
     (!search || p.item.includes(search) || p.supplier.includes(search))
   ).sort((a,b)=>b.date.localeCompare(a.date));
 
   const del = async (id) => {
     if (!confirm('삭제하시겠습니까?')) return;
-    const next = list.filter(p=>p.id!==id);
+    const next = (Array.isArray(list)?list:[]).filter(p=>p.id!==id);
     await DataService.write('purchase', next);
     setList(next);
   };
@@ -153,11 +153,11 @@ function PurchaseStats() {
 
   const byCat = {};
   const bySupp = {};
-  list.forEach(p => {
+  (Array.isArray(list)?list:[]).forEach(p => {
     byCat[p.category]  = (byCat[p.category]||0)  + (p.total||0);
     bySupp[p.supplier] = (bySupp[p.supplier]||0)  + (p.total||0);
   });
-  const total = list.reduce((a,p)=>a+(p.total||0),0);
+  const total = (Array.isArray(list)?list:[]).reduce((a,p)=>a+(p.total||0),0);
   const catEntries  = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const suppEntries = Object.entries(bySupp).sort((a,b)=>b[1]-a[1]);
   const maxCat  = Math.max(1,...catEntries.map(e=>e[1]));

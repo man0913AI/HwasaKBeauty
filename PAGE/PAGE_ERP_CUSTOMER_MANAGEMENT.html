@@ -22,6 +22,28 @@ const PAGE_TABS = ['고객 목록','고객 상세','고객 등록'];
 /* ════════════════════════════════════════
    CUSTOMER MANAGEMENT — 고객관리
    ════════════════════════════════════════ */
+
+// 고객 데이터 정규화 (GitHub data 포맷 → ERP 포맷 호환)
+function normalizeCustomer(c) {
+  return {
+    ...c,
+    id: c.id || c.chartNo || 'C' + Math.random().toString(36).slice(2,7),
+    name: c.name || '',
+    nameEn: c.nameEn || c.name || '',
+    phone: c.phone || '',
+    gender: c.gender || '',
+    birth: c.birthdate || c.birth || '',
+    grade: c.memberGrade || c.grade || '',
+    firstVisit: c.firstVisit || '',
+    area: c.area || c.note || '',
+    memo: c.memo || c.note || '',
+    mileage: c.mileage || 0,
+    color: c.color || '#B8956A',
+    payments: c.payments || [],
+    visitHistory: c.visitHistory || [],
+    chartNo: c.chartNo || ''
+  };
+}
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
   useEffect(()=>{(typeof HSKB_DATA!=='undefined'?HSKB_DATA.getCustomers():DataService.read('customers')).then(d=>{if(d&&d.length>0)setList(d)});},[]);
@@ -119,7 +141,7 @@ function CustomerDetail({customer,onBack}) {
         <div className="pn" style={{padding:0}}>
           <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>결제 내역 ({(c.payments||[]).length}건)</div>
           <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th className="num">금액</th><th>결제</th><th className="num">팁</th></tr></thead>
-          <tbody>{[...c.payments].reverse().map((p,i)=>(
+          <tbody>{[...(c.payments||[])].reverse().map((p,i)=>(
             <tr key={i}>
               <td style={{fontWeight:500}}>{p.date}</td><td>{p.menu}</td>
               <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.amount)}</td>

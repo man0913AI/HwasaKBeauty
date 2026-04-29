@@ -23,7 +23,7 @@
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const PAGE_TABS = ['대시보드','프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'];
+const PAGE_TABS = ['대시보드','프로그램','메뉴관리','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'];
 
 const MASTER_CSS = `
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:14px;}
@@ -248,6 +248,17 @@ function MasterMenuBody(){
     </div>
   </div>);
 }
+function MasterMenuCombined(){
+  return React.createElement('div',{style:{display:'flex',flexDirection:'column',height:'calc(100vh - 120px)'}},
+    React.createElement('div',{style:{flex:'0 0 50%',overflow:'auto',borderBottom:'2px solid var(--border-gold)',paddingBottom:'4px'}},
+      React.createElement(MasterMenuHead,null)
+    ),
+    React.createElement('div',{style:{flex:'0 0 50%',overflow:'auto',paddingTop:'4px'}},
+      React.createElement(MasterMenuBody,null)
+    )
+  );
+}
+
 
 function MasterEvents(){return <MasterTable title="이벤트 관리" dataKey="events" columns={[
   {k:'id',l:'코드',w:55,t:'tx'},{k:'name',l:'이벤트명',w:150,t:'tx'},
@@ -920,7 +931,7 @@ function App() {
   if(!user) return null;
   const logout=()=>{ localStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
 
-  const renderContent=()=>{ return subTab===0?<Dashboard/>:subTab===1?<MasterProgram/>:subTab===2?<MasterMenuHead/>:subTab===3?<MasterMenuBody/>:subTab===4?<MasterEvents/>:subTab===5?<MasterEmployees/>:subTab===6?<MasterGrades/>:subTab===7?<MasterExpenseItems/>:subTab===8?<MasterPurchaseCats/>:subTab===9?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
+  const renderContent=()=>{ return subTab===0?<Dashboard/>:subTab===1?<MasterProgram/>:subTab===2?<MasterMenuCombined/>:subTab===3?<MasterEvents/>:subTab===4?<MasterEmployees/>:subTab===5?<MasterGrades/>:subTab===6?<MasterExpenseItems/>:subTab===7?<MasterPurchaseCats/>:subTab===8?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
 
   return (
     <React.Fragment>

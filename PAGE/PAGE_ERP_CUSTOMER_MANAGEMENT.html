@@ -40,7 +40,8 @@ function normalizeCustomer(c) {
     mileage: c.mileage || 0,
     color: c.color || '#B8956A',
     payments: c.payments || [],
-    visitHistory: c.visitHistory || [],
+    visitHistory: c.visitHistory || c.history || [],
+    history: c.visitHistory || c.history || [],
     chartNo: c.chartNo || ''
   };
 }
@@ -64,7 +65,7 @@ function CustomerList({onSelect}) {
           <td>{c.grade?<span className={`sts ${c.grade==='VIP'||c.grade==='VVIP'?'sts-warn':c.grade==='GOLD'?'sts-ok':'sts-info'}`}>{c.grade}</span>:'-'}</td>
           <td>{c.firstVisit}</td>
           <td className="num" style={{color:'var(--gold-light)'}}>{fmt(c.mileage||0)}</td>
-          <td className="num">{c.history.length}회</td>
+          <td className="num">{(c.visitHistory||c.history||[]).length}회</td>
           <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(totalPay)}</td>
         </tr>);})}
       </tbody>
@@ -78,7 +79,7 @@ function CustomerRegister({onDone}) {
   const save=async()=>{
     if(!form.name||!form.phone){alert('이름과 연락처는 필수입니다.');return;}
     const list=await DataService.read('customers');
-    const maxId=list.reduce((a,c)=>Math.max(a,parseInt(c.id.replace('C',''))||0),0);
+    const maxId=(Array.isArray(list)?list:[]).reduce((a,c)=>Math.max(a,parseInt(((c.id||'').replace(/\D/g,'')))||0),0);
     const newC={...form,id:'C'+String(maxId+1).padStart(3,'0'),firstVisit:today(),mileage:0,payments:[],history:[]};
     list.push(newC);await DataService.write('customers',list);
     alert(newC.name+' 고객이 등록되었습니다.');if(onDone)onDone(newC);
@@ -121,12 +122,12 @@ function CustomerDetail({customer,onBack}) {
         <div className="pn" style={{padding:16,marginTop:0}}>
           <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>마일리지</div>
           <div style={{fontSize:24,fontWeight:700,color:'var(--gold-light)',marginBottom:6}}>{fmt(c.mileage||0)}₫</div>
-          <div style={{fontSize:10,color:'var(--text3)'}}>총 결제: {fmt(totalPay)}₫ · 총 팁: {fmt(totalTip)}₫ · 방문: {c.history.length}회</div>
+          <div style={{fontSize:10,color:'var(--text3)'}}>총 결제: {fmt(totalPay)}₫ · 총 팁: {fmt(totalTip)}₫ · 방문: {(c.visitHistory||c.history||[]).length}회</div>
         </div>
         <div className="pn" style={{padding:0,marginTop:0}}>
-          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>관리 이력 ({c.history.length}건)</div>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>관리 이력 ({(c.visitHistory||c.history||[]).length}건)</div>
           <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th>담당</th><th>메모</th></tr></thead>
-          <tbody>{[...c.history].reverse().map((h,i)=>(
+          <tbody>{[...(c.visitHistory||c.history||[])].reverse().map((h,i)=>(
             <tr key={i}><td style={{color:'var(--gold-light)',fontWeight:500}}>{h.date}</td><td>{h.menu}</td><td>{h.therapist}</td><td style={{color:'var(--text2)'}}>{h.note}</td></tr>
           ))}</tbody></table>
         </div>
@@ -136,7 +137,7 @@ function CustomerDetail({customer,onBack}) {
         <div className="cards" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
           <div className="card"><div className="card-bar" style={{background:'var(--gold)'}}/><div className="card-lb">총 결제</div><div className="card-vl" style={{fontSize:16}}>{fmt(totalPay)}</div></div>
           <div className="card"><div className="card-bar" style={{background:'var(--ok)'}}/><div className="card-lb">총 팁</div><div className="card-vl" style={{fontSize:16}}>{fmt(totalTip)}</div></div>
-          <div className="card"><div className="card-bar" style={{background:'var(--info)'}}/><div className="card-lb">방문</div><div className="card-vl" style={{fontSize:16}}>{c.history.length}회</div></div>
+          <div className="card"><div className="card-bar" style={{background:'var(--info)'}}/><div className="card-lb">방문</div><div className="card-vl" style={{fontSize:16}}>{(c.visitHistory||c.history||[]).length}회</div></div>
         </div>
         <div className="pn" style={{padding:0}}>
           <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>결제 내역 ({(c.payments||[]).length}건)</div>

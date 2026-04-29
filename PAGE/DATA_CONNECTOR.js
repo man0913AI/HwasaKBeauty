@@ -44,8 +44,17 @@ const HSKB_DATA = {
         const sales2 = await s2.json();
         const allSales = [...sales1, ...sales2];
         if (typeof DataService !== 'undefined') {
-          DataService._store.sales = allSales;
-          // 월별 접근을 위한 인덱스 구성
+          const today = new Date().toISOString().slice(0,10);
+          const todaySales = allSales.filter(s => s.date === today);
+          const todayExp = typeof DataService._store.purchase !== 'undefined' 
+            ? (Array.isArray(DataService._store.purchase) ? DataService._store.purchase.filter(e=>e.date===today) : [])
+            : [];
+          DataService._store.sales = {
+            rows: todaySales.length > 0 ? todaySales : [],
+            expenses: todayExp,
+            allRecords: allSales,
+            date: today
+          };
           const salesByMonth = {};
           allSales.forEach(s => { const m = s.month||''; if(!salesByMonth[m]) salesByMonth[m]=[]; salesByMonth[m].push(s); });
           DataService._store.salesByMonth = salesByMonth;

@@ -25,7 +25,17 @@ const PAGE_TABS = ['고객 목록','고객 상세','고객 등록'];
    ════════════════════════════════════════ */
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
-  useEffect(()=>{DataService.read('customers').then(setList);},[]);
+  useEffect(()=>{
+      // HSKB 실제 데이터 로드 이벤트 수신
+      const onCustomersLoaded = (e) => {
+        if(e.detail?.customers?.length > 0) setCustomers(e.detail.customers);
+      };
+      window.addEventListener('hskb:customers:loaded', onCustomersLoaded);
+      // 이미 로드된 경우 즉시 적용
+      if(typeof HSKB_DATA !== 'undefined') {
+        HSKB_DATA.getCustomers().then(custs => { if(custs?.length > 5) setCustomers(custs); }).catch(()=>{});
+      }
+      return () => window.removeEventListener('hskb:customers:loaded', onCustomersLoaded);DataService.read('customers').then(setList);},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">

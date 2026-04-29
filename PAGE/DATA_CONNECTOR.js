@@ -44,17 +44,36 @@ const HSKB_DATA = {
         const sales2 = await s2.json();
         const allSales = [...sales1, ...sales2];
         if (typeof DataService !== 'undefined') {
-          const today = new Date().toISOString().slice(0,10);
-          const todaySales = allSales.filter(s => s.date === today);
-          const todayExp = typeof DataService._store.purchase !== 'undefined' 
-            ? (Array.isArray(DataService._store.purchase) ? DataService._store.purchase.filter(e=>e.date===today) : [])
-            : [];
-          DataService._store.sales = {
-            rows: todaySales.length > 0 ? todaySales : [],
-            expenses: todayExp,
-            allRecords: allSales,
-            date: today
-          };
+          // 날짜별 맵 구조로 변환 (SalesList 컴포넌트가 {날짜:{rows:[],expenses:[]}} 구조 기대)
+          const salesMap = {};
+          allSales.forEach(s => {
+            const dt = s.date || '';
+            if(!dt) return;
+            if(!salesMap[dt]) salesMap[dt] = { rows: [], expenses: [] };
+            salesMap[dt].rows.push({
+              no: salesMap[dt].rows.length + 1,
+              name: s.customerName || '',
+              member: s.memberGrade || '',
+              assignee: '',
+              menu: s.program || '',
+              hairLoss: s.hairLoss || false,
+              event: s.isEvent || false,
+              vip: s.isVIP || false,
+              deductAmt: s.deductAmount || 0,
+              deduct: s.deductCount || 0,
+              tipDeduct: s.tipDeduct || 0,
+              cash: s.cash || 0,
+              cashPlus: s.cashPlus10 || 0,
+              card: s.card || 0,
+              krw: s.krw || 0,
+              unpaid: s.unpaid || 0,
+              male: s.isMale || false,
+              female: s.isFemale || false,
+              ticket: s.ticket || ''
+            });
+          });
+          DataService._store.sales = salesMap;
+          DataService._store.salesAllRecords = allSales;
           const salesByMonth = {};
           allSales.forEach(s => { const m = s.month||''; if(!salesByMonth[m]) salesByMonth[m]=[]; salesByMonth[m].push(s); });
           DataService._store.salesByMonth = salesByMonth;

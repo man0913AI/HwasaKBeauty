@@ -227,7 +227,7 @@ function SalesDailyInput() {
   };
 
   const totals = useMemo(() => {
-    const r=data.rows; const sm=(f)=>r.reduce((a,x)=>a+(Number(x[f])||0),0);
+    const r=(data.rows||[]); const sm=(f)=>r.reduce((a,x)=>a+(Number(x[f])||0),0);
     const expT=data.expenses.reduce((a,x)=>a+(Number(x.amount)||0),0);
     const inc=sm('cash')+sm('deposit')+sm('card')+sm('krw');
     return { dCnt:r.filter(x=>Number(x.deduct)>0).length, dAmt:sm('deductAmt'), tip:sm('tipDeduct'),
@@ -266,7 +266,7 @@ function SalesDailyInput() {
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((row,ri)=>(
+            {(data.rows||[]).map((row,ri)=>(
               <tr key={ri}>
                 <td><div className="rn">{row.no}</div></td>
                 {/* 고객명 자동완성 */}

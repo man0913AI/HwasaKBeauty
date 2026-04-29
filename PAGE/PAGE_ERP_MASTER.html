@@ -12,7 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
   <script src="ERP_COMMON.js"></script>
     <script src="DATA_CONNECTOR.js"></script>
-    </head>
+    <script src="DATA_SERVICE.js"></script>
+</head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
@@ -46,7 +47,7 @@ function Dashboard() {
   useEffect(()=>{
     DataService.read('sales').then(setSales);
     DataService.read('attendance').then(setAtt);
-    DataService.loadCustomersFromGitHub().then(() => DataService.read('customers')).then(setCust);
+    DataService.read('customers').then(setCust);
   },[]);
 
   // 오늘 매출
@@ -287,7 +288,7 @@ function MasterSuppliers(){return <MasterTable title="공급처 관리" dataKey=
    ════════════════════════════════════════ */
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
-  useEffect(()=>{DataService.loadCustomersFromGitHub().then(() => DataService.read('customers')).then(setList);},[]);
+  useEffect(()=>{DataService.read('customers').then(setList);},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">

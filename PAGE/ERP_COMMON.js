@@ -336,6 +336,13 @@ body{font-family:'Instrument Sans','Noto Sans KR',sans-serif;background:var(--bg
 .hdr-tab{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--rs);cursor:pointer;transition:all .2s;color:var(--text2);font-family:'Instrument Sans','Noto Sans KR',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;position:relative;}
 .hdr-tab:hover{color:var(--text);background:var(--ss-hover);}
 .hdr-tab.active{color:var(--gold-light);background:var(--gold-glow);}
+.hdr-tab-wrap{position:relative;}
+.hdr-dropdown{display:none;position:absolute;top:100%;left:0;min-width:140px;background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--rs);box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:200;padding:4px 0;margin-top:2px;}
+.hdr-tab-wrap:hover .hdr-dropdown{display:block;}
+.hdr-dropdown-item{display:flex;align-items:center;gap:6px;padding:8px 14px;color:var(--text2);font-size:11px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap;}
+.hdr-dropdown-item:hover{color:var(--gold-light);background:var(--gold-glow);}
+.hdr-dropdown-item.active{color:var(--gold-light);}
+
 .hdr-tab.active::after{content:'';position:absolute;bottom:-1px;left:13px;right:13px;height:2px;background:var(--gold);border-radius:1px;}
 .hdr-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
 .hdr-date{font-size:10px;color:var(--text3);}
@@ -465,8 +472,7 @@ const Ic=({d,size=18,color='currentColor'})=>React.createElement('svg',{width:si
 
 // ERP 메뉴 정보 (페이지 네비게이션용)
 const ERP_PAGES = [
-  {id:'master', label:'마스터', href:'PAGE_ERP_MASTER.html', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z'},
-  {id:'customer', label:'고객', href:'PAGE_ERP_CUSTOMER_MANAGEMENT.html', icon:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8'},
+  {id:'master', label:'마스터', href:'PAGE_ERP_MASTER.html', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z', children:[{id:'customer', label:'고객', href:'PAGE_ERP_CUSTOMER_MANAGEMENT.html', icon:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8'}]},
   {id:'sales', label:'매출', href:'PAGE_ERP_SALES.html', icon:'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'},
   {id:'purchase', label:'매입', href:'PAGE_ERP_PURCHASE.html', icon:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0'},
   {id:'closing', label:'결산', href:'PAGE_ERP_CLOSING.html', icon:'M18 20V10 M12 20V4 M6 20v-6'},

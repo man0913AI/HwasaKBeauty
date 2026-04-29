@@ -28,7 +28,7 @@ function ContractList() {
   return (<div className="fade-in"><div className="pn">
     <div className="pn-h"><div><div className="pn-t">계약서 목록</div><div className="pn-st">{list.length}건</div></div></div>
     <table className="tbl"><thead><tr><th>ID</th><th>직원</th><th>유형</th><th>직위</th><th>시작일</th><th>종료일</th><th className="num">기본급</th><th className="num">시급</th><th>상태</th></tr></thead>
-    <tbody>{list.map((c,i)=>{const emp=EMPLOYEES.find(e=>e.name===c.employee);const isExp=new Date(c.end)<new Date(Date.now()+90*86400000);
+    <tbody>{(Array.isArray(list)?list:[]).map((c,i)=>{const emp=EMPLOYEES.find(e=>e.name===c.employee);const isExp=new Date(c.end)<new Date(Date.now()+90*86400000);
       return (<tr key={i}><td style={{color:'var(--text3)'}}>{c.id}</td><td style={{fontWeight:500}}>{emp?.nameKr||c.employee}</td><td>{c.type}</td><td>{c.position}</td><td>{c.start}</td><td>{c.end}</td>
         <td className="num">{fmt(c.baseSalary)}</td><td className="num">{fmt(c.hourlyRate)}</td>
         <td><span className={`sts ${c.status==='유효'?(isExp?'sts-warn':'sts-ok'):'sts-err'}`}>{c.status}{isExp&&c.status==='유효'?' (만료임박)':''}</span></td></tr>);
@@ -56,7 +56,7 @@ function ContractAdd() {
 
 function ContractExpiry() {
   const [list,setList]=useState([]);useEffect(()=>{DataService.read('contracts').then(setList);},[]);
-  const now=Date.now();const exp=list.filter(c=>new Date(c.end).getTime()<now+180*86400000).sort((a,b)=>new Date(a.end)-new Date(b.end));
+  const now=Date.now();const exp=(Array.isArray(list)?list:[]).filter(c=>new Date(c.end).getTime()<now+180*86400000).sort((a,b)=>new Date(a.end)-new Date(b.end));
   return (<div className="fade-in"><div className="pn">
     <div className="pn-h"><div><div className="pn-t">만료 예정 계약서</div><div className="pn-st">6개월 이내</div></div></div>
     {exp.length===0?<div className="empty">만료 예정 계약서가 없습니다</div>:

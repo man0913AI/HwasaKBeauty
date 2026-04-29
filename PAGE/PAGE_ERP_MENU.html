@@ -16,6 +16,7 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
+const logout = () => { localStorage.removeItem('hskb_erp_user'); location.href='../erp.html'; };
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 const PAGE_ID = 'menu';
 

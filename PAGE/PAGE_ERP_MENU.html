@@ -414,26 +414,19 @@ function CustomerDetail({customer,onBack}) {
 }
 
 function App() {
-  const [user,setUser]=useState(getUser());
-  const [subTab,setSub]=useState(0);
-  const [now,setNow]=useState(new Date());
-  const [dark,setDark]=useState(()=>localStorage.getItem('hskb_theme')!=='light');
-
-  useEffect(()=>{ if(!user){ window.location.href='PAGE_ERP.html'; return; } const t=setInterval(()=>setNow(new Date()),60000); return ()=>clearInterval(t); },[user]);
-  useEffect(()=>{ document.body.classList.toggle('light',!dark); localStorage.setItem('hskb_theme',dark?'dark':'light'); },[dark]);
-
-  if(!user) return null;
-  const logout=()=>{ localStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
-
-  const renderContent=()=>{ return subTab===0?<Dashboard/>:subTab===1?<MasterProgram/>:subTab===2?<MasterMenuHead/>:subTab===3?<MasterMenuBody/>:subTab===4?<MasterEvents/>:subTab===5?<MasterEmployees/>:subTab===6?<MasterGrades/>:subTab===7?<MasterExpenseItems/>:subTab===8?<MasterPurchaseCats/>:subTab===9?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
-
+  const user = getUser();
+  if(!user) { window.location.href = '../erp.html'; return null; }
+  const [dark, setDark] = React.useState(false);
+  const now = new Date();
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  }, [dark]);
   return (
-    <React.Fragment>
-      <style>{ CSS }{ MASTER_CSS }</style>
-      <div className="app">
-        <div className="hdr">
-          <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>
-          <div className="hdr-nav">
+    <div className="erp-wrap">
+      <header className="erp-hdr">
+        <div className="hdr-left">
+          <a href="../index.html" className="hdr-logo"><Ic d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" size={20}/><span>HWASA</span></a>
+          <nav className="hdr-nav">
             { ERP_PAGES.map(p=>{
               const isActive = p.id==='menu' || (p.children && p.children.some(c=>c.id==='menu'));
               if(p.children && p.children.length > 0) {
@@ -450,29 +443,39 @@ function App() {
               }
               return <a key={p.id} href={p.href} className={'hdr-tab'+(isActive?' active':'')} style={{textDecoration:'none'}}><Ic d={p.icon} size={14}/>{p.label}</a>;
             }) }
+          </nav>
+        </div>
+        <div className="hdr-right">
+          <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
+          <button className="theme-btn" onClick={()=>setDark(!dark)}>
+            {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={16}/> : <Ic d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 5a7 7 0 100 14A7 7 0 0012 5z" size={16}/>}
+          </button>
+          <div className="hdr-user">
+            <div className="user-avatar" style={{background:user.color}}>{user.initial}</div>
+            <div><div className="user-name">{user.name}</div><div className="user-role">{user.role}</div></div>
           </div>
-          <div className="hdr-right">
-            <div className="hdr-date">{now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'})}</div>
-            <button className="theme-btn" onClick={()=>setDark(!dark)}>
-              {dark ? <Ic d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" size={15}/>
-                : <Ic d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" size={15}/>
-              }
-            </button>
-            <div className="hdr-user">
-              <div className="av" style={{ background:user.color||'var(--gold)' }}>{user.initial||user.name?.charAt(0)}</div>
-              <div><div className="nm">{user.name}</div><div className="rl">{user.role}</div></div>
+          <button className="logout-btn" onClick={()=>{localStorage.removeItem('hskb_erp_user');window.location.href='../erp.html';}}>로그아웃</button>
+        </div>
+      </header>
+      <main className="erp-main" style={{padding:0,overflow:'hidden'}}>
+        <div className="menu-split-wrap">
+          <div className="menu-split-panel">
+            <div className="menu-split-panel-title">
+              <Ic d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" size={13}/>
+              메뉴 관리 (MENU HEAD)
             </div>
-            <button className="btn-logout" onClick={logout}> 로그아웃</button>
+            <div className="menu-split-panel-body"><MenuHead /></div>
+          </div>
+          <div className="menu-split-panel">
+            <div className="menu-split-panel-title">
+              <Ic d="M4 6h16M4 10h16M4 14h8" size={13}/>
+              메뉴 구성 (MENU BODY) — 프로그램 라우트
+            </div>
+            <div className="menu-split-panel-body"><MenuBody /></div>
           </div>
         </div>
-        <div className="content">
-          <div className="sub-tabs">{PAGE_TABS.map((tab,i)=>(
-            <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
-          ))}</div>
-          <div className="page" key={subTab}>{renderContent()}</div>
-        </div>
-      </div>
-    </React.Fragment>
+      </main>
+    </div>
   );
 }
 

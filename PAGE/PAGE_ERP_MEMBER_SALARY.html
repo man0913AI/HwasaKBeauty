@@ -322,7 +322,7 @@ function SalaryHistory() {
   useEffect(()=>{ DataService.read('salary').then(setList); },[]);
 
   const markPaid = async (id) => {
-    const updated = list.map(s =>
+    const updated = (Array.isArray(list)?list:[]).map(s =>
       s.id===id ? {...s, paid:true, paidDate:today()} : s
     );
     await DataService.write('salary', updated);
@@ -413,7 +413,7 @@ function SalaryPayslip() {
     <div className="fade-in">
       <div className="toolbar">
         <select className="form-inp" value={idx} onChange={e=>setIdx(Number(e.target.value))} style={{width:220}}>
-          {list.map((s,i)=>{ const e=EMPLOYEES.find(x=>x.name===s.employee); return <option key={i} value={i}>{e?.nameKr||s.employee} — {s.year}.{pad2(s.month)}</option>; })}
+          {(Array.isArray(list)?list:[]).map((s,i)=>{ const e=EMPLOYEES.find(x=>x.name===s.employee); return <option key={i} value={i}>{e?.nameKr||s.employee} — {s.year}.{pad2(s.month)}</option>; })}
         </select>
         <div className="spacer"/>
         <button className="btn btn-o" onClick={()=>setShow(true)}>인쇄 / PDF</button>

@@ -73,8 +73,8 @@ function Dashboard() {
 
   // 최근 고객
   const recentCust = [...customers].sort((a,b)=>{
-    const la = a.payments[a.payments.length-1]?.date||'';
-    const lb = b.payments[b.payments.length-1]?.date||'';
+    const la = (a.payments||[]).slice(-1)[0]?.date||'';
+    const lb = (b.payments||[]).slice(-1)[0]?.date||'';
     return lb.localeCompare(la);
   }).slice(0,5);
 
@@ -155,8 +155,8 @@ function Dashboard() {
         <table className="tbl">
           <thead><tr><th>고객</th><th>등급</th><th>최근 방문</th><th>최근 메뉴</th><th className="num">총 결제</th></tr></thead>
           <tbody>{recentCust.map(c=>{
-            const last = c.payments[c.payments.length-1];
-            const tot  = c.payments.reduce((a,p)=>a+p.amount,0);
+            const last = (c.payments||[]).slice(-1)[0];
+            const tot  = (c.payments||[]).reduce((a,p)=>a+p.amount,0);
             return (
               <tr key={c.id}>
                 <td style={{fontWeight:500}}>{c.name}</td>
@@ -313,15 +313,15 @@ function CustomerList({onSelect}) {
     </div>
     <div className="pn"><table className="tbl">
       <thead><tr><th>코드</th><th>이름</th><th>연락처</th><th>등급</th><th>첫방문</th><th className="num">마일리지</th><th className="num">방문횟수</th><th className="num">총 결제</th></tr></thead>
-      <tbody>{filtered.map(c=>{const totalPay=c.payments.reduce((a,p)=>a+p.amount,0);return(
+      <tbody>{filtered.map(c=>{const totalPay=(c.payments||[]).reduce((a,p)=>a+p.amount,0);return(
         <tr key={c.id} onClick={()=>onSelect(c)} style={{cursor:'pointer'}}>
           <td style={{color:'var(--text3)'}}>{c.id}</td>
           <td style={{fontWeight:600}}>{c.name}{c.nameEn?<span style={{color:'var(--text3)',fontSize:10,marginLeft:4}}>({c.nameEn})</span>:''}</td>
           <td>{c.phone}</td>
           <td>{c.grade?<span className={`sts ${c.grade==='VIP'||c.grade==='VVIP'?'sts-warn':c.grade==='GOLD'?'sts-ok':'sts-info'}`}>{c.grade}</span>:'-'}</td>
           <td>{c.firstVisit}</td>
-          <td className="num" style={{color:'var(--gold-light)'}}>{fmt(c.mileage)}</td>
-          <td className="num">{c.history.length}회</td>
+          <td className="num" style={{color:'var(--gold-light)'}}>{fmt(c.mileage||0)}</td>
+          <td className="num">{(c.history||[]).length}회</td>
           <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(totalPay)}</td>
         </tr>);})}
       </tbody>
@@ -360,8 +360,8 @@ function CustomerRegister({onDone}) {
 
 function CustomerDetail({customer,onBack}) {
   const c=customer;if(!c) return <div className="empty">고객을 선택해주세요</div>;
-  const totalPay=c.payments.reduce((a,p)=>a+p.amount,0);
-  const totalTip=c.payments.reduce((a,p)=>a+(p.tip||0),0);
+  const totalPay=(c.payments||[]).reduce((a,p)=>a+p.amount,0);
+  const totalTip=(c.payments||[]).reduce((a,p)=>a+(p.tip||0),0);
   return (<div className="fade-in">
     <div className="toolbar"><button className="btn btn-s" onClick={onBack}>← 목록</button><span style={{fontSize:13,fontWeight:600}}>{c.name}</span><span style={{fontSize:10,color:'var(--text3)',marginLeft:8}}>{c.id}</span></div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
@@ -378,12 +378,12 @@ function CustomerDetail({customer,onBack}) {
         <div className="pn" style={{padding:16,marginTop:0}}>
           <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>마일리지</div>
           <div style={{fontSize:24,fontWeight:700,color:'var(--gold-light)',marginBottom:6}}>{fmt(c.mileage)}₫</div>
-          <div style={{fontSize:10,color:'var(--text3)'}}>총 결제: {fmt(totalPay)}₫ · 총 팁: {fmt(totalTip)}₫ · 방문: {c.history.length}회</div>
+          <div style={{fontSize:10,color:'var(--text3)'}}>총 결제: {fmt(totalPay)}₫ · 총 팁: {fmt(totalTip)}₫ · 방문: {(c.history||[]).length}회</div>
         </div>
         <div className="pn" style={{padding:0,marginTop:0}}>
-          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>관리 이력 ({c.history.length}건)</div>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>관리 이력 ({(c.history||[]).length}건)</div>
           <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th>담당</th><th>메모</th></tr></thead>
-          <tbody>{[...c.history].reverse().map((h,i)=>(
+          <tbody>{[...(c.history||[])].reverse().map((h,i)=>(
             <tr key={i}><td style={{color:'var(--gold-light)',fontWeight:500}}>{h.date}</td><td>{h.menu}</td><td>{h.therapist}</td><td style={{color:'var(--text2)'}}>{h.note}</td></tr>
           ))}</tbody></table>
         </div>
@@ -396,9 +396,9 @@ function CustomerDetail({customer,onBack}) {
           <div className="card"><div className="card-bar" style={{background:'var(--info)'}}/><div className="card-lb">방문</div><div className="card-vl" style={{fontSize:16}}>{c.history.length}회</div></div>
         </div>
         <div className="pn" style={{padding:0}}>
-          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>결제 내역 ({c.payments.length}건)</div>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--gold-light)'}}>결제 내역 ({(c.payments||[]).length}건)</div>
           <table className="tbl"><thead><tr><th>날짜</th><th>메뉴</th><th className="num">금액</th><th>결제</th><th className="num">팁</th></tr></thead>
-          <tbody>{[...c.payments].reverse().map((p,i)=>(
+          <tbody>{[...(c.payments||[])].reverse().map((p,i)=>(
             <tr key={i}>
               <td style={{fontWeight:500}}>{p.date}</td><td>{p.menu}</td>
               <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(p.amount)}</td>
@@ -410,7 +410,7 @@ function CustomerDetail({customer,onBack}) {
         <div className="pn" style={{padding:16,marginTop:0}}>
           <div style={{fontSize:12,fontWeight:600,marginBottom:10,color:'var(--gold-light)'}}>결제 수단별 합계</div>
           {(() => {
-            const byMethod={};c.payments.forEach(p=>{byMethod[p.method]=(byMethod[p.method]||0)+p.amount;});
+            const byMethod={};(c.payments||[]).forEach(p=>{byMethod[p.method]=(byMethod[p.method]||0)+p.amount;});
             return Object.entries(byMethod).map(([m,a],i)=>(
               <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',fontSize:11}}>
                 <span>{m}</span><span style={{fontWeight:600}}>{fmt(a)}₫</span>
@@ -435,7 +435,7 @@ function App() {
   if(!user) return null;
   const logout=()=>{ localStorage.removeItem('hskb_erp_user'); window.location.href='PAGE_ERP.html'; };
 
-  const renderContent=()=>{ return subTab===0?<Dashboard/>:subTab===1?<MasterProgram/>:subTab===2?<MasterMenuCombined/>:subTab===4?<MasterEvents/>:subTab===5?<MasterEmployees/>:subTab===6?<MasterGrades/>:subTab===7?<MasterExpenseItems/>:subTab===8?<MasterPurchaseCats/>:subTab===9?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
+  const renderContent=()=>{ return subTab===0?<Dashboard/>:subTab===1?<MasterProgram/>:subTab===2?<MasterMenuCombined/>:subTab===3?<MasterEvents/>:subTab===4?<MasterEmployees/>:subTab===5?<MasterGrades/>:subTab===6?<MasterExpenseItems/>:subTab===7?<MasterPurchaseCats/>:subTab===8?<MasterSuppliers/>:<CustomerRegister onDone={()=>{}}/>; };
 
   return (
     <React.Fragment>
@@ -487,137 +487,6 @@ function App() {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-  </script
-function MenuManagement() {
-  const categories = [
-    { id: 'hairloss', label: '탈모 케어', color: '#B8956A' },
-    { id: 'face', label: '페이스 케어', color: '#8B6F4E' },
-    { id: 'body', label: '바디 케어', color: '#6B8E6B' },
-    { id: 'event', label: '이벤트', color: '#7B6B8E' },
-    { id: 'package', label: '패키지', color: '#8E6B6B' },
-    { id: 'membership', label: '멤버십', color: '#6B7B8E' },
-  ];
-
-  const [menus, setMenus] = React.useState(() => {
-    try { const s = localStorage.getItem('hskb_menus'); return s ? JSON.parse(s) : defaultMenus(); } catch(e) { return defaultMenus(); }
-  });
-  const [filter, setFilter] = React.useState('all');
-  const [showAdd, setShowAdd] = React.useState(false);
-  const [form, setForm] = React.useState({ category:'hairloss', name:'', duration:60, price:0, unit:'VND', active:true, desc:'' });
-
-  function defaultMenus() {
-    return [
-      { id:1, category:'hairloss', name:'탈모 기본 케어', duration:60, price:550000, unit:'VND', active:true, desc:'두피 분석 + 탈모 케어 기본 프로그램' },
-      { id:2, category:'hairloss', name:'탈모 집중 케어', duration:90, price:880000, unit:'VND', active:true, desc:'집중 탈모 치료 + 영양 공급' },
-      { id:3, category:'face', name:'기본 페이스 케어', duration:60, price:550000, unit:'VND', active:true, desc:'클렌징 + 기본 케어' },
-      { id:4, category:'body', name:'바디 마사지 60분', duration:60, price:550000, unit:'VND', active:true, desc:'전신 바디 마사지' },
-      { id:5, category:'package', name:'HWASA COMBO A', duration:120, price:870000, unit:'VND', active:true, desc:'페이스 + 바디 + 발 각질정리' },
-      { id:6, category:'membership', name:'VIP Membership CLUB', duration:0, price:11000000, unit:'VND', active:true, desc:'기본샴푸 2회권 + 모든관리 1회' },
-    ];
-  }
-
-  const save = (list) => { setMenus(list); localStorage.setItem('hskb_menus', JSON.stringify(list)); };
-  const filtered = filter === 'all' ? menus : (Array.isArray(menus)?menus:[]).filter(m => m.category === filter);
-  const catMap = Object.fromEntries(categories.map(c => [c.id, c]));
-
-  const addMenu = () => {
-    save([...menus, { ...form, id: Date.now() }]);
-    setShowAdd(false);
-    setForm({ category:'hairloss', name:'', duration:60, price:0, unit:'VND', active:true, desc:'' });
-  };
-
-  return (
-    <div>
-      <div style={{marginBottom:'20px'}}>
-        <h2 style={{fontSize:'20px',fontWeight:'700',color:'var(--text)',marginBottom:'4px'}}>프로그램 메뉴 관리</h2>
-        <p style={{fontSize:'12px',color:'var(--text2)'}}>시술 프로그램 및 가격 관리</p>
-      </div>
-      <div style={{display:'flex',gap:'8px',marginBottom:'16px',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between'}}>
-        <div style={{display:'flex',gap:'6px',flexWrap:'wrap'}}>
-          {[{id:'all',label:'전체'},...categories].map(c => (
-            <button key={c.id} onClick={()=>setFilter(c.id)}
-              style={{padding:'6px 14px',borderRadius:'20px',border:'none',cursor:'pointer',fontSize:'11px',fontWeight:'600',
-                background:filter===c.id?'var(--gold)':'var(--bg-card)',color:filter===c.id?'white':'var(--text2)'}}>
-              {c.label}
-            </button>
-          ))}
-        </div>
-        <button onClick={()=>setShowAdd(!showAdd)}
-          style={{padding:'8px 16px',background:'var(--gold)',color:'white',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700'}}>
-          + 메뉴 추가
-        </button>
-      </div>
-      {showAdd && (
-        <div style={{background:'var(--bg-card)',border:'1px solid var(--border-gold)',borderRadius:'12px',padding:'20px',marginBottom:'16px'}}>
-          <h3 style={{fontSize:'14px',fontWeight:'700',marginBottom:'16px',color:'var(--gold-light)'}}>새 메뉴 추가</h3>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'12px',marginBottom:'12px'}}>
-            <div><label style={{fontSize:'11px',color:'var(--text2)',display:'block',marginBottom:'4px'}}>카테고리</label>
-              <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}
-                style={{width:'100%',padding:'8px',borderRadius:'6px',border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'12px'}}>
-                {categories.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
-              </select>
-            </div>
-            <div><label style={{fontSize:'11px',color:'var(--text2)',display:'block',marginBottom:'4px'}}>메뉴명</label>
-              <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="메뉴 이름"
-                style={{width:'100%',padding:'8px',borderRadius:'6px',border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'12px',boxSizing:'border-box'}}/>
-            </div>
-            <div><label style={{fontSize:'11px',color:'var(--text2)',display:'block',marginBottom:'4px'}}>소요시간(분)</label>
-              <input type="number" value={form.duration} onChange={e=>setForm({...form,duration:+e.target.value})}
-                style={{width:'100%',padding:'8px',borderRadius:'6px',border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'12px',boxSizing:'border-box'}}/>
-            </div>
-            <div><label style={{fontSize:'11px',color:'var(--text2)',display:'block',marginBottom:'4px'}}>가격</label>
-              <input type="number" value={form.price} onChange={e=>setForm({...form,price:+e.target.value})}
-                style={{width:'100%',padding:'8px',borderRadius:'6px',border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'12px',boxSizing:'border-box'}}/>
-            </div>
-            <div><label style={{fontSize:'11px',color:'var(--text2)',display:'block',marginBottom:'4px'}}>통화</label>
-              <select value={form.unit} onChange={e=>setForm({...form,unit:e.target.value})}
-                style={{width:'100%',padding:'8px',borderRadius:'6px',border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'12px'}}>
-                <option value="VND">VND (동)</option><option value="KRW">KRW (원)</option>
-              </select>
-            </div>
-            <div><label style={{fontSize:'11px',color:'var(--text2)',display:'block',marginBottom:'4px'}}>설명</label>
-              <input value={form.desc} onChange={e=>setForm({...form,desc:e.target.value})} placeholder="간단한 설명"
-                style={{width:'100%',padding:'8px',borderRadius:'6px',border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'12px',boxSizing:'border-box'}}/>
-            </div>
-          </div>
-          <div style={{display:'flex',gap:'8px',justifyContent:'flex-end'}}>
-            <button onClick={()=>setShowAdd(false)} style={{padding:'8px 16px',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:'6px',cursor:'pointer',fontSize:'12px',color:'var(--text2)'}}>취소</button>
-            <button onClick={addMenu} style={{padding:'8px 16px',background:'var(--gold)',color:'white',border:'none',borderRadius:'6px',cursor:'pointer',fontSize:'12px',fontWeight:'700'}}>저장</button>
-          </div>
-        </div>
-      )}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:'12px'}}>
-        {filtered.map(menu => {
-          const cat = catMap[menu.category] || {};
-          return (
-            <div key={menu.id} style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'12px',padding:'16px',opacity:menu.active?1:0.5}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'10px'}}>
-                <div>
-                  <span style={{display:'inline-block',padding:'2px 8px',borderRadius:'10px',fontSize:'10px',fontWeight:'700',background:(cat.color||'#B8956A')+'22',color:cat.color||'#B8956A',marginBottom:'6px'}}>{cat.label||menu.category}</span>
-                  <div style={{fontSize:'14px',fontWeight:'700',color:'var(--text)'}}>{menu.name}</div>
-                </div>
-                <div style={{display:'flex',gap:'6px'}}>
-                  <button onClick={()=>save((Array.isArray(menus)?menus:[]).map(m=>m.id===menu.id?{...m,active:!m.active}:m))}
-                    style={{padding:'4px 10px',borderRadius:'12px',border:'none',cursor:'pointer',fontSize:'10px',fontWeight:'700',background:menu.active?'#22c55e22':'var(--bg)',color:menu.active?'#22c55e':'var(--text2)'}}>
-                    {menu.active?'ON':'OFF'}
-                  </button>
-                  <button onClick={()=>{if(confirm('삭제?'))save((Array.isArray(menus)?menus:[]).filter(m=>m.id!==menu.id));}}
-                    style={{padding:'4px 8px',borderRadius:'6px',border:'none',cursor:'pointer',fontSize:'10px',background:'#ef444422',color:'#ef4444'}}>삭제</button>
-                </div>
-              </div>
-              <div style={{fontSize:'12px',color:'var(--text2)',marginBottom:'8px'}}>{menu.desc}</div>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                <span style={{fontSize:'11px',color:'var(--text3)'}}>{menu.duration>0?menu.duration+'분':'기간제'}</span>
-                <span style={{fontSize:'16px',fontWeight:'800',color:'var(--gold-light)'}}>{menu.price.toLocaleString()} <span style={{fontSize:'11px',fontWeight:'600'}}>{menu.unit}</span></span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      {filtered.length===0 && <div style={{textAlign:'center',padding:'60px',color:'var(--text3)'}}><div style={{fontSize:'40px',marginBottom:'12px'}}>📋</div><div>등록된 메뉴가 없습니다</div></div>}
-    </div>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
   </script>
+</body>
+</html>

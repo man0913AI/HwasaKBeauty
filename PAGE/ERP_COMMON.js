@@ -472,11 +472,10 @@ const Ic=({d,size=18,color='currentColor'})=>React.createElement('svg',{width:si
 
 // ERP 메뉴 정보 (페이지 네비게이션용)
 const ERP_PAGES = [
-  {id:'master', label:'마스터', href:'PAGE_ERP_MASTER.html', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z', children:[{id:'customer', label:'고객', href:'PAGE_ERP_CUSTOMER_MANAGEMENT.html', icon:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8'}]},
+  {id:'master', label:'마스터', href:'PAGE_ERP_MASTER.html', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z', children:[{id:'customer', label:'고객', href:'PAGE_ERP_CUSTOMER_MANAGEMENT.html', icon:'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8'},{id:'contract', label:'계약서', href:'PAGE_ERP_EMPLOYEE_CONTRACT.html', icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8'}]},
   {id:'sales', label:'매출', href:'PAGE_ERP_SALES.html', icon:'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'},
   {id:'purchase', label:'매입', href:'PAGE_ERP_PURCHASE.html', icon:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0'},
   {id:'closing', label:'결산', href:'PAGE_ERP_CLOSING.html', icon:'M18 20V10 M12 20V4 M6 20v-6'},
-  {id:'contract', label:'계약서', href:'PAGE_ERP_EMPLOYEE_CONTRACT.html', icon:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8'},
   {id:'commute', label:'출퇴근', href:'PAGE_ERP_COMMUTE.html', icon:'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z M12 6v6l4 2'},
   {id:'salary', label:'월급여', href:'PAGE_ERP_MEMBER_SALARY.html', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2 M12 11a4 4 0 100-8 4 4 0 000 8 M23 21v-2a4 4 0 00-3-3.87'},
 ];

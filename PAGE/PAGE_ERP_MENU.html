@@ -10,6 +10,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <style>
+    .menu-split-wrap{display:flex;flex-direction:column;height:calc(100vh - 48px);overflow:hidden;padding:10px 14px;gap:10px;box-sizing:border-box;}
+    .menu-split-panel{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;}
+    .menu-split-panel-title{padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--gold-light);flex-shrink:0;display:flex;align-items:center;gap:6px;}
+    .menu-split-panel-body{flex:1;overflow-y:auto;min-height:0;}
+  </style>
   <script src="ERP_COMMON.js"></script>
     <script src="DATA_CONNECTOR.js"></script>
     </head>
@@ -423,14 +429,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <style>{ CSS }{ MASTER_CSS }
-    .menu-split-wrap{display:flex;flex-direction:column;height:calc(100vh - 48px);overflow:hidden;padding:10px 14px;gap:10px;box-sizing:border-box;}
-    .menu-split-panel{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;}
-    .menu-split-panel-title{padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--gold-light);flex-shrink:0;display:flex;align-items:center;gap:6px;}
-    .menu-split-panel-body{flex:1;overflow-y:auto;min-height:0;}
-    .menu-split-panel-body .master-section{margin:0;border:none;border-radius:0;}
-    .menu-split-panel-body .section-header{display:none;}
-  </style>
+      <style>{ CSS }{ MASTER_CSS }</style>
       <div className="app">
         <div className="hdr">
           <div className="hdr-logo"><div className="mk">H</div><div className="nm">HWASA K-Beauty</div></div>

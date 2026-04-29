@@ -476,6 +476,7 @@ const ERP_PAGES = [
   {id:'sales', label:'매출', href:'PAGE_ERP_SALES.html', icon:'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'},
   {id:'purchase', label:'매입', href:'PAGE_ERP_PURCHASE.html', icon:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0'},
   {id:'closing', label:'결산', href:'PAGE_ERP_CLOSING.html', icon:'M18 20V10 M12 20V4 M6 20v-6'},
+  {id:'calendar', label:'캘린더', href:'PAGE_ERP_CALENDAR.html', icon:'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'},
 ];
 
 // 인증 체크

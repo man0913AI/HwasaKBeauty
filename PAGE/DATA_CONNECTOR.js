@@ -44,7 +44,11 @@ const HSKB_DATA = {
         const sales2 = await s2.json();
         const allSales = [...sales1, ...sales2];
         if (typeof DataService !== 'undefined') {
-          DataService._store.sales = { records: allSales };
+          DataService._store.sales = allSales;
+          // 월별 접근을 위한 인덱스 구성
+          const salesByMonth = {};
+          allSales.forEach(s => { const m = s.month||''; if(!salesByMonth[m]) salesByMonth[m]=[]; salesByMonth[m].push(s); });
+          DataService._store.salesByMonth = salesByMonth;
           console.log('[HSKB] 매출 ' + allSales.length + '건 DataService 주입 완료');
           window.dispatchEvent(new CustomEvent('hskb:sales:loaded', { detail: { sales: allSales } }));
         }

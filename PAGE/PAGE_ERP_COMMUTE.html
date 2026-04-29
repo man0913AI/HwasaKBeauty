@@ -139,7 +139,7 @@ function AttendanceMonthly() {
         if (!all[ym]) all[ym] = {};
 
         // 예상 컬럼: [직원명, 날짜(YYYY-MM-DD or DD), 출근시간, 퇴근시간]
-        rows.slice(1).forEach(row => {
+        (Array.isArray(rows)?rows:[]).slice(1).forEach(row => {
           if (!row[0] || !row[1]) return;
           const empRaw = String(row[0]).trim().toLowerCase();
           const emp    = EMPLOYEES.find(e => e.name===empRaw||e.nameKr===row[0]) ?.name;

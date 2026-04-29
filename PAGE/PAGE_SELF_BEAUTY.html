@@ -18,7 +18,7 @@
         }
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; }
-        body { font-family: var(--font-body); background: #0A0A0A; color: #F5F0EB; line-height: 1.6; overflow-x: hidden; }
+        body { font-family: var(--font-body); background: transparent; color: #F5F0EB; line-height: 1.6; overflow-x: hidden; }
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
         ::-webkit-scrollbar { width: 4px; }
@@ -44,9 +44,9 @@
         /* PAGE HERO — 짧게 */
         .page-hero { padding: 96px 48px 24px; text-align: center; }
         .page-hero-label { font-family: var(--font-nav); font-size: 11px; letter-spacing: 6px; text-transform: uppercase; color: var(--color-accent-light); margin-bottom: 12px; }
-        .page-hero-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px); font-weight: 300; color: #fff; line-height: 1.2; margin-bottom: 8px; }
+        .page-hero-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px); font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 8px; }
         .page-hero-title em { font-style: italic; color: var(--color-accent-light); }
-        .page-hero-desc { font-size: 13px; color: #fff; font-weight: 300; max-width: 500px; margin: 0 auto; }
+        .page-hero-desc { font-size: 13px; color: #fff; font-weight: 700; max-width: 500px; margin: 0 auto; }
 
         /* TV GRID */
         .tv-section { padding: 20px 48px 80px; }
@@ -122,16 +122,10 @@
             z-index: -1;
             overflow: hidden;
         }
-        .bg-video-wrap video {
+        .bg-video-wrap img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        .bg-overlay {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
-            background: radial-gradient(ellipse 70% 60% at 50% 45%,
-                rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.6) 35%,
-                rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.18) 80%, rgba(0,0,0,0.08) 100%);
         }
         html, body { overflow: hidden; height: 100%; margin: 0; }
         .scroll-container {
@@ -170,19 +164,38 @@
         .footer-inner { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-family: 'Instrument Sans', var(--font-nav, sans-serif); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
         .footer-inner a { color: #fff; text-decoration: none; transition: color 0.3s; }
         .footer-inner a:hover { color: #B8956A; }
-        .footer-sep { color: rgba(255,255,255,0.4); }
+        .footer-sep { color: #fff; }
         .footer-erp-link { color: #fff !important; }
         .footer-erp-link:hover { color: #B8956A !important; }
 
-        </style>
+        
+        /* ===== 흰색 텍스트 볼드 강화 ===== */
+        .hero-title, .hero-desc, .hero-label, .hero-sub, .hero-subtitle,
+        .section-title, .section-desc, .section-label, .section-sub,
+        .stat-label, .stat-num, .stat-unit, .stat-sub,
+        .service-card h3, .service-card p, .service-name, .service-desc,
+        .loader-text, .intro-title, .intro-text, .intro-sub,
+        .feature-title, .feature-desc, .feature-text,
+        .testimonial-text, .author-name, .author-role,
+        .footer-logo, .footer-copyright, .footer-link,
+        .logo-mark, .logo-sub, .nav-logo,
+        .about-text, .about-title, .about-desc,
+        .page-title, .page-desc, .page-label,
+        .card-title, .card-desc, .card-text,
+        .review-text, .review-author,
+        h1, h2, h3, h4, h5, h6, p, span, a, li, label {
+            font-weight: 700 !important;
+        }
+        /* rgba 텍스트 색상 불투명하게 */
+        .footer-link, .footer-copyright, .nav a, .side-nav a {
+            color: #fff !important;
+            opacity: 1 !important;
+        }</style>
 </head>
 <body>
     <div class="bg-video-wrap">
-        <video muted playsinline preload="metadata" poster="../IMAGE/VIDEO_POSTER.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
-            <source src="../IMAGE/VIDEO_BACKGROUND.mp4" type="video/mp4">
-        </video>
-    </div>
-    <div class="bg-overlay"></div>
+        <img src="../IMAGE/배경화면_숲.png" alt="배경" style="width:100%;height:100%;object-fit:cover;">    </div>
+    
     <header class="header">
         <a href="PAGE_MAIN.html" class="logo">
             <img src="../IMAGE/IMAGE_LOGO.png" alt="Hwasa K-Beauty" class="logo-img">

@@ -11,12 +11,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
   <script src="ERP_COMMON.js"></script>
+    <script src="DATA_CONNECTOR.js"></script>
+    <script src="DATA_SERVICE.js"></script>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['일일 입력','매출 내역','월별 요약'];
+
 
 const SALES_CSS = `
 .ac-wrap{position:relative;width:100%;height:100%;}
@@ -105,7 +107,6 @@ function CustomerAC({value, onChange, customers}) {
 function MenuCompositionPopup({menuName, onClose}) {
   const head = MASTER.menuHead.find(m=>m.name===menuName);
   const body = head ? MASTER.menuBody.filter(b=>b.menuCode===head.code&&b.active).sort((a,b)=>a.seq-b.seq) : [];
-  const pgName = code => { const p=MASTER.program.find(x=>x.code===code); return p?p.name:code; };
   if(!head) return null;
   return (
     <div className="menu-popup-bg" onClick={onClose}>
@@ -458,7 +459,7 @@ function App() {
           </div>
         </div>
         <div className="content">
-          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+                  <div className="sub-tabs">{SUB_TABS.sales.map((tab,i)=>(
             <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
           ))}</div>
           <div className="page" key={subTab}>{renderContent()}</div>

@@ -11,19 +11,33 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
   <script src="ERP_COMMON.js"></script>
+    <script src="DATA_CONNECTOR.js"></script>
+    <script src="DATA_SERVICE.js"></script>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['고객 목록','고객 상세','고객 등록'];
+const PAGE_TABS = ['고객 목록','고객 상세','고객 등록'];
 
 /* ════════════════════════════════════════
    CUSTOMER MANAGEMENT — 고객관리
    ════════════════════════════════════════ */
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
-  useEffect(()=>{DataService.read('customers').then(setList);},[]);
+  useEffect(()=>{
+      // GitHub 실제 데이터 자동 로드
+      if(typeof HSKB_DATA !== 'undefined') {
+        HSKB_DATA.getCustomers().then(custs => {
+          if(custs && custs.length > 0) setCustomers(custs);
+        }).catch(()=>{});
+        HSKB_DATA.getSales().then(s => {
+          if(s && s.length > 0) setSales && setSales(s);
+        }).catch(()=>{});
+        HSKB_DATA.getExpenses().then(e => {
+          if(e && e.length > 0) setPurchases && setPurchases(e);
+        }).catch(()=>{});
+      }DataService.read('customers').then(setList);},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">
@@ -57,7 +71,7 @@ function CustomerRegister({onDone}) {
     const list=await DataService.read('customers');
     const maxId=list.reduce((a,c)=>Math.max(a,parseInt(c.id.replace('C',''))||0),0);
     const newC={...form,id:'C'+String(maxId+1).padStart(3,'0'),firstVisit:today(),mileage:0,payments:[],history:[]};
-    list.push(newC);await DataService.write('customers',list);
+    list.push(newC);await HSKB_DATA.addCustomer(list);
     alert(newC.name+' 고객이 등록되었습니다.');if(onDone)onDone(newC);
   };
   return (<div className="fade-in">
@@ -188,7 +202,7 @@ function App() {
           </div>
         </div>
         <div className="content">
-          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+          <div className="sub-tabs">{PAGE_TABS.map((tab,i)=>(
             <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
           ))}</div>
           <div className="page" key={subTab}>{renderContent()}</div>

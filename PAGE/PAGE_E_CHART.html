@@ -33,23 +33,10 @@
             z-index: -2;
             overflow: hidden;
         }
-        .bg-video-wrap video {
+        .bg-video-wrap img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        /* 눈부심 개선: 중앙 빛나는 원만 자연스럽게 눌러줌 */
-        .bg-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            background: radial-gradient(ellipse 70% 60% at 50% 45%,
-                rgba(0,0,0,0.82) 0%,
-                rgba(0,0,0,0.6) 35%,
-                rgba(0,0,0,0.35) 60%,
-                rgba(0,0,0,0.18) 80%,
-                rgba(0,0,0,0.08) 100%);
         }
 
         /* ========== HEADER ========== */
@@ -60,7 +47,7 @@
             display: flex; align-items: center; justify-content: space-between;
             background: transparent;
         }
-        .logo-mark { font-family: var(--font-display); font-size: 22px; font-weight: 300; color: #fff; letter-spacing: 3px; }
+        .logo-mark { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 3px; }
         .logo-sub { font-family: var(--font-nav); font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--color-accent-light); }
         .nav { display: flex; align-items: center; gap: 20px; }
         .nav a { font-family: var(--font-nav); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #fff; transition: color 0.3s; font-weight: 700; white-space: nowrap; }
@@ -102,12 +89,12 @@
         }
         .echart-header h1 {
             font-family: var(--font-display); font-size: clamp(28px, 4vw, 42px);
-            font-weight: 300; color: #fff; margin-bottom: 8px;
+            font-weight: 700; color: #fff; margin-bottom: 8px;
             text-shadow: 0 2px 12px rgba(0,0,0,0.6);
         }
         .echart-header h1 em { font-style: italic; color: var(--color-accent-light); }
         .echart-header p {
-            font-size: 14px; color: #fff; font-weight: 300;
+            font-size: 14px; color: #fff; font-weight: 700;
             text-shadow: 0 1px 6px rgba(0,0,0,0.5);
         }
 
@@ -119,7 +106,7 @@
             border: 2px solid rgba(255,255,255,0.15);
             display: flex; align-items: center; justify-content: center;
             font-family: var(--font-nav); font-size: 12px; font-weight: 700;
-            color: rgba(255,255,255,0.3); background: transparent;
+            color: #fff; background: transparent;
             transition: all 0.4s var(--ease-smooth); position: relative; z-index: 2;
             flex-shrink: 0;
         }
@@ -130,7 +117,7 @@
         .progress-step.done .dot { border-color: var(--color-success); color: #fff; background: var(--color-success); }
         .progress-step .step-label {
             font-family: var(--font-nav); font-size: 11px; letter-spacing: 0.5px;
-            color: rgba(255,255,255,0.3); white-space: nowrap;
+            color: #fff; white-space: nowrap;
             transition: color 0.3s; font-weight: 600;
         }
         .progress-step.active .step-label { color: var(--color-accent-light); }
@@ -155,13 +142,13 @@
         }
         .form-page:last-child { border-bottom: none; }
         .page-title {
-            font-family: var(--font-display); font-size: 20px; font-weight: 400;
+            font-family: var(--font-display); font-size: 20px; font-weight: 700;
             margin-bottom: 4px; color: #fff;
         }
         .page-title em { font-style: italic; color: var(--color-accent-light); }
         .page-subtitle {
             font-size: 11px; color: #fff;
-            margin-bottom: 14px; font-weight: 300;
+            margin-bottom: 14px; font-weight: 700;
         }
 
         /* ========== FORM ELEMENTS — 반투명 ========== */
@@ -186,7 +173,7 @@
             border-color: var(--color-accent);
             box-shadow: 0 0 0 3px rgba(184,149,106,0.2);
         }
-        .form-input::placeholder { color: rgba(255,255,255,0.4); }
+        .form-input::placeholder { color: #fff; }
         .form-textarea { resize: vertical; min-height: 64px; }
         .form-select {
             cursor: pointer;
@@ -204,7 +191,7 @@
             cursor: pointer; transition: all 0.3s;
             background: rgba(0,0,0,0.2);
         }
-        .check-item:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.08); }
+        .check-item:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
         .check-item.selected {
             border-color: var(--color-accent);
             background: rgba(184,149,106,0.2);
@@ -220,7 +207,7 @@
         .check-dot::after { content: '✓'; font-size: 8px; color: #fff; opacity: 0; transition: opacity 0.2s; }
         .check-item.selected .check-dot::after { opacity: 1; }
         .check-square .check-dot { border-radius: 3px; }
-        .check-label { font-size: 10px; font-weight: 400; color: #fff; }
+        .check-label { font-size: 10px; font-weight: 700; color: #fff; }
 
         .form-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 12px 0; }
         .form-section-title {
@@ -268,7 +255,7 @@
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 24px; font-size: 36px; color: #fff;
         }
-        .success-screen h2 { font-family: var(--font-display); font-size: 32px; font-weight: 400; margin-bottom: 12px; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        .success-screen h2 { font-family: var(--font-display); font-size: 32px; font-weight: 700; margin-bottom: 12px; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
         .success-screen p { font-size: 14px; color: #fff; line-height: 1.8; }
         .btn-home {
             display: inline-block; margin-top: 32px; padding: 14px 40px;
@@ -343,21 +330,40 @@
         .footer-inner { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-family: 'Instrument Sans', var(--font-nav, sans-serif); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
         .footer-inner a { color: #fff; text-decoration: none; transition: color 0.3s; }
         .footer-inner a:hover { color: #B8956A; }
-        .footer-sep { color: rgba(255,255,255,0.4); }
+        .footer-sep { color: #fff; }
         .footer-erp-link { color: #fff !important; }
         .footer-erp-link:hover { color: #B8956A !important; }
 
-        </style>
+        
+        /* ===== 흰색 텍스트 볼드 강화 ===== */
+        .hero-title, .hero-desc, .hero-label, .hero-sub, .hero-subtitle,
+        .section-title, .section-desc, .section-label, .section-sub,
+        .stat-label, .stat-num, .stat-unit, .stat-sub,
+        .service-card h3, .service-card p, .service-name, .service-desc,
+        .loader-text, .intro-title, .intro-text, .intro-sub,
+        .feature-title, .feature-desc, .feature-text,
+        .testimonial-text, .author-name, .author-role,
+        .footer-logo, .footer-copyright, .footer-link,
+        .logo-mark, .logo-sub, .nav-logo,
+        .about-text, .about-title, .about-desc,
+        .page-title, .page-desc, .page-label,
+        .card-title, .card-desc, .card-text,
+        .review-text, .review-author,
+        h1, h2, h3, h4, h5, h6, p, span, a, li, label {
+            font-weight: 700 !important;
+        }
+        /* rgba 텍스트 색상 불투명하게 */
+        .footer-link, .footer-copyright, .nav a, .side-nav a {
+            color: #fff !important;
+            opacity: 1 !important;
+        }</style>
 </head>
 <body>
     <!-- BACKGROUND VIDEO -->
     <div class="bg-video-wrap">
-        <video muted playsinline preload="metadata" poster="../IMAGE/VIDEO_POSTER.jpg" style="pointer-events:none;" onloadeddata="this.currentTime=0.5;this.pause();">
-            <source src="../IMAGE/VIDEO_BACKGROUND.mp4" type="video/mp4">
-        </video>
-    </div>
+        <img src="../IMAGE/배경화면_숲.png" alt="배경" style="width:100%;height:100%;object-fit:cover;">    </div>
     <!-- 눈부심 개선 오버레이 -->
-    <div class="bg-overlay"></div>
+    
     <!-- CLIPBOARD FRAME -->
     
 

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "E1_0006",
+    "date": "2026-01-02",
+    "month": 1,
+    "year": 2026,
+    "cat1_rawMaterial": 550000,
+    "cat2_subMaterial": 0,
+    "cat3_infra": 0,
+    "cat4_labor": 0,
+    "cat5_tip": 1150000,
+    "cat6_misc": 171000,
+    "memo": "1머미팩245K, 통 + 판.6 화재기 배터리",
+    "totalExpense": 1871000
+  },
+  {
+    "id": "E1_0007",
+    "date": "2026-01-03",
+    "month": 1,
+    "year": 2026,
+    "cat1_rawMaterial": 346000,
+    "cat2_subMaterial": 0,
+    "cat3_infra": 0,
+    "cat4_labor": 0,
+    "cat5_tip": 1950000,
+    "cat6_misc": 363000,
+    "memo": "1면봉+ 모델링+ 프디신, 6 사과 죠스+ 빨래",
+    "totalExpense": 2659000
+  },
+  {
+    "id": "E1_0008",
+    "date": "2026-01-04",
+    "month": 1,
+    "year": 2026,
+    "cat1_rawMaterial": 0,
+    "cat2_subMaterial": 0,
+    "cat3_infra": 0,
+    "cat4_labor": 0,
+    "cat5_tip": 1250000,
+    "cat6_misc": 245000,
+    "memo": "6 먹는물+ 빨래",
+    "totalExpense": 1495000
+  },
+  {
+    "id": "E1_0009",
+    "date": "2026-01-05",
+    "month": 1,
+    "year": 2026,
+    "cat1_rawMaterial": 0,
+    "cat2_subMaterial": 0,
+    "cat3_infra": 0,
+    "cat4_labor": 0,
+    "cat5_tip": 2350000,
+    "cat6_misc": 1512000,
+    "memo": "6 커피시 5KG+ 빨래",
+    "totalExpense": 3862000
+  },
+  {
+    "id": "E1_0010",
+    "date": "2026-01-06",
+    "month": 1,
+    "year": 2026,
+    "cat1_rawMaterial": 0,
+    "cat2_subMaterial": 0,
+    "cat3_infra": 0,
+    "cat4_labor": 0,
+    "cat5_tip": 1950000,
+    "cat6_misc": 190000,
+    "memo": "6 빨래",
+    "totalExpense": 2140000
+  }
+]

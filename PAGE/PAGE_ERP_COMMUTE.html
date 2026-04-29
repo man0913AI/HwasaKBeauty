@@ -12,12 +12,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin></script>
   <script src="ERP_COMMON.js"></script>
+    <script src="DATA_CONNECTOR.js"></script>
+    <script src="DATA_SERVICE.js"></script>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['월별 현황','직원별','근태 요약'];
+const PAGE_TABS = ['월별 현황','직원별','근태 요약'];
 
 const COMMUTE_CSS = `
 .att-cal{border-collapse:collapse;font-size:9.5px;width:100%;}
@@ -31,7 +33,7 @@ const COMMUTE_CSS = `
 .att-cal .ot{color:#9B59B6!important;}
 .att-cal .no-data{color:var(--border);font-size:8px;}
 .att-cal .weekend{background:rgba(255,255,255,0.02);}
-.att-cal .today-col{background:var(--gold-glow);}
+.att-cal .todayStr-col{background:var(--gold-glow);}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;}
 .modal{background:var(--bg-card);border:1px solid var(--border-gold);border-radius:var(--radius);padding:20px;min-width:280px;max-width:360px;}
 .modal h4{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold-light);margin-bottom:12px;}
@@ -111,7 +113,7 @@ function AttendanceMonthly() {
 
   const monthData = attAll[ym] || {};
   const days      = Array.from({length:daysInMonth(ym)},(_,i)=>i+1);
-  const today     = currentDay();
+  const todayStr = currentDay();
   const nowYm     = todayYm();
 
   const saveCell = async (emp, day, val) => {
@@ -197,11 +199,11 @@ function AttendanceMonthly() {
                   <td className="emp-name">{emp.nameKr}<span style={{fontSize:8,color:'var(--text3)',display:'block'}}>{emp.name}</span></td>
                   {days.map(d=>{
                     const r    = ed[d];
-                    const isTd = ym===nowYm && d===today;
+                    const isTd = ym===nowYm && d===todayStr;
                     const wknd = isWeekend(ym,d);
                     return (
                       <td key={d}
-                        className={(wknd?'weekend':'')+(isTd?' today-col':'')}
+                        className={(wknd?'weekend':'')+(isTd?' todayStr-col':'')}
                         onClick={()=>setModal({emp:emp.name,empKr:emp.nameKr,day:d,current:r})}
                       >
                         {r ? <>
@@ -443,7 +445,7 @@ function App() {
           </div>
         </div>
         <div className="content">
-          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+          <div className="sub-tabs">{PAGE_TABS.map((tab,i)=>(
             <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
           ))}</div>
           <div className="page" key={subTab}>{renderContent()}</div>

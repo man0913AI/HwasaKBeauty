@@ -12,7 +12,7 @@
         /* ========== CSS VARIABLES ========== */
         :root {
             --color-bg: #FAFAF8;
-            --color-bg-dark: #0A0A0A;
+            --color-bg-dark: transparent;
             --color-bg-cream: #F5F0EB;
             --color-text: #1A1A1A;
             --color-text-light: #F5F0EB;
@@ -57,10 +57,11 @@
             z-index: -1;
             overflow: hidden;
         }
-        .bg-video-wrap video {
+        .bg-video-wrap img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center;
         }
 
         /* ========== SCROLLBAR ========== */
@@ -72,7 +73,7 @@
         .loader {
             position: fixed;
             inset: 0;
-            background: var(--color-bg-dark);
+            background: transparent;
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -87,7 +88,7 @@
             font-size: clamp(24px, 4vw, 42px);
             color: var(--color-text-light);
             letter-spacing: 8px;
-            font-weight: 300;
+            font-weight: 700;
         }
         .loader-bar {
             width: 120px;
@@ -132,7 +133,7 @@
         .logo-mark {
             font-family: var(--font-display);
             font-size: 28px;
-            font-weight: 300;
+            font-weight: 700;
             color: #fff;
             letter-spacing: 3px;
         }
@@ -229,7 +230,7 @@
         .hero-title {
             font-family: var(--font-display);
             font-size: clamp(42px, 7vw, 86px);
-            font-weight: 300;
+            font-weight: 700;
             color: #fff;
             line-height: 1.1;
             letter-spacing: -1px;
@@ -245,7 +246,7 @@
         .hero-desc {
             font-size: 15px;
             color: #fff;
-            font-weight: 300;
+            font-weight: 700;
             line-height: 1.8;
             margin-bottom: 40px;
             opacity: 0;
@@ -370,7 +371,7 @@
         .section-title {
             font-family: var(--font-display);
             font-size: clamp(32px, 4.5vw, 56px);
-            font-weight: 300;
+            font-weight: 700;
             line-height: 1.2;
             margin-bottom: 24px;
             color: #fff;
@@ -379,7 +380,7 @@
         .section-desc {
             font-size: 15px;
             line-height: 1.9;
-            font-weight: 300;
+            font-weight: 700;
             color: #fff;
             max-width: 520px;
         }
@@ -463,14 +464,14 @@
         .service-card h3 {
             font-family: var(--font-display);
             font-size: 26px;
-            font-weight: 400;
+            font-weight: 700;
             color: #fff;
             margin-bottom: 8px;
         }
         .service-card p {
             font-size: 13px;
             color: #fff;
-            font-weight: 300;
+            font-weight: 700;
             line-height: 1.6;
         }
         .service-card .arrow {
@@ -505,7 +506,7 @@
         .stat-num {
             font-family: var(--font-display);
             font-size: clamp(42px, 5vw, 64px);
-            font-weight: 300;
+            font-weight: 700;
             color: var(--color-accent);
             line-height: 1;
             margin-bottom: 12px;
@@ -514,7 +515,7 @@
             font-size: 13px;
             letter-spacing: 1px;
             color: #fff;
-            font-weight: 300;
+            font-weight: 700;
         }
 
         /* ========== FEATURED BANNER ========== */
@@ -679,19 +680,39 @@
         .footer-inner { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-family: 'Instrument Sans', var(--font-nav, sans-serif); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
         .footer-inner a { color: #fff; text-decoration: none; transition: color 0.3s; }
         .footer-inner a:hover { color: #B8956A; }
-        .footer-sep { color: rgba(255,255,255,0.4); }
+        .footer-sep { color: #fff; }
         .footer-erp-link { color: #fff !important; }
         .footer-erp-link:hover { color: #B8956A !important; }
 
-        </style>
+        
+        /* ===== 흰색 텍스트 볼드 강화 ===== */
+        .hero-title, .hero-desc, .hero-label, .hero-sub, .hero-subtitle,
+        .section-title, .section-desc, .section-label, .section-sub,
+        .stat-label, .stat-num, .stat-unit, .stat-sub,
+        .service-card h3, .service-card p, .service-name, .service-desc,
+        .loader-text, .intro-title, .intro-text, .intro-sub,
+        .feature-title, .feature-desc, .feature-text,
+        .testimonial-text, .author-name, .author-role,
+        .footer-logo, .footer-copyright, .footer-link,
+        .logo-mark, .logo-sub, .nav-logo,
+        .about-text, .about-title, .about-desc,
+        .page-title, .page-desc, .page-label,
+        .card-title, .card-desc, .card-text,
+        .review-text, .review-author,
+        h1, h2, h3, h4, h5, h6, p, span, a, li, label {
+            font-weight: 700 !important;
+        }
+        /* rgba 텍스트 색상 불투명하게 */
+        .footer-link, .footer-copyright, .nav a, .side-nav a {
+            color: #fff !important;
+            opacity: 1 !important;
+        }</style>
 </head>
 <body>
 
     <!-- BACKGROUND VIDEO (persistent across scroll) -->
     <div class="bg-video-wrap">
-        <video autoplay muted loop playsinline style="pointer-events:none;">
-            <source src="../IMAGE/VIDEO_BACKGROUND.mp4" type="video/mp4">
-        </video>
+        <img src="../IMAGE/%EB%B0%B0%EA%B2%BD%ED%99%94%EB%A9%B4_%EC%88%B2.png" alt="Hwasa K-Beauty Clinic" style="pointer-events:none;">
     </div>
 
     <!-- LOADER -->

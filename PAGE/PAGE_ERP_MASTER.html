@@ -11,12 +11,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
   <script src="ERP_COMMON.js"></script>
+    <script src="DATA_CONNECTOR.js"></script>
+    <script src="DATA_SERVICE.js"></script>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
-const SUB_TABS = ['대시보드','프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'];
+const PAGE_TABS = ['대시보드','프로그램','메뉴(HEAD)','메뉴구성(BODY)','이벤트','직원','멤버등급','지출항목','매입분류','공급처','고객등록'];
 
 const MASTER_CSS = `
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:14px;}
@@ -446,7 +448,7 @@ function App() {
           </div>
         </div>
         <div className="content">
-          <div className="sub-tabs">{SUB_TABS.map((tab,i)=>(
+          <div className="sub-tabs">{PAGE_TABS.map((tab,i)=>(
             <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
           ))}</div>
           <div className="page" key={subTab}>{renderContent()}</div>

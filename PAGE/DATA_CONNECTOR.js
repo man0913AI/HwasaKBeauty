@@ -32,6 +32,7 @@ const HSKB_DATA = {
         if (typeof DataService !== 'undefined') {
           DataService._store.customers = customers;
           console.log('[HSKB] 고객 ' + customers.length + '명 DataService 주입 완료');
+          window.dispatchEvent(new CustomEvent('hskb:customers:loaded', { detail: { customers } }));
         }
       }
 
@@ -45,6 +46,7 @@ const HSKB_DATA = {
         if (typeof DataService !== 'undefined') {
           DataService._store.sales = { records: allSales };
           console.log('[HSKB] 매출 ' + allSales.length + '건 DataService 주입 완료');
+          window.dispatchEvent(new CustomEvent('hskb:sales:loaded', { detail: { sales: allSales } }));
         }
         this._cache['sales'] = allSales;
       }
@@ -56,6 +58,7 @@ const HSKB_DATA = {
         if (typeof DataService !== 'undefined') {
           DataService._store.purchase = expenses;
           console.log('[HSKB] 지출 ' + expenses.length + '건 DataService 주입 완료');
+          window.dispatchEvent(new CustomEvent('hskb:expenses:loaded', { detail: { expenses } }));
         }
         this._cache['expenses'] = expenses;
       }

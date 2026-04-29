@@ -1,0 +1,115 @@
+[
+  {
+    "id": "C001",
+    "name": "김민준",
+    "nameEn": "",
+    "phone": "0912-345-6789",
+    "gender": "남",
+    "birth": "1994-05-12",
+    "grade": "GOLD",
+    "firstVisit": "2025-08-15",
+    "area": "미딩",
+    "memo": "탈모 관심",
+    "mileage": 125000,
+    "payments": [
+      {"date": "2026-03-02", "menu": "화사케어 A", "amount": 880000, "method": "현금", "tip": 100000},
+      {"date": "2026-03-15", "menu": "탈모케어", "amount": 1100000, "method": "카드", "tip": 100000},
+      {"date": "2026-04-01", "menu": "화사케어 B", "amount": 660000, "method": "현금", "tip": 100000}
+    ],
+    "history": [
+      {"date": "2026-03-02", "menu": "화사케어 A", "therapist": "홍", "note": "첫 방문, 복합성 피부"},
+      {"date": "2026-03-15", "menu": "탈모케어", "therapist": "홍", "note": "두피 상태 양호"},
+      {"date": "2026-04-01", "menu": "화사케어 B", "therapist": "옌", "note": "색소 개선 중"}
+    ]
+  },
+  {
+    "id": "C002",
+    "name": "Nguyễn Mai",
+    "nameEn": "Nguyen Mai",
+    "phone": "0987-654-3210",
+    "gender": "여",
+    "birth": "1990-11-03",
+    "grade": "VIP",
+    "firstVisit": "2025-06-01",
+    "area": "꺼우저이",
+    "memo": "정기 관리 고객",
+    "mileage": 350000,
+    "payments": [
+      {"date": "2026-02-20", "menu": "VIP케어", "amount": 1650000, "method": "카드", "tip": 100000},
+      {"date": "2026-03-10", "menu": "HIFU 리프팅", "amount": 2200000, "method": "카드", "tip": 100000},
+      {"date": "2026-03-28", "menu": "화사케어 A", "amount": 880000, "method": "현금", "tip": 100000},
+      {"date": "2026-04-05", "menu": "VIP케어", "amount": 1650000, "method": "카드", "tip": 100000}
+    ],
+    "history": [
+      {"date": "2026-02-20", "menu": "VIP케어", "therapist": "홍", "note": "전신 관리, 만족"},
+      {"date": "2026-03-10", "menu": "HIFU 리프팅", "therapist": "홍", "note": "리프팅 1회차"},
+      {"date": "2026-03-28", "menu": "화사케어 A", "therapist": "투이", "note": "수분 부족"},
+      {"date": "2026-04-05", "menu": "VIP케어", "therapist": "홍", "note": "리프팅 후 관리"}
+    ]
+  },
+  {
+    "id": "C003",
+    "name": "박서연",
+    "nameEn": "",
+    "phone": "0968-111-2222",
+    "gender": "여",
+    "birth": "1988-02-28",
+    "grade": "CLUB",
+    "firstVisit": "2026-01-10",
+    "area": "동다",
+    "memo": "",
+    "mileage": 55000,
+    "payments": [
+      {"date": "2026-01-10", "menu": "기본관리", "amount": 440000, "method": "현금", "tip": 100000},
+      {"date": "2026-02-14", "menu": "아쿠아필링", "amount": 550000, "method": "카드", "tip": 100000}
+    ],
+    "history": [
+      {"date": "2026-01-10", "menu": "기본관리", "therapist": "옌", "note": "첫 방문"},
+      {"date": "2026-02-14", "menu": "아쿠아필링", "therapist": "옌", "note": "모공 관리 시작"}
+    ]
+  },
+  {
+    "id": "C004",
+    "name": "Trần Hùng",
+    "nameEn": "Tran Hung",
+    "phone": "0945-333-4444",
+    "gender": "남",
+    "birth": "1985-07-20",
+    "grade": "",
+    "firstVisit": "2026-03-20",
+    "area": "미딩",
+    "memo": "골프 후 관리",
+    "mileage": 0,
+    "payments": [
+      {"date": "2026-03-20", "menu": "골프케어 A", "amount": 1320000, "method": "카드", "tip": 100000}
+    ],
+    "history": [
+      {"date": "2026-03-20", "menu": "골프케어 A", "therapist": "홍", "note": "골프 후 바디+페이스"}
+    ]
+  },
+  {
+    "id": "C005",
+    "name": "이수진",
+    "nameEn": "",
+    "phone": "0932-555-6666",
+    "gender": "여",
+    "birth": "1992-09-15",
+    "grade": "BRONZE",
+    "firstVisit": "2025-11-05",
+    "area": "떠이호",
+    "memo": "민감성 피부 주의",
+    "mileage": 88000,
+    "payments": [
+      {"date": "2025-11-05", "menu": "기본관리", "amount": 440000, "method": "현금", "tip": 100000},
+      {"date": "2025-12-10", "menu": "화사케어 C", "amount": 440000, "method": "현금", "tip": 100000},
+      {"date": "2026-01-20", "menu": "화사케어 B", "amount": 660000, "method": "카드", "tip": 100000},
+      {"date": "2026-03-05", "menu": "RF 고주파", "amount": 1100000, "method": "카드", "tip": 100000}
+    ],
+    "history": [
+      {"date": "2025-11-05", "menu": "기본관리", "therapist": "옌", "note": "첫 방문, 민감성"},
+      {"date": "2025-12-10", "menu": "화사케어 C", "therapist": "옌", "note": "자극 없이 진행"},
+      {"date": "2026-01-20", "menu": "화사케어 B", "therapist": "투이", "note": "피부결 개선"},
+      {"date": "2026-03-05", "menu": "RF 고주파", "therapist": "홍", "note": "탄력 개선 시작"}
+    ]
+  }
+]

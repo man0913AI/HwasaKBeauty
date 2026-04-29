@@ -272,6 +272,24 @@ const DataService = {
     }
     this._store[t] = JSON.parse(JSON.stringify(d));
   },
+
+  // ── GitHub에서 customers.json 로드 ──────────
+  async loadCustomersFromGitHub() {
+    const GITHUB_REPO = 'https://raw.githubusercontent.com/man0913AI/HwasaKBeauty/main';
+    const CUSTOMERS_URL = GITHUB_REPO + '/data/customers.json';
+
+    try {
+      const res = await fetch(CUSTOMERS_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      this._store.customers = Array.isArray(data) ? data : this._store.customers;
+      console.log('[DataService] GitHub customers.json 로드 완료:', this._store.customers.length + '명');
+      return this._store.customers;
+    } catch(err) {
+      console.warn('[DataService] GitHub customers.json 로드 실패, 기본값 사용:', err.message);
+      return this._store.customers;
+    }
+  },
 };
 
 // Mock sales

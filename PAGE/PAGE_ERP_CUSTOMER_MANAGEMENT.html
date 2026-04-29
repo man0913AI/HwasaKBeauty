@@ -25,7 +25,7 @@ const PAGE_TABS = ['고객 목록','고객 상세','고객 등록'];
    ════════════════════════════════════════ */
 function CustomerList({onSelect}) {
   const [list,setList]=useState([]);const [search,setSearch]=useState('');
-  useEffect(()=>{(typeof HSKB_DATA!=='undefined'?HSKB_DATA.getCustomers():DataService.read('customers')).then(d=>{if(d&&d.length>0){const mapped=d.map(c=>({id:c.id||c.chartNo,name:c.name||'',nameEn:c.nameEn||'',phone:c.phone||'',gender:c.gender==='F'?'여':'남',birth:c.birthdate||c.birth||'',grade:c.memberGrade||c.grade||'',firstVisit:c.firstVisit||'',area:c.area||'',memo:c.note||c.memo||'',mileage:c.mileage||0,color:c.color||'#B8956A',payments:Array.isArray(c.payments)?c.payments:(Array.isArray(c.visitHistory)?c.visitHistory.map(v=>({date:v.date||'',menu:v.program||v.menu||'',amount:v.payment||v.amount||0,method:v.method||'현금',tip:v.deduct||v.tip||0})):[]),chartNo:c.chartNo||''}));setList(mapped);}});},[]);
+  useEffect(()=>{(typeof HSKB_DATA!=='undefined'?HSKB_DATA.getCustomers():DataService.read('customers')).then(d=>{if(d&&d.length>0)setList(d)});},[]);
   const filtered=list.filter(c=>!search||c.name.includes(search)||c.id.includes(search)||(c.nameEn||'').toLowerCase().includes(search.toLowerCase())||c.phone.includes(search));
   return (<div className="fade-in">
     <div className="toolbar">

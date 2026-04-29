@@ -215,7 +215,7 @@ function SalesDailyInput() {
   };
 
   const addRow = () => setData(p => ({ ...p, rows: [...p.rows, mkSaleRow(p.rows.length+1, selDate)] }));
-  const delRow = (i) => setData(p => ({ ...p, rows: p.(Array.isArray(rows)?rows:[]).filter((_,j)=>j!==i).map((r,j)=>({...r,no:j+1})) }));
+  const delRow = (i) => setData(p => ({ ...p, rows: p.rows.filter((_,j)=>j!==i).map((r,j)=>({...r,no:j+1})) }));
   const addExp = () => setData(p => ({ ...p, expenses: [...p.expenses, {item:'기타',amount:0,note:''}] }));
   const upExp = (i,f,v) => setData(p => { const e=[...p.expenses]; e[i]={...e[i],[f]:v}; return {...p,expenses:e}; });
   const delExp = (i) => setData(p => ({ ...p, expenses: p.expenses.filter((_,j)=>j!==i) }));

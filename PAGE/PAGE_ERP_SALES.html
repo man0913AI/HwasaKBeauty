@@ -215,7 +215,7 @@ function SalesDailyInput() {
   };
 
   const addRow = () => setData(p => ({ ...p, rows: [...p.rows, mkSaleRow(p.rows.length+1, selDate)] }));
-  const delRow = (i) => setData(p => ({ ...p, rows: p.rows.filter((_,j)=>j!==i).map((r,j)=>({...r,no:j+1})) }));
+  const delRow = (i) => setData(p => ({ ...p, rows: p.(Array.isArray(rows)?rows:[]).filter((_,j)=>j!==i).map((r,j)=>({...r,no:j+1})) }));
   const addExp = () => setData(p => ({ ...p, expenses: [...p.expenses, {item:'기타',amount:0,note:''}] }));
   const upExp = (i,f,v) => setData(p => { const e=[...p.expenses]; e[i]={...e[i],[f]:v}; return {...p,expenses:e}; });
   const delExp = (i) => setData(p => ({ ...p, expenses: p.expenses.filter((_,j)=>j!==i) }));
@@ -266,7 +266,7 @@ function SalesDailyInput() {
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((row,ri)=>(
+            {data.(Array.isArray(rows)?rows:[]).map((row,ri)=>(
               <tr key={ri}>
                 <td><div className="rn">{row.no}</div></td>
                 {/* 고객명 자동완성 */}
@@ -376,7 +376,7 @@ function SalesList() {
       <div className="toolbar"><button className="btn btn-s" onClick={()=>setSel('')}>← 목록</button><span style={{fontSize:12,fontWeight:600}}>{sel} 매출 상세</span></div>
       <div className="ss-wrap"><table className="ss" style={{minWidth:1200}}>
         <thead><tr><th>No</th><th>고객명</th><th>등급</th><th>서비스</th><th>차감금액</th><th>차감</th><th>팁차감</th><th>현금</th><th>입금</th><th>카드</th><th>한국돈</th><th>미수</th><th>남</th><th>여</th></tr></thead>
-        <tbody>{d.rows.map((r,i)=>(<tr key={i}><td className="rn">{r.no}</td><td style={{padding:'3px 6px'}}>{r.name}</td><td style={{padding:'3px 6px'}}>{r.grade}</td><td style={{padding:'3px 6px'}}>{r.service}</td>
+        <tbody>{d.(Array.isArray(rows)?rows:[]).map((r,i)=>(<tr key={i}><td className="rn">{r.no}</td><td style={{padding:'3px 6px'}}>{r.name}</td><td style={{padding:'3px 6px'}}>{r.grade}</td><td style={{padding:'3px 6px'}}>{r.service}</td>
           <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deductAmt)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deduct)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.tipDeduct)}</td>
           <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.cash)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.deposit)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.card)}</td>
           <td className="nc" style={{padding:'3px 6px'}}>{fmt(r.krw)}</td><td className="nc" style={{padding:'3px 6px'}}>{fmt(r.unpaid)}</td>
@@ -387,7 +387,7 @@ function SalesList() {
   return (<div className="fade-in"><div className="pn">
     <div className="pn-h"><div><div className="pn-t">매출 내역</div></div></div>
     <table className="tbl"><thead><tr><th>날짜</th><th>건수</th><th className="num">현금</th><th className="num">입금</th><th className="num">카드</th><th className="num">한국돈</th><th className="num">미수</th><th className="num">합계</th></tr></thead>
-    <tbody>{dates.map(dt=>{const d=data[dt];const sm=(f)=>d.rows.reduce((a,x)=>a+(Number(x[f])||0),0);const tot=sm('cash')+sm('deposit')+sm('card')+sm('krw');
+    <tbody>{dates.map(dt=>{const d=data[dt];const sm=(f)=>d.(Array.isArray(rows)?rows:[]).reduce((a,x)=>a+(Number(x[f])||0),0);const tot=sm('cash')+sm('deposit')+sm('card')+sm('krw');
       return (<tr key={dt} onClick={()=>setSel(dt)} style={{cursor:'pointer'}}><td style={{fontWeight:500,color:'var(--gold-light)'}}>{dt}</td><td>{d.rows.length}건</td>
         <td className="num">{fmt(sm('cash'))}</td><td className="num">{fmt(sm('deposit'))}</td><td className="num">{fmt(sm('card'))}</td><td className="num">{fmt(sm('krw'))}</td><td className="num">{fmt(sm('unpaid'))}</td>
         <td className="num" style={{fontWeight:600,color:'var(--gold-light)'}}>{fmt(tot)}</td></tr>);
@@ -399,7 +399,7 @@ function SalesMonthlySummary() {
   const [mo, setMo] = useState('2026-03');
   useEffect(()=>{DataService.read('sales').then(setData);},[]);
   const mDates=Object.keys(data).filter(d=>d.startsWith(mo)).sort();
-  const mData=mDates.map(dt=>{const d=data[dt];const sm=(f)=>d.rows.reduce((a,x)=>a+(Number(x[f])||0),0);const expT=(d.expenses||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+  const mData=mDates.map(dt=>{const d=data[dt];const sm=(f)=>d.(Array.isArray(rows)?rows:[]).reduce((a,x)=>a+(Number(x[f])||0),0);const expT=(d.expenses||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
     return {date:dt,cnt:d.rows.length,cash:sm('cash'),dep:sm('deposit'),card:sm('card'),krw:sm('krw'),unpaid:sm('unpaid'),exp:expT};});
   const gt=(f)=>mData.reduce((a,x)=>a+x[f],0);
   const totInc=gt('cash')+gt('dep')+gt('card')+gt('krw');
@@ -471,7 +471,7 @@ function App() {
           </div>
         </div>
         <div className="content">
-                  <div className="sub-tabs">{SUB_TABS.sales.map((tab,i)=>(
+                  <div className="sub-tabs">{SUB_TABS.(Array.isArray(sales)?sales:[]).map((tab,i)=>(
             <div key={i} className={'sub-tab'+(subTab===i?' active':'')} onClick={()=>setSub(i)}>{ tab }</div>
           ))}</div>
           <div className="page" key={subTab}>{renderContent()}</div>

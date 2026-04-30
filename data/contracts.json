@@ -1,0 +1,5 @@
+[
+  {"id":"c001","employee":"hong","type":"정규직","position":"수석 관리사","start":"2025-01-01","end":"2026-12-31","baseSalary":8000000,"hourlyRate":35000,"note":"","status":"유효"},
+  {"id":"c002","employee":"thuy","type":"정규직","position":"데스크 매니저","start":"2025-03-01","end":"2026-12-31","baseSalary":6500000,"hourlyRate":29000,"note":"","status":"유효"},
+  {"id":"c003","employee":"yen","type":"정규직","position":"관리사","start":"2025-06-01","end":"2026-05-31","baseSalary":7500000,"hourlyRate":33000,"note":"","status":"유효"}
+]

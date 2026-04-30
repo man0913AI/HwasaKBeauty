@@ -214,10 +214,15 @@ function SalaryCalc() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    DataService.read('attendance').then(setAttAll);
-    DataService.read('sales').then(setSales);
-    DataService.read('contracts').then(setCons);
-    DataService.read('salary').then(setSalaryList);
+    const reload=()=>{
+      DataService.read('attendance').then(setAttAll);
+      DataService.read('sales').then(setSales);
+      DataService.read('contracts').then(setCons);
+      DataService.read('salary').then(setSalaryList);
+    };
+    reload();
+    window.addEventListener('hskb:sync:done',reload);
+    return ()=>window.removeEventListener('hskb:sync:done',reload);
   }, []);
 
   const attMonth = attAll[mo] || {};
@@ -319,7 +324,7 @@ function SalaryHistory() {
   const [list,    setList]    = useState([]);
   const [editing, setEditing] = useState(null);
 
-  useEffect(()=>{ DataService.read('salary').then(setList); },[]);
+  useEffect(()=>{const r=()=>DataService.read('salary').then(setList);r();window.addEventListener('hskb:sync:done',r);return()=>window.removeEventListener('hskb:sync:done',r);},[]);
 
   const markPaid = async (id) => {
     const updated = (Array.isArray(list)?list:[]).map(s =>
@@ -379,7 +384,7 @@ function SalaryPayslip() {
   const [list,    setList]   = useState([]);
   const [idx,     setIdx]    = useState(0);
   const [showPrint,setShow]  = useState(false);
-  useEffect(()=>{ DataService.read('salary').then(l=>{ setList(l); }); },[]);
+  useEffect(()=>{const r=()=>DataService.read('salary').then(l=>setList(l));r();window.addEventListener('hskb:sync:done',r);return()=>window.removeEventListener('hskb:sync:done',r);},[]);
 
   if(list.length===0) return <div className="empty">지급 이력이 없습니다</div>;
   const s   = list[idx] || list[0];

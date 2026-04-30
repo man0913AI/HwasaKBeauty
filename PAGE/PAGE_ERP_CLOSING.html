@@ -104,8 +104,13 @@ function Settlement({period}) {
   const [purchase, setPurchase] = useState([]);
   const [prevSales,setPrevSales]= useState({});
   useEffect(()=>{
-    DataService.read('sales').then(setSales);
-    DataService.read('purchase').then(setPurchase);
+    const reload=()=>{
+      DataService.read('sales').then(setSales);
+      DataService.read('purchase').then(setPurchase);
+    };
+    reload();
+    window.addEventListener('hskb:sync:done',reload);
+    return ()=>window.removeEventListener('hskb:sync:done',reload);
   },[]);
 
   const { start, end, label } = getDateRange(period, year,

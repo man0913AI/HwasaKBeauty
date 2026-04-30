@@ -1,0 +1,5 @@
+[
+  {"id":"s001","employee":"hong","year":2026,"month":2,"workDays":24,"workHours":248,"baseSalary":8000000,"overtime":200000,"tip":1800000,"deduction":280000,"netSalary":9720000,"paid":true,"paidDate":"2026-03-05"},
+  {"id":"s002","employee":"thuy","year":2026,"month":2,"workDays":24,"workHours":220,"baseSalary":6500000,"overtime":0,"tip":950000,"deduction":220000,"netSalary":7230000,"paid":true,"paidDate":"2026-03-05"},
+  {"id":"s003","employee":"yen","year":2026,"month":2,"workDays":22,"workHours":228,"baseSalary":7500000,"overtime":150000,"tip":1500000,"deduction":260000,"netSalary":8890000,"paid":true,"paidDate":"2026-03-05"}
+]

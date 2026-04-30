@@ -108,7 +108,7 @@ function AttendanceMonthly() {
     const all = await DataService.read('attendance');
     setAll(all);
   }, []);
-  useEffect(()=>{ load(); },[load]);
+  useEffect(()=>{ load(); window.addEventListener('hskb:sync:done',load); return ()=>window.removeEventListener('hskb:sync:done',load); },[load]);
 
   const monthData = attAll[ym] || {};
   const days      = Array.from({length:daysInMonth(ym)},(_,i)=>i+1);
@@ -249,7 +249,7 @@ function AttendanceByEmployee() {
   const [modal, setModal] = useState(null);
 
   const load = useCallback(async()=>{ const all=await DataService.read('attendance'); setAll(all); },[]);
-  useEffect(()=>{ load(); },[load]);
+  useEffect(()=>{ load(); window.addEventListener('hskb:sync:done',load); return ()=>window.removeEventListener('hskb:sync:done',load); },[load]);
 
   const ed   = (attAll[ym]||{})[emp] || {};
   const days = Array.from({length:daysInMonth(ym)},(_,i)=>i+1);
@@ -332,7 +332,7 @@ function AttendanceByEmployee() {
 function AttendanceSummary() {
   const [ym,   setYm]   = useState(todayYm());
   const [attAll,setAll] = useState({});
-  useEffect(()=>{ DataService.read('attendance').then(setAll); },[]);
+  useEffect(()=>{ const r=()=>DataService.read('attendance').then(setAll); r(); window.addEventListener('hskb:sync:done',r); return ()=>window.removeEventListener('hskb:sync:done',r); },[]);
 
   const monthData = attAll[ym] || {};
   const days      = Array.from({length:daysInMonth(ym)},(_,i)=>i+1);

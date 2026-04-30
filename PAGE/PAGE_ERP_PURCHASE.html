@@ -87,8 +87,8 @@ function PurchaseList() {
   const [list,setList] = useState([]);
   const [search,setSearch] = useState('');
   const [catFilter,setCat] = useState('');
-  const load = () => DataService.read('purchase').then(setList);
-  useEffect(()=>{ load(); },[]);
+  const load = useCallback(()=>DataService.read('purchase').then(setList),[]);
+  useEffect(()=>{ load(); window.addEventListener('hskb:sync:done',load); return()=>window.removeEventListener('hskb:sync:done',load); },[load]);
 
   const filtered = (Array.isArray(list)?list:[]).filter(p =>
     (!catFilter || p.category===catFilter) &&
@@ -149,7 +149,7 @@ function PurchaseList() {
    ════════════════════════════════════════ */
 function PurchaseStats() {
   const [list,setList] = useState([]);
-  useEffect(()=>{ DataService.read('purchase').then(setList); },[]);
+  useEffect(()=>{const r=()=>DataService.read('purchase').then(setList);r();window.addEventListener('hskb:sync:done',r);return()=>window.removeEventListener('hskb:sync:done',r);},[]);
 
   const byCat = {};
   const bySupp = {};

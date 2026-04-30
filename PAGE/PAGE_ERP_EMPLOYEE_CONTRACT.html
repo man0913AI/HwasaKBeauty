@@ -24,7 +24,7 @@ const PAGE_TABS = ['계약서 목록','추가','만료 내역'];
    CONTRACTS
    ════════════════════════════════════════ */
 function ContractList() {
-  const [list,setList]=useState([]);useEffect(()=>{DataService.read('contracts').then(setList);},[]);
+  const [list,setList]=useState([]);useEffect(()=>{const r=()=>DataService.read('contracts').then(setList);r();window.addEventListener('hskb:sync:done',r);return()=>window.removeEventListener('hskb:sync:done',r);},[]);
   return (<div className="fade-in"><div className="pn">
     <div className="pn-h"><div><div className="pn-t">계약서 목록</div><div className="pn-st">{list.length}건</div></div></div>
     <table className="tbl"><thead><tr><th>ID</th><th>직원</th><th>유형</th><th>직위</th><th>시작일</th><th>종료일</th><th className="num">기본급</th><th className="num">시급</th><th>상태</th></tr></thead>
@@ -55,7 +55,7 @@ function ContractAdd() {
 }
 
 function ContractExpiry() {
-  const [list,setList]=useState([]);useEffect(()=>{DataService.read('contracts').then(setList);},[]);
+  const [list,setList]=useState([]);useEffect(()=>{const r=()=>DataService.read('contracts').then(setList);r();window.addEventListener('hskb:sync:done',r);return()=>window.removeEventListener('hskb:sync:done',r);},[]);
   const now=Date.now();const exp=(Array.isArray(list)?list:[]).filter(c=>new Date(c.end).getTime()<now+180*86400000).sort((a,b)=>new Date(a.end)-new Date(b.end));
   return (<div className="fade-in"><div className="pn">
     <div className="pn-h"><div><div className="pn-t">만료 예정 계약서</div><div className="pn-st">6개월 이내</div></div></div>

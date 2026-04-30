@@ -36,7 +36,7 @@ function ContractList() {
 }
 
 function ContractAdd() {
-  const [form,setForm]=useState({employee:'hong',type:'정규직',position:'',start:today(),end:'',baseSalary:0,hourlyRate:0,note:''});
+  const [form,setForm]=useState({employee:'',type:'정규직',position:'',start:today(),end:'',baseSalary:0,hourlyRate:0,note:''});
   const save=async()=>{const list=await DataService.read('contracts');list.push({...form,id:'c'+String(list.length+1).padStart(3,'0'),status:'유효'});await DataService.write('contracts',list);alert('등록 완료');};
   return (<div className="fade-in"><div className="pn" style={{padding:16}}>
     <div style={{fontSize:12,fontWeight:600,marginBottom:12}}>계약서 추가</div>

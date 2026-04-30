@@ -1086,32 +1086,79 @@ function MasterMenuHead(){return <MasterTable title="메뉴 관리 (MENU_HEAD)" 
 ]} initRow={(n)=>({code:'MH'+String(n+1).padStart(3,'0'),name:'',desc:'',totalTime:0,price:0,active:true})}/>;}
 
 function MasterMenuBody(){
-  const pgOpts = MASTER.program.filter(p=>p.active).map(p=>p.code+' '+p.name);
-  return (<div className="fade-in">
-    <MasterTable title="메뉴 구성 (MENU_BODY) — 프로그램 라우트" dataKey="menuBody" columns={[
-      {k:'id',l:'ID',w:55,t:'tx'},
-      {k:'menuCode',l:'메뉴',w:130,t:'sel',opts:MASTER.menuHead.map(m=>m.code+' '+m.name)},
-      {k:'pgCode',l:'프로그램',w:140,t:'sel',opts:pgOpts},
-      {k:'time',l:'시간',w:65,t:'sel',opts:TIME_OPTS},
-      {k:'seq',l:'순서',w:45,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
-    ]} initRow={(n)=>({id:'MB'+String(n+1).padStart(3,'0'),menuCode:'',pgCode:'',time:'30분',seq:n+1,active:true})}/>
-    <div className="pn" style={{padding:14,marginTop:8}}>
-      <div style={{fontSize:11,fontWeight:600,marginBottom:8,color:'var(--gold-light)'}}>메뉴별 구성 미리보기</div>
-      {MASTER.menuHead.filter(m=>m.active).map(mh => {
-        const bodies = MASTER.menuBody.filter(b=>b.menuCode===mh.code&&b.active).sort((a,b)=>a.seq-b.seq);
-        if(bodies.length===0) return null;
-        return (<div key={mh.code} style={{marginBottom:10,padding:'8px 10px',border:'1px solid var(--border)',borderRadius:'var(--rs)'}}>
-          <div style={{fontSize:11,fontWeight:600}}>{mh.code} {mh.name} <span style={{color:'var(--text3)',fontWeight:400}}>({mh.totalTime}분 / {fmt(mh.price)}₫)</span></div>
-          <div style={{marginTop:4}}>{bodies.map((b,i)=>{
-            const pg = MASTER.program.find(p=>p.code===b.pgCode);
-            return <span key={i} style={{display:'inline-block',fontSize:9,padding:'2px 8px',margin:'2px 3px',border:'1px solid var(--border-gold)',borderRadius:12,color:'var(--gold-light)'}}>
-              {i+1}. {pg?pg.name:b.pgCode} ({b.time}) <span style={{color:'var(--text3)'}}>{pg?.majorCat}</span>
-            </span>;
-          })}</div>
-        </div>);
-      })}
+  const [heads,setHeads]   = useState([]);
+  const [bodies,setBodies] = useState([]);
+  const [selCode,setSel]   = useState(null);
+  useEffect(()=>{DataService.read('master').then(m=>{setHeads(m.menuHead||[]);setBodies(m.menuBody||[]);});},[]);
+  const pgOpts=MASTER.program.filter(p=>p.active).map(p=>p.code+' '+p.name);
+  const selHead=heads.find(h=>h.code===selCode);
+  const filtBodies=selCode?bodies.filter(b=>b.menuCode===selCode).sort((a,b)=>a.seq-b.seq):[];
+  const upH=(i,f,v)=>setHeads(p=>{const r=[...p];r[i]={...r[i],[f]:v};return r;});
+  const addH=()=>setHeads(p=>[...p,{code:'MH'+String(p.length+1).padStart(3,'0'),name:'',desc:'',totalTime:0,price:0,active:true}]);
+  const delH=(i)=>setHeads(p=>p.filter((_,j)=>j!==i));
+  const saveH=async()=>{const m=await DataService.read('master');m.menuHead=heads;await DataService.write('master',m);MASTER.menuHead=JSON.parse(JSON.stringify(heads));alert('MENU HEAD 저장 완료');};
+  const upB=(id,f,v)=>setBodies(p=>p.map(b=>b.id===id?{...b,[f]:v}:b));
+  const addB=()=>{if(!selCode){alert('상단에서 메뉴를 먼저 클릭하세요');return;}const newId='MB'+String(bodies.length+1).padStart(3,'0');setBodies(p=>[...p,{id:newId,menuCode:selCode,pgCode:'',time:'30분',seq:filtBodies.length+1,active:true}]);};
+  const delB=(id)=>setBodies(p=>p.filter(b=>b.id!==id));
+  const saveB=async()=>{const m=await DataService.read('master');m.menuBody=bodies;await DataService.write('master',m);MASTER.menuBody=JSON.parse(JSON.stringify(bodies));alert('MENU BODY 저장 완료');};
+  const preview=filtBodies.filter(b=>b.active).map(b=>{const code=b.pgCode.split(' ')[0];const pg=MASTER.program.find(p=>p.code===code)||MASTER.program.find(p=>p.code+' '+p.name===b.pgCode);return pg?{name:pg.name,time:b.time,cat:pg.majorCat}:{name:b.pgCode,time:b.time,cat:''};});
+  return (
+    <div style={{display:'flex',flexDirection:'column',height:'calc(100vh - 160px)'}}>
+      <div style={{flex:'0 0 45%',display:'flex',flexDirection:'column',minHeight:0,borderBottom:'2px solid var(--border-gold)'}}>
+        <div className="toolbar" style={{flexShrink:0,paddingBottom:4}}>
+          <span style={{fontSize:11,fontWeight:700,color:'var(--gold-light)',letterSpacing:'0.5px'}}>▲ MENU HEAD</span>
+          <span style={{fontSize:9.5,color:'var(--text3)',marginLeft:8}}>{heads.length}개 메뉴 · 행 클릭 → 하단 연동</span>
+          <div className="spacer"/><button className="btn btn-s" onClick={addH}>+ 추가</button><button className="btn btn-g" onClick={saveH}>저장</button>
+        </div>
+        <div className="ss-wrap" style={{flex:1,maxHeight:'none'}}>
+          <table className="ss" style={{minWidth:700}}>
+            <thead><tr><th style={{width:30}}>No</th><th style={{minWidth:70}}>메뉴코드</th><th style={{minWidth:130}}>메뉴명</th><th style={{minWidth:200}}>상세설명</th><th style={{minWidth:80}}>총시간(분)</th><th style={{minWidth:110}}>가격(VND)</th><th style={{minWidth:45}}>활성</th><th style={{width:28}}>×</th></tr></thead>
+            <tbody>{heads.map((row,ri)=>(
+              <tr key={ri} onClick={()=>setSel(row.code===selCode?null:row.code)} style={{cursor:'pointer',background:row.code===selCode?'var(--gold-glow)':'',boxShadow:row.code===selCode?'inset 2px 0 0 var(--gold)':''}}>
+                <td className="rn">{ri+1}</td>
+                <td><input value={row.code||''} onChange={e=>upH(ri,'code',e.target.value)} onClick={e=>e.stopPropagation()} style={{fontWeight:row.code===selCode?700:400,color:row.code===selCode?'var(--gold-light)':''}}/></td>
+                <td><input value={row.name||''} onChange={e=>upH(ri,'name',e.target.value)} onClick={e=>e.stopPropagation()} style={{fontWeight:600}}/></td>
+                <td><input value={row.desc||''} onChange={e=>upH(ri,'desc',e.target.value)} onClick={e=>e.stopPropagation()}/></td>
+                <td className="nc"><input value={row.totalTime||''} onChange={e=>upH(ri,'totalTime',e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} onClick={e=>e.stopPropagation()} placeholder="0"/></td>
+                <td className="nc"><input value={row.price||''} onChange={e=>upH(ri,'price',e.target.value===''?0:Number(e.target.value.replace(/,/g,'')))} onClick={e=>e.stopPropagation()} placeholder="0"/></td>
+                <td><div style={{textAlign:'center'}}><input type="checkbox" checked={!!row.active} onChange={e=>{e.stopPropagation();upH(ri,'active',e.target.checked)}}/></div></td>
+                <td><button className="del-btn" onClick={e=>{e.stopPropagation();delH(ri)}}>×</button></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+      <div style={{flex:1,display:'flex',flexDirection:'column',minHeight:0,paddingTop:6}}>
+        <div className="toolbar" style={{flexShrink:0,paddingBottom:4}}>
+          <span style={{fontSize:11,fontWeight:700,color:'var(--gold-light)',letterSpacing:'0.5px'}}>▼ MENU BODY</span>
+          {selHead?<span style={{fontSize:9.5,padding:'2px 10px',background:'var(--gold-glow)',color:'var(--gold-light)',border:'1px solid var(--border-gold)',borderRadius:10,marginLeft:6}}>{selHead.code} {selHead.name} · {filtBodies.length}개 프로그램</span>:<span style={{fontSize:9.5,color:'var(--text3)',marginLeft:6}}>← 상단에서 메뉴 행을 클릭하세요</span>}
+          <div className="spacer"/><button className="btn btn-s" onClick={addB}>+ 추가</button><button className="btn btn-g" onClick={saveB}>저장</button>
+        </div>
+        <div className="ss-wrap" style={{flex:1,maxHeight:'none'}}>
+          {selCode?<table className="ss" style={{minWidth:560}}>
+            <thead><tr><th style={{width:30}}>No</th><th style={{minWidth:60}}>ID</th><th style={{minWidth:200}}>프로그램</th><th style={{minWidth:80}}>시간</th><th style={{minWidth:55}}>순서</th><th style={{minWidth:45}}>활성</th><th style={{width:28}}>×</th></tr></thead>
+            <tbody>{filtBodies.map((row,ri)=>(
+              <tr key={row.id}><td className="rn">{ri+1}</td>
+                <td><input value={row.id||''} onChange={e=>upB(row.id,'id',e.target.value)}/></td>
+                <td><select value={row.pgCode||''} onChange={e=>upB(row.id,'pgCode',e.target.value)}><option value="">-- 프로그램 선택 --</option>{pgOpts.map(o=><option key={o} value={o}>{o}</option>)}</select></td>
+                <td><select value={row.time||'30분'} onChange={e=>upB(row.id,'time',e.target.value)}>{TIME_OPTS.map(o=><option key={o} value={o}>{o}</option>)}</select></td>
+                <td className="nc"><input value={row.seq||''} onChange={e=>upB(row.id,'seq',e.target.value===''?0:Number(e.target.value))} placeholder="0"/></td>
+                <td><div style={{textAlign:'center'}}><input type="checkbox" checked={!!row.active} onChange={e=>upB(row.id,'active',e.target.checked)}/></div></td>
+                <td><button className="del-btn" onClick={()=>delB(row.id)}>×</button></td>
+              </tr>
+            ))}</tbody>
+          </table>:<div className="empty">상단에서 메뉴를 클릭하면 프로그램 구성이 표시됩니다</div>}
+        </div>
+        {selCode&&preview.length>0&&(
+          <div style={{flexShrink:0,padding:'6px 0 2px',borderTop:'1px solid var(--border)',display:'flex',alignItems:'center',flexWrap:'wrap',gap:3}}>
+            <span style={{fontSize:9.5,color:'var(--text2)',fontWeight:600,marginRight:4}}>구성 미리보기</span>
+            {preview.map((p,i)=><span key={i} style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:9,padding:'2px 9px',border:'1px solid var(--border-gold)',borderRadius:12,color:'var(--gold-light)',background:'var(--gold-glow)'}}><span style={{color:'var(--text3)'}}>{i+1}.</span>{p.name}<span style={{color:'var(--text3)'}}>({p.time})</span></span>)}
+            {selHead&&<span style={{fontSize:9,color:'var(--text3)',marginLeft:6}}>총 {preview.reduce((a,p)=>{const m=parseInt(p.time);return a+(isNaN(m)?0:m);},0)}분</span>}
+          </div>
+        )}
+      </div>
     </div>
-  </div>);
+  );
 }
 
 function MasterEvents(){return <MasterTable title="이벤트 관리" dataKey="events" columns={[

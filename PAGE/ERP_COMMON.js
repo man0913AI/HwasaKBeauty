@@ -109,27 +109,7 @@ const DataService = {
   },
 };
 
-// Mock sales
-(() => {
-  const names=['김민준','Nguyễn Mai','박서연','Trần Hùng','이수진','Lê Hoa','Phạm Tuấn','정하늘','Đỗ Lan','최예린'];
-  const progs=['화사케어 A','화사케어 B','화사케어 C','골프케어 A','골프케어 B','탈모케어','VIP케어','기본관리'];
-  const s={};
-  for(let d=2;d<=15;d++){
-    const dt=`2026-03-${String(d).padStart(2,'0')}`;
-    const rows=[];const cnt=5+Math.floor(Math.random()*8);
-    for(let i=0;i<cnt;i++){
-      const cash=Math.round((Math.random()*800000+200000)/10000)*10000;
-      const card=Math.random()>0.6?Math.round(Math.random()*500000/10000)*10000:0;
-      const tipD=Math.random()>0.5?Math.round(Math.random()*200000/10000)*10000:0;
-      rows.push({no:i+1,date:dt,name:names[i%names.length],grade:MEMBER_GRADES[Math.floor(Math.random()*MEMBER_GRADES.length)],service:progs[Math.floor(Math.random()*progs.length)],hair:Math.random()>0.8,event:Math.random()>0.85,vip:Math.random()>0.9,deductAmt:0,deduct:0,tipDeduct:tipD,cash,deposit:0,card,krw:Math.random()>0.8?50000:0,unpaid:0,male:Math.random()>0.5?'M':'',female:Math.random()>0.5?'F':'',ticket:''});
-    }
-    const exps=[];
-    if(Math.random()>0.3) exps.push({item:'빨래',amount:150000,note:''});
-    if(Math.random()>0.5) exps.push({item:'마트',amount:Math.round(Math.random()*300000/10000)*10000,note:''});
-    s[dt]={rows,expenses:exps};
-  }
-  DataService._store.sales=s;
-})();
+
 
 /* ════════════════════════════════════════
    HELPERS

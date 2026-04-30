@@ -84,6 +84,17 @@ const HSKB_DATA = {
             }
           } catch(e) { console.warn('[HSKB] contracts.json 로드 실패:', e); }
 
+          // master.json 로드 (프로그램/메뉴/직원/이벤트 등 마스터 데이터)
+          try {
+            const masterResp = await fetch(BASE_URL + 'data/master.json?t=' + Date.now());
+            if (masterResp.ok) {
+              const master = await masterResp.json();
+              DataService._store.master = master;
+              window._MASTER_DATA = master; // ERP_COMMON.js fallback용
+              console.log('[HSKB] master.json 로드 완료:', Object.keys(master).join(', '));
+            }
+          } catch(e) { console.warn('[HSKB] master.json 로드 실패:', e); }
+
           // salary_2026_03.json 로드
           try {
             const salaryResp = await fetch(BASE_URL + 'data/salary_2026_03.json?t=' + Date.now());

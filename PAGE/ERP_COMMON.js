@@ -49,80 +49,17 @@ const APPS_SCRIPT_URL = '';  // TODO: 'https://script.google.com/macros/s/YOUR_I
 
 const DataService = {
   _store: {
-    master: MASTER,
-    customers: [
-      { id:'C001', name:'김민준', nameEn:'', phone:'0912-345-6789', gender:'남', birth:'1994-05-12', grade:'GOLD', firstVisit:'2025-08-15', area:'미딩', memo:'탈모 관심', mileage:125000,
-        payments:[
-          {date:'2026-03-02',menu:'화사케어 A',amount:880000,method:'현금',tip:100000},
-          {date:'2026-03-15',menu:'탈모케어',amount:1100000,method:'카드',tip:100000},
-          {date:'2026-04-01',menu:'화사케어 B',amount:660000,method:'현금',tip:100000},
-        ],
-        history:[
-          {date:'2026-03-02',menu:'화사케어 A',therapist:'홍',note:'첫 방문, 복합성 피부'},
-          {date:'2026-03-15',menu:'탈모케어',therapist:'홍',note:'두피 상태 양호'},
-          {date:'2026-04-01',menu:'화사케어 B',therapist:'옌',note:'색소 개선 중'},
-        ]},
-      { id:'C002', name:'Nguyễn Mai', nameEn:'Nguyen Mai', phone:'0987-654-3210', gender:'여', birth:'1990-11-03', grade:'VIP', firstVisit:'2025-06-01', area:'꺼우저이', memo:'정기 관리 고객', mileage:350000,
-        payments:[
-          {date:'2026-02-20',menu:'VIP케어',amount:1650000,method:'카드',tip:100000},
-          {date:'2026-03-10',menu:'HIFU 리프팅',amount:2200000,method:'카드',tip:100000},
-          {date:'2026-03-28',menu:'화사케어 A',amount:880000,method:'현금',tip:100000},
-          {date:'2026-04-05',menu:'VIP케어',amount:1650000,method:'카드',tip:100000},
-        ],
-        history:[
-          {date:'2026-02-20',menu:'VIP케어',therapist:'홍',note:'전신 관리, 만족'},
-          {date:'2026-03-10',menu:'HIFU 리프팅',therapist:'홍',note:'리프팅 1회차'},
-          {date:'2026-03-28',menu:'화사케어 A',therapist:'투이',note:'수분 부족'},
-          {date:'2026-04-05',menu:'VIP케어',therapist:'홍',note:'리프팅 후 관리'},
-        ]},
-      { id:'C003', name:'박서연', nameEn:'', phone:'0968-111-2222', gender:'여', birth:'1988-02-28', grade:'CLUB', firstVisit:'2026-01-10', area:'동다', memo:'', mileage:55000,
-        payments:[
-          {date:'2026-01-10',menu:'기본관리',amount:440000,method:'현금',tip:100000},
-          {date:'2026-02-14',menu:'아쿠아필링',amount:550000,method:'카드',tip:100000},
-        ],
-        history:[
-          {date:'2026-01-10',menu:'기본관리',therapist:'옌',note:'첫 방문'},
-          {date:'2026-02-14',menu:'아쿠아필링',therapist:'옌',note:'모공 관리 시작'},
-        ]},
-      { id:'C004', name:'Trần Hùng', nameEn:'Tran Hung', phone:'0945-333-4444', gender:'남', birth:'1985-07-20', grade:'', firstVisit:'2026-03-20', area:'미딩', memo:'골프 후 관리', mileage:0,
-        payments:[
-          {date:'2026-03-20',menu:'골프케어 A',amount:1320000,method:'카드',tip:100000},
-        ],
-        history:[
-          {date:'2026-03-20',menu:'골프케어 A',therapist:'홍',note:'골프 후 바디+페이스'},
-        ]},
-      { id:'C005', name:'이수진', nameEn:'', phone:'0932-555-6666', gender:'여', birth:'1992-09-15', grade:'BRONZE', firstVisit:'2025-11-05', area:'떠이호', memo:'민감성 피부 주의', mileage:88000,
-        payments:[
-          {date:'2025-11-05',menu:'기본관리',amount:440000,method:'현금',tip:100000},
-          {date:'2025-12-10',menu:'화사케어 C',amount:440000,method:'현금',tip:100000},
-          {date:'2026-01-20',menu:'화사케어 B',amount:660000,method:'카드',tip:100000},
-          {date:'2026-03-05',menu:'RF 고주파',amount:1100000,method:'카드',tip:100000},
-        ],
-        history:[
-          {date:'2025-11-05',menu:'기본관리',therapist:'옌',note:'첫 방문, 민감성'},
-          {date:'2025-12-10',menu:'화사케어 C',therapist:'옌',note:'자극 없이 진행'},
-          {date:'2026-01-20',menu:'화사케어 B',therapist:'투이',note:'피부결 개선'},
-          {date:'2026-03-05',menu:'RF 고주파',therapist:'홍',note:'탄력 개선 시작'},
-        ]},
-    ],
-    sales: {},
-    purchase: [
-      { id:'p001', date:'2026-03-05', supplier:'화장품 도매', item:'앰플 세트', category:'원재료', qty:5, unitPrice:4000000, total:20000000, note:'' },
-      { id:'p002', date:'2026-03-08', supplier:'포장재 업체', item:'포장박스', category:'소모품', qty:100, unitPrice:50000, total:5000000, note:'' },
-      { id:'p003', date:'2026-03-10', supplier:'의료기기', item:'LED 필터', category:'장비', qty:3, unitPrice:850000, total:2550000, note:'' },
-      { id:'p004', date:'2026-03-12', supplier:'약품 도매', item:'두피 세럼', category:'원재료', qty:20, unitPrice:250000, total:5000000, note:'' },
-    ],
-    attendance: { '2026-03': { hong:{1:{in:'09:18',out:'19:37'},2:{in:'08:53',out:'19:33'},3:{in:'09:05',out:'19:45'},4:{in:'09:10',out:'19:30'},5:{in:'09:00',out:'19:40'}}, thuy:{1:{in:'08:50',out:'18:05'},2:{in:'09:02',out:'18:10'},3:{in:'08:55',out:'18:00'},4:{in:'09:15',out:'18:20'}}, yen:{1:{in:'09:00',out:'19:30'},2:{in:'08:58',out:'19:35'},3:{in:'09:10',out:'19:25'}} } },
-    contracts: [
-      { id:'c001', employee:'hong', type:'정규직', position:'수석 관리사', start:'2025-01-01', end:'2025-12-31', baseSalary:8000000, hourlyRate:35000, note:'', status:'유효' },
-      { id:'c002', employee:'thuy', type:'정규직', position:'데스크 매니저', start:'2025-03-01', end:'2026-02-28', baseSalary:6500000, hourlyRate:29000, note:'', status:'유효' },
-      { id:'c003', employee:'yen', type:'정규직', position:'관리사', start:'2025-06-01', end:'2026-05-31', baseSalary:7500000, hourlyRate:33000, note:'', status:'유효' },
-    ],
-    salary: [
-      { id:'s001', employee:'hong', year:2026, month:2, workDays:24, workHours:248, baseSalary:8000000, overtime:200000, tip:1800000, deduction:280000, netSalary:9720000, paid:true, paidDate:'2026-03-05' },
-      { id:'s002', employee:'thuy', year:2026, month:2, workDays:24, workHours:220, baseSalary:6500000, overtime:0, tip:950000, deduction:220000, netSalary:7230000, paid:true, paidDate:'2026-03-05' },
-      { id:'s003', employee:'yen', year:2026, month:2, workDays:22, workHours:228, baseSalary:7500000, overtime:150000, tip:1500000, deduction:260000, netSalary:8890000, paid:true, paidDate:'2026-03-05' },
-    ],
+    master: null,          // DATA_CONNECTOR → master.json
+    customers: [],         // DATA_CONNECTOR → customers.json
+    charts: {},            // DATA_CONNECTOR → customer_charts_1/2.json
+    sales: {},             // DATA_CONNECTOR → sales_2026_N.json (날짜별 맵)
+    salesAllRecords: [],   // DATA_CONNECTOR → 전체 레코드 배열
+    purchase: [],          // DATA_CONNECTOR → expenses_2026.json
+    closing: [],           // DATA_CONNECTOR → closing_pl.json
+    attendance: {},        // DATA_CONNECTOR → attendance_2026.json (향후)
+    contracts: [],         // DATA_CONNECTOR → contracts.json
+    salary: null,          // DATA_CONNECTOR → salary_2026_03.json
+    salaryByMonth: {}      // DATA_CONNECTOR → 월별 급여 맵
   },
   // ── API 호출 (APPS_SCRIPT_URL 설정 시) ──────────────────────
   async _apiGet(table, month) {

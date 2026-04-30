@@ -45,8 +45,8 @@ const SALES_CSS = `
 
 /* ── 이벤트 헬퍼 ──────────────────────────────────────────── */
 function getActiveEvents(date, menuName) {
-  const menuHead = MASTER.menuHead.find(m=>m.name===menuName);
-  return MASTER.events.filter(ev => {
+  const menuHead = (DataService._store.master?.menuHead||[]).find(m=>m.name===menuName);
+  return (DataService._store.master?.events||[]).filter(ev => {
     if (!ev.active) return false;
     if (date < ev.startDate || date > ev.endDate) return false;
     if (ev.menuCode && menuHead && ev.menuCode !== menuHead.code) return false;
@@ -104,8 +104,8 @@ function CustomerAC({value, onChange, customers}) {
 
 /* ── 메뉴 구성 팝업 ───────────────────────────────────────── */
 function MenuCompositionPopup({menuName, onClose}) {
-  const head = MASTER.menuHead.find(m=>m.name===menuName);
-  const body = head ? MASTER.menuBody.filter(b=>b.menuCode===head.code&&b.active).sort((a,b)=>a.seq-b.seq) : [];
+  const head = (DataService._store.master?.menuHead||[]).find(m=>m.name===menuName);
+  const body = head ? (DataService._store.master?.menuBody||[]).filter(b=>b.menuCode===head.code&&b.active).sort((a,b)=>a.seq-b.seq) : [];
   if(!head) return null;
   return (
     <div className="menu-popup-bg" onClick={onClose}>
@@ -129,7 +129,7 @@ function MenuCompositionPopup({menuName, onClose}) {
 
 /* ── 영수증 팝업 ──────────────────────────────────────────── */
 function ReceiptPopup({row, date, onClose}) {
-  const head     = MASTER.menuHead.find(m=>m.name===row.service);
+  const head     = (DataService._store.master?.menuHead||[]).find(m=>m.name===row.service);
   const events   = row.service ? getActiveEvents(date, row.service) : [];
   const basePrice= head?.price||0;
   const disced   = applyDiscount(basePrice, events);
@@ -194,7 +194,7 @@ function SalesDailyInput() {
 
   // 메뉴 선택 시 자동가격 + 이벤트 할인
   const onMenuChange = (ri, menuName) => {
-    const head   = MASTER.menuHead.find(m=>m.name===menuName);
+    const head   = (DataService._store.master?.menuHead||[]).find(m=>m.name===menuName);
     if (!head) { upRow(ri, 'service', menuName); return; }
     const events = getActiveEvents(selDate, menuName);
     const discPrice = applyDiscount(head.price, events);
@@ -235,7 +235,7 @@ function SalesDailyInput() {
       male:r.filter(x=>x.male).length, female:r.filter(x=>x.female).length, expT, inc, net:inc-expT };
   }, [data]);
 
-  const menuOpts = ['',...MASTER.menuHead.filter(m=>m.active).map(m=>m.name)];
+  const menuOpts = ['',...(DataService._store.master?.menuHead||[]).filter(m=>m.active).map(m=>m.name)];
 
   return (
     <div className="fade-in">

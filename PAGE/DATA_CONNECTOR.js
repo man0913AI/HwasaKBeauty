@@ -95,6 +95,22 @@ const HSKB_DATA = {
         this._cache['expenses'] = expenses;
       }
 
+      // 마스터 데이터 주입
+      const mResp = await fetch(BASE + '/master.json?t=' + t);
+      if (mResp.ok) {
+        const masterData = await mResp.json();
+        if (typeof DataService !== 'undefined') {
+          DataService._store.master = masterData;
+        }
+        // MASTER 객체 인플레이스 업데이트 (헬퍼 변수들도 갱신)
+        if (typeof MASTER !== 'undefined') {
+          Object.keys(masterData).forEach(k => { MASTER[k] = masterData[k]; });
+        }
+        this._cache['master.json'] = { data: masterData, sha: null };
+        console.log('[HSKB] 마스터 데이터 DataService 주입 완료');
+        window.dispatchEvent(new CustomEvent('hskb:master:loaded', { detail: { master: masterData } }));
+      }
+
       console.log('[HSKB] 자동 동기화 완료');
     } catch(e) {
       console.warn('[HSKB] 자동 동기화 실패:', e.message);
@@ -144,6 +160,28 @@ const HSKB_DATA = {
       };
       xhr.send(JSON.stringify({ message: 'ERP 데이터 업데이트: ' + filename, content: b64, sha: existingSha, branch: this._branch }));
     });
+  },
+
+  // 마스터 저장 (GitHub master.json PUT)
+  async saveMaster(data) {
+    let sha = null;
+    try {
+      // 캐시된 SHA 사용, 없으면 API로 조회
+      if (this._cache['master.json']?.sha) {
+        sha = this._cache['master.json'].sha;
+      } else {
+        const r = await this._get('master.json');
+        sha = r.sha;
+      }
+    } catch(e) { /* 신규 파일인 경우 sha 없어도 됨 */ }
+    const result = await this._put('master.json', data, sha);
+    // SHA 캐시 갱신
+    this._cache['master.json'] = { data, sha: result.sha || sha };
+    // MASTER 객체 동기화
+    if (typeof MASTER !== 'undefined') {
+      Object.keys(data).forEach(k => { MASTER[k] = data[k]; });
+    }
+    return result;
   },
 
   // 매출
@@ -243,4 +281,27 @@ const HSKB_DATA = {
 
 window.HSKB_DATA = HSKB_DATA;
 HSKB_DATA.init();
+
+// DataService.write('master', ...) 호출 시 GitHub master.json도 함께 저장
+if (typeof DataService !== 'undefined') {
+  const _origWrite = DataService.write.bind(DataService);
+  DataService.write = async function(t, d) {
+    await _origWrite(t, d);
+    if (t === 'master') {
+      const token = localStorage.getItem('hskb_gh_token');
+      if (token) {
+        HSKB_DATA._token = token;
+        try {
+          await HSKB_DATA.saveMaster(d);
+          console.log('[HSKB] master.json GitHub 저장 완료');
+        } catch(e) {
+          console.warn('[HSKB] master.json GitHub 저장 실패 (PAT 확인):', e.message);
+        }
+      } else {
+        console.warn('[HSKB] GitHub PAT 없음 — master.json 메모리에만 저장됨');
+      }
+    }
+  };
+}
+
 console.log('[HSKB] Data Connector v2 로드됨');

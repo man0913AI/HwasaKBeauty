@@ -69,7 +69,7 @@ function Dashboard() {
   const presentToday = EMPLOYEES.filter(e=>(monthAtt[e.name]||{})[todayDay]);
 
   // 활성 이벤트
-  const activeEvs = MASTER.events.filter(ev=>ev.active && todayStr>=ev.startDate && todayStr<=ev.endDate);
+  const activeEvs = (DataService._store.master?.events||[]).filter(ev=>ev.active && todayStr>=ev.startDate && todayStr<=ev.endDate);
 
   // 최근 고객
   const recentCust = [...customers].sort((a,b)=>{
@@ -223,7 +223,7 @@ function MasterMenuCombined() {
     });
   },[]);
 
-  const pgOpts = MASTER.program.filter(p=>p.active).map(p=>p.code+' '+p.name);
+  const pgOpts = (DataService._store.master?.program||[]).filter(p=>p.active).map(p=>p.code+' '+p.name);
   const selHead = heads.find(h=>h.code===selCode);
   const filtBodies = selCode ? bodies.filter(b=>b.menuCode===selCode).sort((a,b)=>a.seq-b.seq) : [];
 
@@ -231,7 +231,7 @@ function MasterMenuCombined() {
   const upH=(i,f,v)=>setHeads(p=>{const r=[...p];r[i]={...r[i],[f]:v};return r;});
   const addH=()=>setHeads(p=>[...p,{code:'MH'+String(p.length+1).padStart(3,'0'),name:'',desc:'',totalTime:0,price:0,active:true}]);
   const delH=(i)=>setHeads(p=>p.filter((_,j)=>j!==i));
-  const saveH=async()=>{const m=await DataService.read('master');m.menuHead=heads;await DataService.write('master',m);MASTER.menuHead=JSON.parse(JSON.stringify(heads));alert('MENU HEAD 저장 완료');};
+  const saveH=async()=>{const m=await DataService.read('master');m.menuHead=heads;await DataService.write('master',m);(DataService._store.master?.menuHead||[])=JSON.parse(JSON.stringify(heads));alert('MENU HEAD 저장 완료');};
 
   /* BODY 편집 */
   const upB=(id,f,v)=>setBodies(p=>p.map(b=>b.id===id?{...b,[f]:v}:b));
@@ -241,12 +241,12 @@ function MasterMenuCombined() {
     setBodies(p=>[...p,{id:newId,menuCode:selCode,pgCode:'',time:'30분',seq:filtBodies.length+1,active:true}]);
   };
   const delB=(id)=>setBodies(p=>p.filter(b=>b.id!==id));
-  const saveB=async()=>{const m=await DataService.read('master');m.menuBody=bodies;await DataService.write('master',m);MASTER.menuBody=JSON.parse(JSON.stringify(bodies));alert('MENU BODY 저장 완료');};
+  const saveB=async()=>{const m=await DataService.read('master');m.menuBody=bodies;await DataService.write('master',m);(DataService._store.master?.menuBody||[])=JSON.parse(JSON.stringify(bodies));alert('MENU BODY 저장 완료');};
 
   /* 구성 미리보기 (활성 항목만, 순서대로) */
   const preview=filtBodies.filter(b=>b.active).map(b=>{
     const code=b.pgCode.split(' ')[0];
-    const pg=MASTER.program.find(p=>p.code===code)||MASTER.program.find(p=>p.code+' '+p.name===b.pgCode);
+    const pg=(DataService._store.master?.program||[]).find(p=>p.code===code)||(DataService._store.master?.program||[]).find(p=>p.code+' '+p.name===b.pgCode);
     return pg?{name:pg.name,time:b.time,cat:pg.majorCat}:{name:b.pgCode,time:b.time,cat:''};
   });
 
@@ -359,24 +359,24 @@ function MasterMenuHead(){return <MasterTable title="메뉴 관리 (MENU_HEAD)" 
 ]} initRow={(n)=>({code:'MH'+String(n+1).padStart(3,'0'),name:'',desc:'',totalTime:0,price:0,active:true})}/>;}
 
 function MasterMenuBody(){
-  const pgOpts = MASTER.program.filter(p=>p.active).map(p=>p.code+' '+p.name);
+  const pgOpts = (DataService._store.master?.program||[]).filter(p=>p.active).map(p=>p.code+' '+p.name);
   return (<div className="fade-in">
     <MasterTable title="메뉴 구성 (MENU_BODY) — 프로그램 라우트" dataKey="menuBody" columns={[
       {k:'id',l:'ID',w:55,t:'tx'},
-      {k:'menuCode',l:'메뉴',w:130,t:'sel',opts:MASTER.menuHead.map(m=>m.code+' '+m.name)},
+      {k:'menuCode',l:'메뉴',w:130,t:'sel',opts:(DataService._store.master?.menuHead||[]).map(m=>m.code+' '+m.name)},
       {k:'pgCode',l:'프로그램',w:140,t:'sel',opts:pgOpts},
       {k:'time',l:'시간',w:65,t:'sel',opts:TIME_OPTS},
       {k:'seq',l:'순서',w:45,t:'num'},{k:'active',l:'활성',w:40,t:'bool'}
     ]} initRow={(n)=>({id:'MB'+String(n+1).padStart(3,'0'),menuCode:'',pgCode:'',time:'30분',seq:n+1,active:true})}/>
     <div className="pn" style={{padding:14,marginTop:8}}>
       <div style={{fontSize:11,fontWeight:600,marginBottom:8,color:'var(--gold-light)'}}>메뉴별 구성 미리보기</div>
-      {MASTER.menuHead.filter(m=>m.active).map(mh => {
-        const bodies = MASTER.menuBody.filter(b=>b.menuCode===mh.code&&b.active).sort((a,b)=>a.seq-b.seq);
+      {(DataService._store.master?.menuHead||[]).filter(m=>m.active).map(mh => {
+        const bodies = (DataService._store.master?.menuBody||[]).filter(b=>b.menuCode===mh.code&&b.active).sort((a,b)=>a.seq-b.seq);
         if(bodies.length===0) return null;
         return (<div key={mh.code} style={{marginBottom:10,padding:'8px 10px',border:'1px solid var(--border)',borderRadius:'var(--rs)'}}>
           <div style={{fontSize:11,fontWeight:600}}>{mh.code} {mh.name} <span style={{color:'var(--text3)',fontWeight:400}}>({mh.totalTime}분 / {fmt(mh.price)}₫)</span></div>
           <div style={{marginTop:4}}>{bodies.map((b,i)=>{
-            const pg = MASTER.program.find(p=>p.code===b.pgCode);
+            const pg = (DataService._store.master?.program||[]).find(p=>p.code===b.pgCode);
             return <span key={i} style={{display:'inline-block',fontSize:9,padding:'2px 8px',margin:'2px 3px',border:'1px solid var(--border-gold)',borderRadius:12,color:'var(--gold-light)'}}>
               {i+1}. {pg?pg.name:b.pgCode} ({b.time}) <span style={{color:'var(--text3)'}}>{pg?.majorCat}</span>
             </span>;
@@ -389,7 +389,7 @@ function MasterMenuBody(){
 
 function MasterEvents(){return <MasterTable title="이벤트 관리" dataKey="events" columns={[
   {k:'id',l:'코드',w:55,t:'tx'},{k:'name',l:'이벤트명',w:150,t:'tx'},
-  {k:'menuCode',l:'대상메뉴',w:140,t:'sel',opts:['(전체)',...MASTER.menuHead.map(m=>m.code+' '+m.name)]},
+  {k:'menuCode',l:'대상메뉴',w:140,t:'sel',opts:['(전체)',...(DataService._store.master?.menuHead||[]).map(m=>m.code+' '+m.name)]},
   {k:'startDate',l:'시작일',w:95,t:'date'},{k:'endDate',l:'종료일',w:95,t:'date'},
   {k:'discountType',l:'할인유형',w:65,t:'sel',opts:['%','amt']},{k:'discountValue',l:'할인값',w:70,t:'num'},
   {k:'desc',l:'설명',w:140,t:'tx'},{k:'active',l:'활성',w:40,t:'bool'}
@@ -402,8 +402,8 @@ function MasterEmployees(){return <MasterTable title="직원 관리" dataKey="em
 ]} initRow={(n)=>({id:n+1,name:'',nameKr:'',position:'',base:0,hourly:0,active:true})}/>;}
 
 function MasterGrades(){
-  const [items,setItems]=useState(MASTER.memberGrades);
-  const save=async()=>{const m=await DataService.read('master');m.memberGrades=items;await DataService.write('master',m);MASTER.memberGrades=[...items];alert('저장 완료');};
+  const [items,setItems]=useState((DataService._store.master?.memberGrades||[]));
+  const save=async()=>{const m=await DataService.read('master');m.memberGrades=items;await DataService.write('master',m);(DataService._store.master?.memberGrades||[])=[...items];alert('저장 완료');};
   return (<div className="fade-in">
     <div className="toolbar"><span style={{fontSize:12,fontWeight:600}}>멤버 등급</span><div className="spacer"/><button className="btn btn-s" onClick={()=>setItems(p=>[...p,''])}>+ 추가</button><button className="btn btn-g" onClick={save}>저장</button></div>
     <div className="pn" style={{padding:14}}>{(Array.isArray(items)?items:[]).map((g,i)=><div key={i} style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>

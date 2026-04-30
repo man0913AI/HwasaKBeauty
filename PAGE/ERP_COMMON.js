@@ -9,14 +9,14 @@ const getMASTER = () => DataService._store.master || window._MASTER_DATA || {};
 
 
 // 헬퍼
-const EMPLOYEES = MASTER.employees;
-const MEMBER_GRADES = MASTER.memberGrades;
-const EXPENSE_ITEMS = MASTER.expenseItems.filter(e=>e.active).map(e=>e.name);
-const PURCHASE_CATS = MASTER.purchaseCategories.filter(c=>c.active).map(c=>c.name);
-const MENU_NAMES = MASTER.menuHead.filter(m=>m.active).map(m=>m.name);
-const SUPPLIER_NAMES = MASTER.suppliers.filter(s=>s.active).map(s=>s.name);
+const EMPLOYEES = (DataService._store.master?.employees||[]);
+const MEMBER_GRADES = (DataService._store.master?.memberGrades||[]);
+const EXPENSE_ITEMS = (DataService._store.master?.expenseItems||[]).filter(e=>e.active).map(e=>e.name);
+const PURCHASE_CATS = (DataService._store.master?.purchaseCategories||[]).filter(c=>c.active).map(c=>c.name);
+const MENU_NAMES = (DataService._store.master?.menuHead||[]).filter(m=>m.active).map(m=>m.name);
+const SUPPLIER_NAMES = (DataService._store.master?.suppliers||[]).filter(s=>s.active).map(s=>s.name);
 // 프로그램 코드→이름 매핑
-const pgName = (code) => { const p = MASTER.program.find(x=>x.code===code); return p ? p.name : code; };
+const pgName = (code) => { const p = (DataService._store.master?.program||[]).find(x=>x.code===code); return p ? p.name : code; };
 
 const MENUS = [
   { id:'master', label:'마스터', icon:'M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06' },

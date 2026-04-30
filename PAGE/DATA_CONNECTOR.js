@@ -74,6 +74,26 @@ const HSKB_DATA = {
           });
           DataService._store.sales = salesMap;
           DataService._store.salesAllRecords = allSales;
+          // contracts.json 로드
+          try {
+            const contractsResp = await fetch(BASE_URL + 'data/contracts.json?t=' + Date.now());
+            if (contractsResp.ok) {
+              const contracts = await contractsResp.json();
+              DataService._store.contracts = contracts;
+              console.log('[HSKB] contracts.json 로드:', contracts.length, '건');
+            }
+          } catch(e) { console.warn('[HSKB] contracts.json 로드 실패:', e); }
+
+          // salary_2026_03.json 로드
+          try {
+            const salaryResp = await fetch(BASE_URL + 'data/salary_2026_03.json?t=' + Date.now());
+            if (salaryResp.ok) {
+              const salary = await salaryResp.json();
+              DataService._store.salary = salary;
+              DataService._store.salaryByMonth = { '2026-03': salary };
+              console.log('[HSKB] salary_2026_03.json 로드:', salary.summary?.length || 0, '명');
+            }
+          } catch(e) { console.warn('[HSKB] salary_2026_03.json 로드 실패:', e); }
           const salesByMonth = {};
           allSales.forEach(s => { const m = s.month||''; if(!salesByMonth[m]) salesByMonth[m]=[]; salesByMonth[m].push(s); });
           DataService._store.salesByMonth = salesByMonth;

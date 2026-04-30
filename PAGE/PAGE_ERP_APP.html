@@ -275,7 +275,62 @@ const DataService = {
     ],
   },
   async read(t) { return JSON.parse(JSON.stringify(this._store[t] || (Array.isArray(this._store[t]) ? [] : {}))); },
-  async write(t, d) { this._store[t] = JSON.parse(JSON.stringify(d)); },
+  async write(t, d) {
+    this._store[t] = JSON.parse(JSON.stringify(d));
+    if (t === 'master') await this._ghPut('master.json', d);
+  },
+
+  /* ── GitHub REST API (master.json 영구 저장) ── */
+  _ghOwner: 'man0913AI', _ghRepo: 'HwasaKBeauty', _ghBranch: 'main',
+  _masterSha: null,
+  _ghToken() { return localStorage.getItem('hskb_gh_token') || ''; },
+  _ghApiUrl(f) { return 'https://api.github.com/repos/'+this._ghOwner+'/'+this._ghRepo+'/contents/data/'+f; },
+
+  async _ghGet(f) {
+    const res = await fetch(this._ghApiUrl(f), {
+      headers: this._ghToken() ? { Authorization: 'token '+this._ghToken() } : {}
+    });
+    if (!res.ok) throw new Error('GitHub GET '+res.status);
+    const meta = await res.json();
+    const raw = atob(meta.content.replace(/\n/g,''));
+    const bytes = new Uint8Array(raw.length);
+    for (let i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i);
+    return { data: JSON.parse(new TextDecoder('utf-8').decode(bytes)), sha: meta.sha };
+  },
+
+  async _ghPut(f, data) {
+    const token = this._ghToken();
+    if (!token) { console.warn('[APP] GitHub PAT 없음 — '+f+' 메모리에만 저장됨'); return; }
+    let sha = this._masterSha;
+    if (!sha) {
+      try { const r = await this._ghGet(f); sha = r.sha; } catch(e) {}
+    }
+    const enc = new TextEncoder();
+    const bytes = enc.encode(JSON.stringify(data, null, 2));
+    let bin=''; for (let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+    const res = await fetch(this._ghApiUrl(f), {
+      method: 'PUT',
+      headers: { Authorization: 'token '+token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'ERP 마스터 데이터 업데이트', content: btoa(bin), sha, branch: this._ghBranch })
+    });
+    if (!res.ok) { const e=await res.json(); throw new Error(e.message||'PUT failed'); }
+    const result = await res.json();
+    this._masterSha = result.content?.sha || sha;
+    console.log('[APP] master.json GitHub 저장 완료');
+  },
+
+  async loadMaster() {
+    const BASE = 'https://raw.githubusercontent.com/'+this._ghOwner+'/'+this._ghRepo+'/main/data';
+    try {
+      const res = await fetch(BASE+'/master.json?t='+Date.now());
+      if (!res.ok) return;
+      const masterData = await res.json();
+      this._store.master = masterData;
+      Object.keys(masterData).forEach(k => { MASTER[k] = masterData[k]; });
+      console.log('[APP] master.json 로드 완료');
+      window.dispatchEvent(new CustomEvent('hskb:master:loaded', { detail: { master: masterData } }));
+    } catch(e) { console.warn('[APP] master.json 로드 실패:', e.message); }
+  },
 };
 
 // Mock sales
@@ -1216,6 +1271,8 @@ function App() {
     const t=setInterval(()=>setNow(new Date()),60000);
     const sp=document.getElementById('splash');
     if(sp){sp.style.opacity='0';setTimeout(()=>sp.remove(),500);}
+    // GitHub master.json 로드
+    DataService.loadMaster();
     return ()=>clearInterval(t);
   },[user]);
 

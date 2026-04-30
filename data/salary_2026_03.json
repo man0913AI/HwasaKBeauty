@@ -1,0 +1,93 @@
+{
+  "year": 2026,
+  "month": 3,
+  "period": "2026-03-01 ~ 2026-03-31",
+  "summary": [
+    {
+      "koreanName": "원장님",
+      "vietnameseName": "",
+      "totalSalary": 100000000,
+      "cashAmount": 82030000,
+      "transferAmount": 17970000
+    },
+    {
+      "koreanName": "김수지(투이)",
+      "vietnameseName": "NGO THI THUY",
+      "totalSalary": 20169854,
+      "cashAmount": 8790075,
+      "transferAmount": 11669200
+    },
+    {
+      "koreanName": "김미소(옌)",
+      "vietnameseName": "NGUYEN THI YEN HOA",
+      "totalSalary": 8748158,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김태희",
+      "vietnameseName": "LE THI HOA",
+      "totalSalary": 6477263,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김예진",
+      "vietnameseName": "NGOC",
+      "totalSalary": 7310644,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김지원",
+      "vietnameseName": "NGUYEN THI MAI DUNG",
+      "totalSalary": 4822303,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김나영",
+      "vietnameseName": "NGO THI THUY 2",
+      "totalSalary": 6558456,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김윤아",
+      "vietnameseName": "LUYEN",
+      "totalSalary": 6764353,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김로제",
+      "vietnameseName": "HONG(로제)",
+      "totalSalary": 6751532,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김지수",
+      "vietnameseName": "TUYET",
+      "totalSalary": 6267497,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김지우",
+      "vietnameseName": "DIU (MA THI DIU)",
+      "totalSalary": 4808130,
+      "cashAmount": 0,
+      "transferAmount": 0
+    },
+    {
+      "koreanName": "김수아",
+      "vietnameseName": "HUONG",
+      "totalSalary": 6283522,
+      "cashAmount": 0,
+      "transferAmount": 0
+    }
+  ],
+  "totalPayroll": 84961711,
+  "note": "2026년 3월 원급 데이터"
+}
